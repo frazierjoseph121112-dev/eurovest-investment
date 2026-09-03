@@ -22,5 +22,6 @@
 - [x] Add $50 referral messaging to landing page (index.html)
 
 ### Deploy & Push
-- [ ] Redeploy to Railway with all changes
-- [ ] Push to GitHub with new token
+- [x] Redeploy to Railway with all changes
+- [x] Push to GitHub with new token
+- [x] Verify all changes live on production site
