@@ -6,8 +6,10 @@
 <title>Markets — EuroVest</title>
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 <nav class="navbar">
   <div class="container navbar-inner">
     <a href="index.html" class="navbar-logo"><span class="logo-mark">€</span> EuroVest</a>
@@ -196,6 +198,16 @@
     </div>
     <p class="disclaimer" data-i18n="footer_disclaimer">Capital at risk. The value of investments can go down as well as up. Past performance is not indicative of future results. This platform is for demonstration purposes.</p>
   </div>
+<div class="regulatory-banner">
+  <div class="reg-badges">
+    <span class="reg-badge"><span class="reg-icon">🏛</span> ACPR · AMF</span>
+    <span class="reg-badge"><span class="reg-icon">⚖️</span> CONSOB</span>
+    <span class="reg-badge"><span class="reg-icon">📜</span> MiFID II</span>
+    <span class="reg-badge"><span class="reg-icon">🔄</span> AML / KYC</span>
+    <span class="reg-badge"><span class="reg-icon">🛡</span> Investor Protection</span>
+  </div>
+  <p>EuroVest is a European investment platform operating in compliance with EU MiFID II directives, French ACPR/AMF regulations, and Italian CONSOB oversight. Capital at risk. Past performance is not indicative of future results.</p>
+</div>
 </footer>
 
 <div class="chat-widget">
@@ -219,5 +231,13 @@
 EV.toggleChat=function(){document.getElementById('chatBox').classList.toggle('open');};
 EV.sendChat=function(){var i=document.getElementById('chatInput');var m=i.value.trim();if(!m)return;var ms=document.getElementById('chatMessages');var u=document.createElement('div');u.className='chat-msg user';u.textContent=m;ms.appendChild(u);i.value='';ms.scrollTop=ms.scrollHeight;var user=EV.auth.currentUser();var uid=user?user.id:'guest';var ticket=EV.msg.userToSupport(uid,m);setTimeout(function(){var r=ticket.replies[ticket.replies.length-1];var b=document.createElement('div');b.className='chat-msg bot';b.textContent=r.text;ms.appendChild(b);if(ticket.escalated){var s=document.createElement('div');s.className='chat-msg system';s.textContent='⏳ A human agent has been notified and will respond shortly.';ms.appendChild(s);}ms.scrollTop=ms.scrollHeight;},800);};
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="assets/js/extras.js"></script>
 </body>
 </html>

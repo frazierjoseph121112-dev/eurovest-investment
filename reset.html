@@ -6,8 +6,10 @@
 <title>Reset Password — EuroVest</title>
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 <div class="auth-wrap">
   <div class="auth-side">
     <div class="auth-side-content">
@@ -75,5 +77,13 @@ function doReset(e) {
   return false;
 }
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="assets/js/extras.js"></script>
 </body>
 </html>

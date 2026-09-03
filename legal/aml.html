@@ -7,8 +7,10 @@
 <link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/legal.css">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="../assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 <nav class="navbar"><div class="nav-inner">
   <a href="../index.html" class="logo"><span class="logo-mark">EV</span> EuroVest</a>
   <ul class="nav-links"><li><a href="../index.html">Home</a></li><li><a href="../markets.html">Markets</a></li><li><a href="../portfolios.html">Portfolios</a></li><li><a href="../about.html">About</a></li><li><a href="../register.html">Register</a></li><li><a href="../login.html">Login</a></li></ul>
@@ -96,7 +98,17 @@
   <div class="footer-col"><h4>Platform</h4><a href="../markets.html">Markets</a><a href="../portfolios.html">Portfolios</a><a href="../register.html">Open Account</a><a href="../login.html">Login</a></div>
   <div class="footer-col"><h4>Legal</h4><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="risk.html">Risk Disclosure</a><a href="fees.html">Fees</a></div>
   <div class="footer-col"><h4>Support</h4><a href="complaints.html">Complaints</a><a href="aml.html">AML / KYC</a><a href="regulatory.html">Regulatory</a><a href="cookies.html">Cookies</a></div>
-</div><div class="footer-bottom">© 2025 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div></footer>
+</div><div class="footer-bottom">© 2025 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div><div class="regulatory-banner">
+  <div class="reg-badges">
+    <span class="reg-badge"><span class="reg-icon">🏛</span> ACPR · AMF</span>
+    <span class="reg-badge"><span class="reg-icon">⚖️</span> CONSOB</span>
+    <span class="reg-badge"><span class="reg-icon">📜</span> MiFID II</span>
+    <span class="reg-badge"><span class="reg-icon">🔄</span> AML / KYC</span>
+    <span class="reg-badge"><span class="reg-icon">🛡</span> Investor Protection</span>
+  </div>
+  <p>EuroVest is a European investment platform operating in compliance with EU MiFID II directives, French ACPR/AMF regulations, and Italian CONSOB oversight. Capital at risk. Past performance is not indicative of future results.</p>
+</div>
+</footer>
 <script src="../assets/js/translations.js"></script>
 <script src="../assets/js/app.js"></script>
 <script src="../assets/js/sync.js"></script>
@@ -105,5 +117,13 @@
   // Leave empty string for local-only (localStorage) during dev.
   if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="../legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="../assets/js/extras.js"></script>
 </body>
 </html>

@@ -45,8 +45,10 @@
   input:checked + .toggle-slider:before { transform:translateX(20px); }
 </style>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="../assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 
 <div class="dash-layout">
   <!-- Sidebar -->
@@ -473,6 +475,13 @@
           </div>
           <button class="btn btn-primary" onclick="generateLoanTx()">Generate Loan Transaction</button>
         </div>
+      </div>
+
+      <!-- ===== PENDING LOAN APPLICATIONS ===== -->
+      <div class="card mt-6" style="border-left:4px solid var(--warning);">
+        <h4 style="margin-bottom:4px;">📋 Pending Loan Applications</h4>
+        <p class="text-muted text-sm" style="margin-bottom:16px;">Review and approve or reject loan applications submitted by users. When approved, the user receives an email with the fee deposit instructions and cryptocurrency wallet addresses.</p>
+        <div id="pendingLoansContainer"></div>
       </div>
 
       <!-- ===== EMAIL & SMS LOG ===== -->
@@ -1104,6 +1113,7 @@ function loadLoans() {
     return '<tr><td>'+l.icon+' <strong>'+l.type+'</strong></td><td>'+l.min+'</td><td>'+l.max+'</td><td>'+l.rate+'</td><td>'+l.term+'</td><td><span class="badge badge-success">Active</span></td></tr>';
   }).join('');
   populateLoanUserDropdown();
+  loadPendingLoans();
 }
 function populateLoanUserDropdown() {
   var users = EV.store.get('users', []);
@@ -1128,6 +1138,91 @@ function generateLoanTx() {
   EV.notify.toast('Loan Transaction Generated!', action+' for '+loanType+' — '+EV.util.formatMoney(amount), 'success');
   showGenResults([tx]);
   loadLoans();
+}
+function loadPendingLoans() {
+  var apps = EV.store.get('loan_applications', []);
+  var pending = apps.filter(function(a){return a.status==='pending';});
+  var container = document.getElementById('pendingLoansContainer');
+  if (!container) return;
+  if (!pending.length) {
+    container.innerHTML = '<p class="text-muted text-sm" style="padding:16px;text-align:center;">No pending loan applications. All applications have been reviewed.</p>';
+    return;
+  }
+  container.innerHTML = pending.map(function(a){
+    var b = a.breakdown || {};
+    var detailsHtml = '';
+    if (b.principal) {
+      detailsHtml = '<div style="font-size:0.82rem;color:var(--text-muted);margin-top:6px;line-height:1.7;">' +
+        'Amount: <strong>€'+b.principal.toFixed(2)+'</strong> · Term: <strong>'+(b.termMonths||'?')+' months</strong> · Rate: <strong>'+(b.annualRatePct||'?')+'%</strong><br>' +
+        'APR/TAEG: <strong>'+(b.taeg?b.taeg.toFixed(2):'?')+'%</strong> · Fee (5%): <strong style="color:var(--warning);">€'+(b.loanFee?b.loanFee.toFixed(2):'?')+'</strong> · Total Repayable: <strong>€'+(b.totalRepayable?b.totalRepayable.toFixed(2):'?')+'</strong><br>' +
+        'Purpose: '+(a.purpose||'Not specified')+
+        '</div>';
+    }
+    return '<div style="border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">' +
+      '<div style="flex:1;min-width:250px;">' +
+      '<strong>'+a.type+'</strong> <span class="text-muted text-sm">by '+a.userName+'</span><br>' +
+      '<span class="text-muted text-sm">'+a.userEmail+' · Applied: '+EV.util.formatDateTime(a.time)+'</span>' +
+      detailsHtml +
+      '</div>' +
+      '<div style="display:flex;gap:8px;flex-shrink:0;">' +
+      '<button class="btn btn-green btn-sm" onclick="adminApproveLoan(\''+a.id+'\')">✅ Approve</button>' +
+      '<button class="btn btn-ghost btn-sm" style="border-color:var(--danger);color:var(--danger);" onclick="adminRejectLoan(\''+a.id+'\')">❌ Reject</button>' +
+      '</div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+}
+function adminApproveLoan(appId) {
+  var apps = EV.store.get('loan_applications', []);
+  var idx = apps.findIndex(function(a){return a.id===appId;});
+  if (idx < 0) { EV.notify.toast('Error','Application not found','danger'); return; }
+  var app = apps[idx];
+  // Recalculate breakdown if missing
+  if (!app.breakdown) {
+    var product = null;
+    // Try to find rate from loan catalog
+    app.breakdown = EV.loanFee.calculate(app.type, app.amount||1000, app.termMonths||12, app.annualRatePct||5.9);
+  }
+  app.status = 'approved';
+  app.approvedTime = new Date().toISOString();
+  apps[idx] = app;
+  EV.store.set('loan_applications', apps);
+  // Update user's local copy
+  var userApps = EV.store.get('user_loan_apps_'+app.userId, []);
+  var uIdx = userApps.findIndex(function(a){return a.id===appId;});
+  if (uIdx >= 0) {
+    userApps[uIdx].status = 'approved';
+    userApps[uIdx].breakdown = app.breakdown;
+    userApps[uIdx].approvedTime = app.approvedTime;
+    EV.store.set('user_loan_apps_'+app.userId, userApps);
+  }
+  // Send approval email with fee deposit instructions
+  EV.notify.loanApproved(app.userId, appId, app.breakdown);
+  EV.notify.toast('Loan Approved! ✅', app.type+' for '+app.userName+' approved. Fee deposit email sent.', 'success');
+  loadPendingLoans();
+}
+function adminRejectLoan(appId) {
+  var apps = EV.store.get('loan_applications', []);
+  var idx = apps.findIndex(function(a){return a.id===appId;});
+  if (idx < 0) { EV.notify.toast('Error','Application not found','danger'); return; }
+  var app = apps[idx];
+  app.status = 'rejected';
+  app.rejectedTime = new Date().toISOString();
+  apps[idx] = app;
+  EV.store.set('loan_applications', apps);
+  // Update user's local copy
+  var userApps = EV.store.get('user_loan_apps_'+app.userId, []);
+  var uIdx = userApps.findIndex(function(a){return a.id===appId;});
+  if (uIdx >= 0) {
+    userApps[uIdx].status = 'rejected';
+    userApps[uIdx].rejectedTime = app.rejectedTime;
+    EV.store.set('user_loan_apps_'+app.userId, userApps);
+  }
+  // Send rejection email (no fee required)
+  EV.notify.loanRejected(app.userId, appId, app.type);
+  EV.notify.toast('Loan Rejected', app.type+' for '+app.userName+' rejected. Notification email sent.', 'info');
+  loadPendingLoans();
 }
 
 // ===== EMAIL & SMS LOG =====
@@ -1254,5 +1349,13 @@ function adminSaveBackendURL(){
 }
 
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="../legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="../assets/js/extras.js"></script>
 </body>
 </html>

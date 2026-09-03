@@ -1,0 +1,242 @@
+/* ===== EuroVest Extras — Market Ticker, Regulatory Banner, Cookie Consent, etc. ===== */
+
+/* ===== MARKET TICKER ===== */
+.market-ticker {
+  background: var(--brand-navy, #0A1A3F);
+  color: #fff;
+  padding: 8px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-size: 0.82rem;
+  z-index: 900;
+}
+.market-ticker::before {
+  content: 'LIVE';
+  display: inline-block;
+  background: #e53935;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin: 0 10px 0 12px;
+  vertical-align: middle;
+  animation: livePulse 2s infinite;
+}
+@keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+.ticker-track {
+  display: inline-block;
+  animation: tickerScroll 60s linear infinite;
+  padding-left: 100%;
+}
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes tickerScroll { 0%{transform:translateX(0);} 100%{transform:translateX(-100%);} }
+.ticker-item {
+  display: inline-block;
+  margin: 0 24px;
+  font-weight: 500;
+}
+.ticker-item .tkr-name { color: rgba(255,255,255,0.7); margin-right: 6px; }
+.ticker-item .tkr-val { font-weight: 700; }
+.ticker-item .tkr-chg.up { color: #4CAF50; }
+.ticker-item .tkr-chg.down { color: #EF5350; }
+.ticker-item .tkr-chg::before { font-size: 0.7rem; }
+.ticker-item .tkr-chg.up::before { content: '▲ '; }
+.ticker-item .tkr-chg.down::before { content: '▼ '; }
+
+/* ===== REGULATORY BANNER (footer) ===== */
+.regulatory-banner {
+  background: var(--bg-alt, #f4f6f9);
+  border-top: 2px solid var(--brand-blue, #0055A4);
+  padding: 20px 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+}
+.regulatory-banner .reg-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.regulatory-banner .reg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  color: var(--brand-navy, #0A1A3F);
+  font-size: 0.75rem;
+}
+.regulatory-banner .reg-badge .reg-icon { font-size: 1rem; }
+.regulatory-banner p { margin: 6px 0 0; line-height: 1.5; }
+
+/* ===== COOKIE CONSENT ===== */
+.cookie-consent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--brand-navy, #0A1A3F);
+  color: #fff;
+  padding: 16px 24px;
+  z-index: 9999;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+  flex-wrap: wrap;
+}
+.cookie-consent.show { display: flex; }
+.cookie-consent .cookie-text { font-size: 0.85rem; line-height: 1.5; flex: 1; min-width: 250px; }
+.cookie-consent .cookie-text a { color: #64B5F6; text-decoration: underline; }
+.cookie-consent .cookie-actions { display: flex; gap: 10px; flex-shrink: 0; }
+.cookie-consent .cookie-btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.cookie-consent .cookie-btn:hover { opacity: 0.85; }
+.cookie-consent .cookie-btn.accept { background: var(--brand-green, #008C45); color: #fff; }
+.cookie-consent .cookie-btn.decline { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); }
+
+/* ===== SHARED SECTION HEADERS ===== */
+.section-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+.section-header h2 {
+  font-size: 2rem;
+  color: var(--brand-navy, #0A1A3F);
+  margin: 0 0 12px;
+}
+.section-header p {
+  font-size: 1rem;
+  color: var(--text-muted, #6b7280);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ===== HOW IT WORKS STEPS ===== */
+.how-it-works {
+  padding: 60px 0;
+  background: var(--bg-alt, #f4f6f9);
+}
+.how-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.how-step {
+  text-align: center;
+  position: relative;
+}
+.how-step .step-number {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--grad-navy, linear-gradient(135deg, #0055A4, #0A1A3F));
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 12px rgba(0,85,164,0.3);
+}
+.how-step h4 { color: var(--brand-navy, #0A1A3F); margin: 0 0 8px; font-size: 1.1rem; }
+.how-step p { color: var(--text-muted, #6b7280); font-size: 0.9rem; line-height: 1.6; margin: 0; }
+
+/* ===== SECURITY / FUND PROTECTION CARDS ===== */
+.security-section { padding: 60px 0; }
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.security-card {
+  background: #fff;
+  border: 1px solid var(--border, #e0e0e0);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.security-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.security-card .sec-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  display: block;
+}
+.security-card h4 { color: var(--brand-navy, #0A1A3F); margin: 0 0 10px; }
+.security-card p { color: var(--text-muted, #6b7280); font-size: 0.88rem; line-height: 1.6; margin: 0; }
+
+/* ===== TESTIMONIALS ===== */
+.testimonials-section {
+  padding: 60px 0;
+  background: var(--bg-alt, #f4f6f9);
+}
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.testimonial-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  border: 1px solid var(--border, #e0e0e0);
+  position: relative;
+}
+.testimonial-card .quote-mark {
+  font-size: 3rem;
+  color: var(--brand-blue, #0055A4);
+  opacity: 0.15;
+  position: absolute;
+  top: 10px;
+  right: 16px;
+  line-height: 1;
+}
+.testimonial-card .stars { color: #FFB300; font-size: 1rem; margin-bottom: 12px; }
+.testimonial-card .testimonial-text { font-size: 0.92rem; line-height: 1.7; color: #333; margin: 0 0 16px; }
+.testimonial-card .testimonial-author { display: flex; align-items: center; gap: 12px; }
+.testimonial-card .author-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--grad-navy, linear-gradient(135deg, #0055A4, #0A1A3F));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1rem;
+}
+.testimonial-card .author-info strong { display: block; color: var(--brand-navy, #0A1A3F); font-size: 0.9rem; }
+.testimonial-card .author-info span { color: var(--text-muted, #6b7280); font-size: 0.8rem; }
+
+@media (max-width: 600px) {
+  .market-ticker { font-size: 0.72rem; }
+  .section-header h2 { font-size: 1.5rem; }
+  .cookie-consent { flex-direction: column; text-align: center; }
+  .cookie-consent .cookie-actions { width: 100%; justify-content: center; }
+}

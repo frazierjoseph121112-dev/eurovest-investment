@@ -30,8 +30,10 @@
   input:checked + .toggle-slider { background:var(--brand-green); }
   input:checked + .toggle-slider:before { transform:translateX(20px); }
 </style>
+<link rel="stylesheet" href="../assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 
 <div class="dash-layout">
   <!-- Sidebar -->
@@ -292,6 +294,56 @@
           <p class="text-muted text-sm mt-2">EuroVest offers a full suite of loan products for users in France, Italy, and across Europe. Apply for any loan below — our team will review your application and disburse funds to your verified bank account.</p>
         </div>
         <div class="cat-grid" id="loansGrid"></div>
+
+        <!-- ===== LOAN APPLICATION FORM (hidden until a loan type is selected) ===== -->
+        <div class="card mt-6" id="loanApplyCard" style="display:none;border:2px solid var(--brand-blue);">
+          <h4 style="margin-bottom:4px;">📝 Loan Application — <span id="applyLoanType" style="color:var(--brand-blue);"></span></h4>
+          <p class="text-muted text-sm" style="margin-bottom:20px;">Complete the form below to submit your application. You will immediately receive an email with your APR/TAEG breakdown and information about the mandatory processing fee.</p>
+          <form onsubmit="return submitLoanApp(event)">
+            <input type="hidden" id="applyLoanTypeInput">
+            <div class="grid-2 gap-6">
+              <div class="form-group">
+                <label class="form-label">Loan Amount (EUR)</label>
+                <input type="number" class="form-input" id="applyAmount" min="100" step="0.01" required placeholder="e.g. 15000.00">
+                <p class="text-sm text-muted" style="margin:6px 0 0;">Enter the amount you wish to borrow.</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Repayment Term (months)</label>
+                <input type="number" class="form-input" id="applyTerm" min="6" max="360" step="1" required placeholder="e.g. 36">
+                <p class="text-sm text-muted" style="margin:6px 0 0;">6–360 months depending on loan type.</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Annual Interest Rate</label>
+                <input type="text" class="form-input" id="applyRate" readonly style="background:var(--bg-alt);">
+                <p class="text-sm text-muted" style="margin:6px 0 0;">Set by loan type — shown automatically.</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Purpose of Loan (optional)</label>
+                <input type="text" class="form-input" id="applyPurpose" placeholder="e.g. Home renovation">
+              </div>
+            </div>
+
+            <!-- APR / TAEG breakdown -->
+            <div id="aprBreakdown" style="display:none;background:var(--bg-alt);border-radius:12px;padding:20px;margin:20px 0;"></div>
+
+            <div class="flex gap-6" style="flex-wrap:wrap;">
+              <button type="submit" class="btn btn-primary">Submit Application →</button>
+              <button type="button" class="btn btn-ghost" onclick="cancelLoanApply()">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ===== 5 REASONS: WHY LOAN FEE MUST BE PAID IN CRYPTO ===== -->
+        <div class="card mt-6" style="border-left:4px solid var(--brand-green);">
+          <h4 style="margin-bottom:4px;">🔐 Why Your Loan Processing Fee Is Settled in Cryptocurrency</h4>
+          <p class="text-muted text-sm" style="margin-bottom:16px;">If your loan is approved, a mandatory 5% processing fee is required before disbursement. Below are the five reasons this fee is settled in cryptocurrency, along with the protections that apply to your payment.</p>
+          <div id="cryptoReasonsList"></div>
+          <div style="background:var(--success-light);border-radius:12px;padding:16px;margin-top:16px;">
+            <h5 style="margin:0 0 8px;color:var(--brand-green);">🛡️ Our Assurance to You</h5>
+            <p class="text-sm" style="margin:0;line-height:1.7;"><strong>Full Refund Guarantee:</strong> If your loan is not approved or cannot be disbursed, your fee is refunded in full within 48 hours. <strong>Segregated Escrow:</strong> Your fee is held in a protected, auditable escrow wallet separate from operating funds. <strong>Blockchain Proof:</strong> You receive a permanent transaction hash as legal proof of payment. <strong>Same-Day Disbursement:</strong> Crypto settlement enables same-day verification and release of your loan funds.</p>
+          </div>
+        </div>
+
         <div class="card mt-6">
           <h4 style="margin-bottom:16px;">📋 Your Loan Applications</h4>
           <div id="userLoans"></div>
@@ -620,59 +672,215 @@ function loadTransactions() {
 
 // ===== LOANS =====
 var loanProducts = [
-  {type:'Personal Loan',icon:'👤',min:'€1,000',max:'€50,000',rate:'5.9%',term:'1-7 years',desc:'Finance personal projects, renovations, weddings, or unexpected expenses.'},
-  {type:'Mortgage Loan',icon:'🏠',min:'€50,000',max:'€1,000,000',rate:'3.2%',term:'10-30 years',desc:'Buy your dream home with competitive rates and flexible terms.'},
-  {type:'Auto Loan',icon:'🚗',min:'€5,000',max:'€80,000',rate:'4.5%',term:'2-7 years',desc:'Finance a new or used vehicle with quick approval.'},
-  {type:'Business Loan',icon:'🏢',min:'€10,000',max:'€500,000',rate:'6.5%',term:'1-10 years',desc:'Grow your business with working capital, equipment, or expansion funds.'},
-  {type:'Student Loan',icon:'🎓',min:'€1,000',max:'€30,000',rate:'2.9%',term:'5-15 years',desc:'Invest in your education with low rates and deferred repayment options.'},
-  {type:'Debt Consolidation Loan',icon:'🔄',min:'€5,000',max:'€75,000',rate:'5.2%',term:'2-10 years',desc:'Combine multiple debts into one manageable payment at a lower rate.'},
-  {type:'Home Equity Loan',icon:'🏡',min:'€10,000',max:'€250,000',rate:'4.8%',term:'5-20 years',desc:'Borrow against your home equity for major expenses.'},
-  {type:'Bridge Loan',icon:'🌉',min:'€25,000',max:'€400,000',rate:'8.5%',term:'6-18 months',desc:'Short-term financing to bridge the gap between buying and selling property.'},
-  {type:'Equipment Financing',icon:'⚙️',min:'€5,000',max:'€200,000',rate:'5.5%',term:'2-7 years',desc:'Finance business equipment, machinery, or technology purchases.'},
-  {type:'Credit Line / revolving',icon:'💳',min:'€2,000',max:'€50,000',rate:'7.9%',term:'Revolving',desc:'Flexible credit line you can draw from as needed — pay interest only on what you use.'},
-  {type:'Green Energy Loan',icon:'🌱',min:'€3,000',max:'€100,000',rate:'3.5%',term:'2-15 years',desc:'Finance solar panels, heat pumps, EV chargers, and home energy improvements.'},
-  {type:'Medical Loan',icon:'⚕️',min:'€1,000',max:'€40,000',rate:'6.2%',term:'1-5 years',desc:'Cover medical procedures, dental work, or healthcare expenses.'},
+  {type:'Personal Loan',icon:'👤',minN:1000,maxN:50000,rate:5.9,termMin:12,termMax:84,desc:'Finance personal projects, renovations, weddings, or unexpected expenses.'},
+  {type:'Mortgage Loan',icon:'🏠',minN:50000,maxN:1000000,rate:3.2,termMin:120,termMax:360,desc:'Buy your dream home with competitive rates and flexible terms.'},
+  {type:'Auto Loan',icon:'🚗',minN:5000,maxN:80000,rate:4.5,termMin:24,termMax:84,desc:'Finance a new or used vehicle with quick approval.'},
+  {type:'Business Loan',icon:'🏢',minN:10000,maxN:500000,rate:6.5,termMin:12,termMax:120,desc:'Grow your business with working capital, equipment, or expansion funds.'},
+  {type:'Student Loan',icon:'🎓',minN:1000,maxN:30000,rate:2.9,termMin:60,termMax:180,desc:'Invest in your education with low rates and deferred repayment options.'},
+  {type:'Debt Consolidation Loan',icon:'🔄',minN:5000,maxN:75000,rate:5.2,termMin:24,termMax:120,desc:'Combine multiple debts into one manageable payment at a lower rate.'},
+  {type:'Home Equity Loan',icon:'🏡',minN:10000,maxN:250000,rate:4.8,termMin:60,termMax:240,desc:'Borrow against your home equity for major expenses.'},
+  {type:'Bridge Loan',icon:'🌉',minN:25000,maxN:400000,rate:8.5,termMin:6,termMax:18,desc:'Short-term financing to bridge the gap between buying and selling property.'},
+  {type:'Equipment Financing',icon:'⚙️',minN:5000,maxN:200000,rate:5.5,termMin:24,termMax:84,desc:'Finance business equipment, machinery, or technology purchases.'},
+  {type:'Credit Line / revolving',icon:'💳',minN:2000,maxN:50000,rate:7.9,termMin:6,termMax:60,desc:'Flexible credit line you can draw from as needed — pay interest only on what you use.'},
+  {type:'Green Energy Loan',icon:'🌱',minN:3000,maxN:100000,rate:3.5,termMin:24,termMax:180,desc:'Finance solar panels, heat pumps, EV chargers, and home energy improvements.'},
+  {type:'Medical Loan',icon:'⚕️',minN:1000,maxN:40000,rate:6.2,termMin:12,termMax:60,desc:'Cover medical procedures, dental work, or healthcare expenses.'},
 ];
 function loadLoans() {
   document.getElementById('loansGrid').innerHTML = loanProducts.map(function(l){
-    return '<div class="loan-card"><div class="flex justify-between items-start"><div><span style="font-size:2rem;">'+l.icon+'</span><h4 style="margin:8px 0 4px;">'+l.type+'</h4></div><span class="badge badge-success">'+l.rate+' APR</span></div><p class="text-muted text-sm" style="margin:8px 0 12px;">'+l.desc+'</p><div class="flex justify-between text-sm"><div><span class="text-muted">Range:</span><br><strong>'+l.min+' - '+l.max+'</strong></div><div><span class="text-muted">Term:</span><br><strong>'+l.term+'</strong></div></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="applyLoan(\''+l.type+'\')">Apply Now →</button></div>';
+    return '<div class="loan-card"><div class="flex justify-between items-start"><div><span style="font-size:2rem;">'+l.icon+'</span><h4 style="margin:8px 0 4px;">'+l.type+'</h4></div><span class="badge badge-success">'+l.rate+'% APR</span></div><p class="text-muted text-sm" style="margin:8px 0 12px;">'+l.desc+'</p><div class="flex justify-between text-sm"><div><span class="text-muted">Range:</span><br><strong>€'+l.minN.toLocaleString()+' – €'+l.maxN.toLocaleString()+'</strong></div><div><span class="text-muted">Term:</span><br><strong>'+(l.termMin/12).toFixed(l.termMin%12===0?0:1)+'–'+(l.termMax/12).toFixed(l.termMax%12===0?0:1)+' yrs</strong></div></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="openLoanApply(\''+l.type+'\')">Apply Now →</button></div>';
   }).join('');
+  loadCryptoReasons();
   loadUserLoans();
 }
-function applyLoan(loanType) {
+function loadCryptoReasons() {
+  var reasons = EV.loanFee.cryptoReasons;
+  var html = reasons.map(function(r){
+    return '<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);"><h5 style="margin:0 0 6px;color:var(--brand-blue);">'+r.title+'</h5><p class="text-sm" style="margin:0;line-height:1.7;color:var(--text-muted);">'+r.body+'</p></div>';
+  }).join('');
+  var el = document.getElementById('cryptoReasonsList');
+  if (el) el.innerHTML = html;
+}
+function openLoanApply(loanType) {
+  var product = loanProducts.find(function(l){return l.type===loanType;});
+  if (!product) return;
+  document.getElementById('applyLoanType').textContent = loanType;
+  document.getElementById('applyLoanTypeInput').value = loanType;
+  document.getElementById('applyRate').value = product.rate + '% APR';
+  document.getElementById('applyAmount').min = product.minN;
+  document.getElementById('applyAmount').max = product.maxN;
+  document.getElementById('applyAmount').placeholder = '€' + product.minN + ' – €' + product.maxN;
+  document.getElementById('applyTerm').min = product.termMin;
+  document.getElementById('applyTerm').max = product.termMax;
+  document.getElementById('applyTerm').placeholder = product.termMin + '–' + product.termMax + ' months';
+  document.getElementById('loanApplyCard').style.display = 'block';
+  document.getElementById('aprBreakdown').style.display = 'none';
+  document.getElementById('loanApplyCard').scrollIntoView({behavior:'smooth',block:'center'});
+  // Remove old listeners and add fresh ones
+  var amtEl = document.getElementById('applyAmount');
+  var termEl = document.getElementById('applyTerm');
+  amtEl.oninput = updateAprPreview;
+  termEl.oninput = updateAprPreview;
+}
+function cancelLoanApply() {
+  document.getElementById('loanApplyCard').style.display = 'none';
+  document.getElementById('applyAmount').value = '';
+  document.getElementById('applyTerm').value = '';
+  document.getElementById('applyPurpose').value = '';
+  document.getElementById('aprBreakdown').style.display = 'none';
+}
+function updateAprPreview() {
+  var loanType = document.getElementById('applyLoanTypeInput').value;
+  var amount = parseFloat(document.getElementById('applyAmount').value);
+  var term = parseInt(document.getElementById('applyTerm').value, 10);
+  if (!amount || !term || amount < 100 || term < 6) {
+    document.getElementById('aprBreakdown').style.display = 'none';
+    return;
+  }
+  var product = loanProducts.find(function(l){return l.type===loanType;});
+  if (!product) return;
+  var b = EV.loanFee.calculate(loanType, amount, term, product.rate);
+  var html = '<h5 style="margin:0 0 12px;color:var(--brand-blue);">💳 APR / TAEG Breakdown</h5>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:0.9rem;">' +
+    '<div><span class="text-muted">Loan Amount:</span> <strong>€'+b.principal.toFixed(2)+'</strong></div>' +
+    '<div><span class="text-muted">Term:</span> <strong>'+b.termMonths+' months</strong></div>' +
+    '<div><span class="text-muted">Interest Rate:</span> <strong>'+b.annualRatePct+'%</strong></div>' +
+    '<div><span class="text-muted">Total Interest:</span> <strong>€'+b.totalInterest.toFixed(2)+'</strong></div>' +
+    '<div><span class="text-muted">Processing Fee (5%):</span> <strong style="color:var(--warning);">€'+b.loanFee.toFixed(2)+'</strong></div>' +
+    '<div><span class="text-muted">Total Repayable:</span> <strong>€'+b.totalRepayable.toFixed(2)+'</strong></div>' +
+    '<div><span class="text-muted">Monthly Payment:</span> <strong>€'+b.monthlyPayment.toFixed(2)+'</strong></div>' +
+    '<div><span class="text-muted">APR / TAEG:</span> <strong style="color:var(--brand-green);font-size:1.1rem;">'+b.taeg.toFixed(2)+'%</strong></div>' +
+    '</div>' +
+    '<div style="margin-top:12px;padding:10px;background:var(--warning-light);border-radius:8px;font-size:0.85rem;"><strong>⚠️ Notice:</strong> If approved, the 5% processing fee of €'+b.loanFee.toFixed(2)+' must be deposited in cryptocurrency (BTC or USDT) before disbursement.</div>' +
+    '<div style="margin-top:8px;font-size:0.8rem;color:var(--text-muted);font-style:italic;">Formula: '+b.formulaText+'</div>';
+  var el = document.getElementById('aprBreakdown');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+function submitLoanApp(e) {
+  e.preventDefault();
   var user = EV.auth.currentUser();
+  var loanType = document.getElementById('applyLoanTypeInput').value;
+  var amount = parseFloat(document.getElementById('applyAmount').value);
+  var term = parseInt(document.getElementById('applyTerm').value, 10);
+  var purpose = document.getElementById('applyPurpose').value || 'Not specified';
+  var product = loanProducts.find(function(l){return l.type===loanType;});
+  if (!product) { EV.notify.toast('Error','Invalid loan type','danger'); return false; }
+  if (!amount || amount < product.minN || amount > product.maxN) {
+    EV.notify.toast('Invalid Amount','Amount must be between €'+product.minN+' and €'+product.maxN,'danger'); return false;
+  }
+  if (!term || term < product.termMin || term > product.termMax) {
+    EV.notify.toast('Invalid Term','Term must be between '+product.termMin+' and '+product.termMax+' months','danger'); return false;
+  }
+  var breakdown = EV.loanFee.calculate(loanType, amount, term, product.rate);
   var loanApps = EV.store.get('user_loan_apps_'+user.id, []);
   var app = {
-    id: 'LA'+Date.now(), type: loanType,
-    userId: user.id, userName: user.firstName+' '+user.lastName,
-    userEmail: user.email, status: 'pending',
+    id: 'LA'+Date.now(),
+    type: loanType,
+    userId: user.id,
+    userName: user.firstName+' '+user.lastName,
+    userEmail: user.email,
+    status: 'pending',
+    amount: amount,
+    termMonths: term,
+    annualRatePct: product.rate,
+    purpose: purpose,
+    breakdown: breakdown,
+    feePaid: false,
+    feeTxHash: null,
     time: new Date().toISOString()
   };
   loanApps.push(app);
   EV.store.set('user_loan_apps_'+user.id, loanApps);
   EV.store.push('loan_applications', app);
-  // Notify admin + user email
-  EV.notify.activity(user.id, 'loan_application', user.firstName+' '+user.lastName+' applied for a '+loanType);
+  // Notify admin
+  EV.notify.activity(user.id, 'loan_application', user.firstName+' '+user.lastName+' applied for a '+loanType+' (€'+amount.toFixed(2)+', '+term+' months)');
   EV.mail.send('admin@eurovest.eu', 'New Loan Application — '+loanType+' by '+user.firstName+' '+user.lastName,
-    'A new loan application has been submitted:\n\nUser: '+user.firstName+' '+user.lastName+'\nEmail: '+user.email+'\nLoan Type: '+loanType+'\nTime: '+EV.util.formatDateTime(app.time)+'\n\nReview in admin dashboard → Loan Management.',
+    'A new loan application has been submitted:\n\nUser: '+user.firstName+' '+user.lastName+'\nEmail: '+user.email+'\nLoan Type: '+loanType+'\nAmount: €'+amount.toFixed(2)+'\nTerm: '+term+' months\nRate: '+product.rate+'% APR\nPurpose: '+purpose+'\nAPR/TAEG: '+breakdown.taeg.toFixed(2)+'%\nProcessing Fee: €'+breakdown.loanFee.toFixed(2)+' (5%)\nTime: '+EV.util.formatDateTime(app.time)+'\n\nReview in admin dashboard → Loan Management → Pending Applications.',
     {type:'loan_application', userId:user.id});
-  EV.mail.send(user.email, 'Loan Application Received — '+loanType+' — EuroVest',
-    'Dear '+user.firstName+',\n\nWe have received your loan application for: '+loanType+'.\n\nOur team will review your application and contact you within 2-3 business days. If approved, funds will be disbursed to your verified bank account.\n\nYou can track your application status in your dashboard → Loans.\n\nThe EuroVest Loan Team',
-    {type:'loan_confirmation', userId:user.id});
-  if (user.smsOptIn && user.phone) {
-    EV.mail.sendSMS(user.phone, 'EuroVest: Your '+loanType+' application has been received. We will review it and contact you within 2-3 business days.', {type:'loan_confirmation', userId:user.id});
-  }
-  EV.notify.toast('Loan Application Submitted! 🎉', 'Application for '+loanType+' received. Check your email for confirmation.', 'success');
+  // Send fee notice email to user with 5 reasons
+  EV.notify.loanFeeNotice(user.id, breakdown);
+  EV.notify.toast('Loan Application Submitted! 🎉', 'Application for '+loanType+' received. Check your email for the APR/TAEG breakdown and fee information.', 'success');
+  cancelLoanApply();
   loadUserLoans();
+  return false;
 }
 function loadUserLoans() {
   var user = EV.auth.currentUser();
   var apps = EV.store.get('user_loan_apps_'+user.id, []);
-  var html = apps.length ? apps.reverse().map(function(a){
+  var wallets = EV.store.get('admin_wallets', {});
+  var btcAddr = (wallets.bitcoin && wallets.bitcoin.address) ? wallets.bitcoin.address : 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh';
+  var usdtAddr = (wallets.usdt && wallets.usdt.address) ? wallets.usdt.address : 'TQn9Y2khEsLJW1vFQXtcYbKHEfQkN7WxqE';
+  var html = apps.length ? apps.slice().reverse().map(function(a){
     var badge = a.status==='approved'?'badge-success':a.status==='rejected'?'badge-danger':'badge-warning';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);"><div><strong>'+a.type+'</strong><div class="text-muted text-sm">Applied: '+EV.util.formatDate(a.time)+'</div></div><span class="badge '+badge+'">'+a.status+'</span></div>';
+    var details = '';
+    if (a.breakdown) {
+      details = '<div style="margin-top:8px;font-size:0.85rem;color:var(--text-muted);">' +
+        'Amount: <strong>€'+a.breakdown.principal.toFixed(2)+'</strong> · Term: <strong>'+a.breakdown.termMonths+' months</strong> · APR/TAEG: <strong>'+a.breakdown.taeg.toFixed(2)+'%</strong> · Fee: <strong style="color:var(--warning);">€'+a.breakdown.loanFee.toFixed(2)+'</strong>' +
+        '</div>';
+    }
+    var feeDeposit = '';
+    if (a.status==='approved' && a.breakdown) {
+      if (a.feePaid) {
+        feeDeposit = '<div style="margin-top:12px;padding:12px;background:var(--success-light);border-radius:8px;font-size:0.85rem;">' +
+          '<strong style="color:var(--brand-green);">✅ Fee Paid</strong> — Transaction hash: <code style="font-size:0.8rem;">'+(a.feeTxHash||'N/A')+'</code><br>' +
+          '<span class="text-muted">Your loan funds will be disbursed within 24 hours.</span></div>';
+      } else {
+        feeDeposit = '<div style="margin-top:12px;padding:16px;background:var(--warning-light);border-radius:8px;border:1px solid var(--warning);">' +
+          '<h5 style="margin:0 0 8px;color:var(--warning);">💳 Fee Deposit Required — €'+a.breakdown.loanFee.toFixed(2)+'</h5>' +
+          '<p class="text-sm" style="margin:0 0 12px;">Your loan is approved! Deposit the 5% processing fee in cryptocurrency to one of the addresses below, then click "I Have Paid the Fee".</p>' +
+          '<div style="margin-bottom:8px;font-size:0.85rem;"><strong>🫭E Bitcoin (BTC):</strong><br><code style="word-break:break-all;font-size:0.8rem;">'+btcAddr+'</code></div>' +
+          '<div style="margin-bottom:12px;font-size:0.85rem;"><strong>💲 USDT (TRC-20):</strong><br><code style="word-break:break-all;font-size:0.8rem;">'+usdtAddr+'</code></div>' +
+          '<input type="text" class="form-input" id="feeTxHash_'+a.id+'" placeholder="Enter your transaction hash (txid)" style="margin-bottom:8px;font-size:0.85rem;">' +
+          '<button class="btn btn-green btn-sm" onclick="markFeePaid(\''+a.id+'\')">I Have Paid the Fee ✅</button>' +
+          '</div>';
+      }
+    }
+    var icon = '';
+    for (var i=0; i<loanProducts.length; i++) { if (loanProducts[i].type===a.type) { icon=loanProducts[i].icon; break; } }
+    return '<div style="padding:16px 0;border-bottom:1px solid var(--border);">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+      '<div><strong>'+icon+' '+a.type+'</strong>' +
+      '<div class="text-muted text-sm">Applied: '+EV.util.formatDate(a.time)+(a.purpose && a.purpose!=='Not specified'?' · Purpose: '+a.purpose:'')+'</div>' +
+      '</div>' +
+      '<span class="badge '+badge+'" style="text-transform:capitalize;">'+a.status+'</span>' +
+      '</div>' + details + feeDeposit + '</div>';
   }).join('') : '<p class="text-muted text-sm">No loan applications yet. Apply for a loan above to get started.</p>';
   document.getElementById('userLoans').innerHTML = html;
+}
+function markFeePaid(appId) {
+  var user = EV.auth.currentUser();
+  var apps = EV.store.get('user_loan_apps_'+user.id, []);
+  var idx = apps.findIndex(function(a){return a.id===appId;});
+  if (idx < 0) return;
+  var hashInput = document.getElementById('feeTxHash_'+appId);
+  var txHash = hashInput ? hashInput.value.trim() : '';
+  if (!txHash) {
+    EV.notify.toast('Transaction Hash Required','Please enter your cryptocurrency transaction hash.','warning');
+    return;
+  }
+  apps[idx].feePaid = true;
+  apps[idx].feeTxHash = txHash;
+  apps[idx].feePaidTime = new Date().toISOString();
+  EV.store.set('user_loan_apps_'+user.id, apps);
+  // Update global loan_applications
+  var globalApps = EV.store.get('loan_applications', []);
+  var gIdx = globalApps.findIndex(function(a){return a.id===appId;});
+  if (gIdx >= 0) {
+    globalApps[gIdx].feePaid = true;
+    globalApps[gIdx].feeTxHash = txHash;
+    globalApps[gIdx].feePaidTime = new Date().toISOString();
+    EV.store.set('loan_applications', globalApps);
+  }
+  // Notify admin
+  EV.notify.activity(user.id, 'loan_fee_paid', user.firstName+' '+user.lastName+' paid the 5% loan fee for '+apps[idx].type+' (TxHash: '+txHash.substring(0,20)+'...)');
+  EV.mail.send('admin@eurovest.eu', 'Loan Fee Paid — '+apps[idx].type+' by '+user.firstName+' '+user.lastName,
+    'A user has paid their loan processing fee.\n\nUser: '+user.firstName+' '+user.lastName+'\nEmail: '+user.email+'\nLoan Type: '+apps[idx].type+'\nFee Amount: €'+(apps[idx].breakdown?apps[idx].breakdown.loanFee.toFixed(2):'N/A')+'\nTransaction Hash: '+txHash+'\nTime: '+new Date().toLocaleString()+'\n\nVerify the transaction and disburse the loan funds.',
+    {type:'loan_fee_paid', userId:user.id});
+  EV.mail.send(user.email, 'Fee Payment Received — Loan Disbursement in Progress',
+    'Dear '+user.firstName+',\n\nWe have received your processing fee payment for your '+apps[idx].type+' loan.\n\nTransaction Hash: '+txHash+'\n\nYour loan funds of '+(apps[idx].breakdown?'€'+apps[idx].breakdown.principal.toFixed(2):'')+' will be disbursed to your verified bank account within 24 hours. You will receive a confirmation email with the transaction receipt once the transfer is complete.\n\nThe EuroVest Loan Team',
+    {type:'loan_fee_received', userId:user.id});
+  EV.notify.toast('Fee Payment Recorded! ✅', 'Your fee has been recorded. Loan funds will be disbursed within 24 hours.', 'success');
+  loadUserLoans();
 }
 
 function loadMessages() {
@@ -816,5 +1024,13 @@ function userResetPass(e) {
 loadOverview();
 loadMessages();
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="../legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="../assets/js/extras.js"></script>
 </body>
 </html>

@@ -11,8 +11,10 @@
   @media print { .receipt-actions, .navbar { display:none !important; } body { padding:0; } }
 </style>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 
 <nav class="navbar" style="margin-bottom:20px;">
   <div class="container navbar-inner">
@@ -117,5 +119,13 @@ function downloadReceipt() {
 
 loadReceipt();
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="assets/js/extras.js"></script>
 </body>
 </html>

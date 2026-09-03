@@ -6,8 +6,10 @@
 <title>EuroVest — Invest Across Global Markets</title>
 <link rel="stylesheet" href="assets/css/style.css">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<link rel="stylesheet" href="assets/css/extras.css">
 </head>
 <body>
+<div class="market-ticker" id="marketTicker"></div>
 
 <!-- Navbar -->
 <nav class="navbar">
@@ -255,6 +257,62 @@
 </section>
 
 <!-- Footer -->
+<section class="how-it-works">
+  <div class="container">
+    <div class="section-header">
+      <h2>How It Works</h2>
+      <p>Get started with EuroVest in four simple steps — from account creation to your first investment.</p>
+    </div>
+    <div class="how-steps-grid">
+      <div class="how-step"><div class="step-number">1</div><h4>Create Your Account</h4><p>Register in minutes with our secure 5-step verification process. Open to investors in France, Italy, and across Europe.</p></div>
+      <div class="how-step"><div class="step-number">2</div><h4>Verify Your Identity</h4><p>Complete KYC/AML verification with your ID and proof of address. Required by EU regulations for all financial accounts.</p></div>
+      <div class="how-step"><div class="step-number">3</div><h4>Fund Your Account</h4><p>Deposit via SEPA bank transfer, credit/debit card, or cryptocurrency. Minimum first deposit is €100. Funds credited within 1-2 business days.</p></div>
+      <div class="how-step"><div class="step-number">4</div><h4>Start Investing</h4><p>Choose from 12 asset classes, pre-built portfolios, or apply for a loan. Track performance in real-time from your dashboard.</p></div>
+    </div>
+  </div>
+</section>
+<section class="security-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Security & Client Fund Protection</h2>
+      <p>Your investments are protected by multiple layers of security and regulatory oversight.</p>
+    </div>
+    <div class="security-grid">
+      <div class="security-card"><span class="sec-icon">🏛</span><h4>Regulated & Authorized</h4><p>EuroVest operates under EU MiFID II framework with oversight from French ACPR/AMF and Italian CONSOB regulators.</p></div>
+      <div class="security-card"><span class="sec-icon">🔒</span><h4>Segregated Client Accounts</h4><p>Client funds are held in segregated accounts at tier-1 European banks, completely separate from company operating funds.</p></div>
+      <div class="security-card"><span class="sec-icon">🛡</span><h4>Bank-Grade Encryption</h4><p>256-bit SSL/TLS encryption, two-factor authentication, and continuous security monitoring protect every transaction.</p></div>
+      <div class="security-card"><span class="sec-icon">🚨</span><h4>Investor Protection Scheme</h4><p>Eligible client assets are covered by European investor protection schemes up to €100,000 per investor.</p></div>
+    </div>
+  </div>
+</section>
+<section class="testimonials-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>What Our Investors Say</h2>
+      <p>Trusted by over 50,000 investors across France, Italy, and the European Union.</p>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="quote-mark">“</div>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">EuroVest made it incredibly easy to diversify my portfolio across European and global markets. The platform is intuitive, and the customer support team has been excellent. I started with just €500 and have grown my investment steadily over the past year.</p>
+        <div class="testimonial-author"><div class="author-avatar">L</div><div class="author-info"><strong>Laurent M.</strong><span>Paris, France</span></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote-mark">“</div>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">As an Italian investor, I appreciate that EuroVest supports both French and Italian regulatory frameworks. The pre-built portfolios are well-structured and the fees are transparent. The dashboard gives me full visibility into my investments.</p>
+        <div class="testimonial-author"><div class="author-avatar">G</div><div class="author-info"><strong>Giulia R.</strong><span>Milan, Italy</span></div></div>
+      </div>
+      <div class="testimonial-card">
+        <div class="quote-mark">“</div>
+        <div class="stars">★★★★★</div>
+        <p class="testimonial-text">I applied for a business loan through EuroVest and the process was smooth and professional. The team guided me through every step, and the funds were disbursed quickly. The platform is a one-stop shop for both investing and financing.</p>
+        <div class="testimonial-author"><div class="author-avatar">M</div><div class="author-info"><strong>Marco C.</strong><span>Rome, Italy</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
@@ -294,6 +352,16 @@
     </div>
     <p class="disclaimer" data-i18n="footer_disclaimer">Capital at risk. The value of investments can go down as well as up. Past performance is not indicative of future results. This platform is for demonstration purposes.</p>
   </div>
+<div class="regulatory-banner">
+  <div class="reg-badges">
+    <span class="reg-badge"><span class="reg-icon">🏛</span> ACPR · AMF</span>
+    <span class="reg-badge"><span class="reg-icon">⚖️</span> CONSOB</span>
+    <span class="reg-badge"><span class="reg-icon">📜</span> MiFID II</span>
+    <span class="reg-badge"><span class="reg-icon">🔄</span> AML / KYC</span>
+    <span class="reg-badge"><span class="reg-icon">🛡</span> Investor Protection</span>
+  </div>
+  <p>EuroVest is a European investment platform operating in compliance with EU MiFID II directives, French ACPR/AMF regulations, and Italian CONSOB oversight. Capital at risk. Past performance is not indicative of future results.</p>
+</div>
 </footer>
 
 <!-- Chat Widget -->
@@ -362,5 +430,13 @@ EV.sendChat = function() {
   }, 800);
 };
 </script>
+<div class="cookie-consent" id="cookieConsent">
+  <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="legal/cookies.html">Cookie Policy</a>.</div>
+  <div class="cookie-actions">
+    <button class="cookie-btn accept" onclick="EVExtras.acceptCookies()">Accept</button>
+    <button class="cookie-btn decline" onclick="EVExtras.declineCookies()">Decline</button>
+  </div>
+</div>
+<script src="assets/js/extras.js"></script>
 </body>
 </html>
