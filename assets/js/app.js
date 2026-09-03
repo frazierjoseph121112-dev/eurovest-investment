@@ -157,7 +157,7 @@ EV.auth = {
       objective: data.objective||'', horizon: data.horizon||'',
       // NEW: Bank account verification
       bankName: data.bankName||'', accountHolder: data.accountHolder||'',
-      iban: data.iban||'', bic: data.bic||'', accountNumber: data.accountNumber||'',
+      iban: data.iban||'', bic: data.bic||'', bankAccountNumber: data.bankAccountNumber||'',
       bankCountry: data.bankCountry||data.country||'',
       // Compliance
       pep: data.pep||false, sanctions: data.sanctions||false, aml: data.aml||false,
@@ -230,19 +230,26 @@ EV.auth = {
   },
   // Admin approves a pending account
   approveAccount: function(userId) {
-    var user = this.updateUser(userId, {accountStatus:'active', kycStatus:'verified', verified:true});
+    // Generate unique account numbers upon approval (only if not already assigned)
+    var existing = EV.store.get('users', []).find(function(u){return u.id===userId;});
+    var acctNo = (existing && existing.accountNumber) ? existing.accountNumber : EV.util.genAccountNumber();
+    var memberId = (existing && existing.memberId) ? existing.memberId : EV.util.genMemberId();
+    var user = this.updateUser(userId, {
+      accountStatus:'active', kycStatus:'verified', verified:true,
+      accountNumber: acctNo, memberId: memberId, approvedAt: new Date().toISOString()
+    });
     if (user) {
       EV.mail.send(user.email,
         'Account Approved — Welcome to EuroVest!',
-        'Dear '+user.firstName+' '+user.lastName+',\n\nGreat news! Your EuroVest account has been approved and is now fully active.\n\nYou can now:\n• Make deposits via SEPA, card, or open banking\n• Invest in any of our portfolios and products\n• Request withdrawals to your verified bank account\n• Access all platform features\n\nLog in to your dashboard to get started →\n\nWelcome aboard!\nThe EuroVest Team',
+        'Dear '+user.firstName+' '+user.lastName+',\n\nGreat news! Your EuroVest account has been approved and is now fully active.\n\n'+'========================================\n'+'  YOUR OFFICIAL EUROVEST ACCOUNT DETAILS\n'+'========================================\n'+'  Account Number      : '+user.accountNumber+'\n'+'  Client / Member ID  : '+user.memberId+'\n'+'========================================\n\n'+'Please keep these identifiers safe. They appear on your dashboard, transaction receipts, and all official correspondence. Quote your Account Number when contacting support.\n\n'+'You can now:\n• Make deposits via SEPA, card, open banking, or cryptocurrency\n• Invest in any of our portfolios and products\n• Request withdrawals to your verified bank account\n• Access all platform features\n\nLog in to your dashboard to get started →\n\nWelcome aboard!\nThe EuroVest Team',
         {type:'account_approved', userId:user.id});
       if (user.smsOptIn && user.phone) {
-        EV.mail.sendSMS(user.phone, 'EuroVest: Your account has been approved! You can now deposit and invest. Log in to your dashboard to get started.', {type:'account_approved', userId:user.id});
+        EV.mail.sendSMS(user.phone, 'EuroVest: Account approved! Acct No: '+user.accountNumber+' | Member ID: '+user.memberId+'. You can now deposit and invest.', {type:'account_approved', userId:user.id});
       }
       EV.store.push('admin_notifications', {
         id: Date.now(), type:'account_approved', time: new Date().toISOString(),
         userId: user.id, userName: user.firstName+' '+user.lastName,
-        text: 'Account approved: '+user.firstName+' '+user.lastName+' ('+user.email+')',
+        text: 'Account approved: '+user.firstName+' '+user.lastName+' ('+user.email+') — Acct '+user.accountNumber,
         read: false
       });
     }
@@ -392,9 +399,9 @@ EV.notify = {
 EV.ai = {
   kb: {
     deposit: {
-      en: "To deposit funds, go to your Dashboard → Deposit. We support SEPA bank transfer, card payments, and open banking. Funds typically appear within 1-2 business days for SEPA transfers.",
-      fr: "Pour déposer des fonds, allez dans votre Tableau de bord → Dépôt. Nous acceptons les virements SEPA, les paiements par carte et la banque ouverte. Les fonds apparaissent généralement sous 1-2 jours ouvrés.",
-      it: "Per depositare fondi, vai su Dashboard → Deposito. Accettiamo bonifico SEPA, carta e open banking. I fondi arrivano in 1-2 giorni lavorativi.",
+      en: "To deposit funds, go to your Dashboard → Deposit. The minimum first deposit is €100. We recommend cryptocurrency (BTC, ETH, USDT) for instant funding — confirmed in minutes with no bank verification needed. We also support SEPA bank transfer, card payments, and open banking (funds appear within 1-2 business days for SEPA).",
+      fr: "Pour déposer des fonds, allez dans votre Tableau de bord → Dépôt. Le dépôt minimum est de 100 €. Nous recommandons la crypto-monnaie (BTC, ETH, USDT) pour un financement instantané — confirmé en minutes sans vérification bancaire. Nous acceptons aussi les virements SEPA, les paiements par carte et la banque ouverte (1-2 jours ouvrés pour SEPA).",
+      it: "Per depositare fondi, vai su Dashboard → Deposito. Il deposito minimo è di €100. Consigliamo criptovalute (BTC, ETH, USDT) per un finanziamento istantaneo — confermato in minuti senza verifica bancaria. Accettiamo anche bonifico SEPA, carta e open banking (1-2 giorni lavorativi per SEPA).",
     },
     withdraw: {
       en: "To withdraw funds, go to Dashboard → Withdraw. Enter the amount and select your bank account. Withdrawals go through compliance checks and are processed within 3-5 business days.",
@@ -582,6 +589,7 @@ EV.tx = {
     var amount = opts.amount || (Math.random()*5000+100);
     var date = opts.date || this.randomDate();
     var ref = 'EV-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,6).toUpperCase();
+    var _u = EV.store.get('users', []).find(function(x){return x.id===userId;}) || {};
     var tx = {
       id: ref, userId: userId, type: type,
       amount: parseFloat(amount.toFixed(2)), currency:'EUR',
@@ -589,7 +597,9 @@ EV.tx = {
       method: opts.method || (type==='deposit'?'SEPA Transfer':type==='withdrawal'?'Bank Transfer':type.indexOf('loan')>=0?'Bank Transfer':'Platform'),
       description: opts.description || this.descForType(type),
       reference: ref,
-      receiptData: this.generateReceiptData(type, amount, date, ref)
+      accountNumber: _u.accountNumber || '',
+      memberId: _u.memberId || '',
+      receiptData: this.generateReceiptData(type, amount, date, ref, _u)
     };
     var txs = EV.store.get('user_tx_'+userId, []);
     txs.push(tx);
@@ -632,7 +642,8 @@ EV.tx = {
     var arr = descs[type]||['Platform Transaction'];
     return arr[Math.floor(Math.random()*arr.length)];
   },
-  generateReceiptData: function(type, amount, date, ref) {
+  generateReceiptData: function(type, amount, date, ref, user) {
+    user = user || {};
     return {
       institution: 'EUROVEST INVESTMENT PLATFORM',
       institutionSub: 'Regulated European Investment Services',
@@ -643,9 +654,10 @@ EV.tx = {
       date: date,
       status: 'COMPLETED',
       accountHolder: '',
-      accountNumber: 'EU'+Math.floor(Math.random()*9000000000+1000000000),
-      iban: this.genIBAN(),
-      bic: 'EURVFRPP'+Math.floor(Math.random()*900+100),
+      accountNumber: user.accountNumber || ('EV-'+new Date(date).getFullYear()+'-'+Math.floor(Math.random()*90000000+10000000)),
+      memberId: user.memberId || '',
+      iban: user.iban || this.genIBAN(),
+      bic: user.bic || ('EURVFRPP'+Math.floor(Math.random()*900+100)),
       processingCode: 'PC'+Math.random().toString(36).slice(2,10).toUpperCase(),
       authCode: Math.floor(Math.random()*900000+100000).toString(),
       settlementDate: date,
@@ -658,6 +670,49 @@ EV.tx = {
     var num = '';
     for (var i=0;i<22;i++) num+=Math.floor(Math.random()*10);
     return c+num;
+  }
+};
+
+// ===================== CRYPTOCURRENCY WALLETS =====================
+// Admin-configurable deposit wallets. Stored in EV.store under 'crypto_wallets'
+// so they persist across devices/redeploys via the sync layer.
+// Users see these whenever they choose Cryptocurrency as a deposit method.
+EV.crypto = {
+  defaults: [
+    { id: 'W_BTC', coin: 'Bitcoin', symbol: 'BTC', network: 'Bitcoin (BTC)', address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', note: 'Send BTC to this address. 1 confirmation required.' },
+    { id: 'W_ETH', coin: 'Ethereum', symbol: 'ETH', network: 'ERC-20', address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', note: 'Send ETH to this address on the Ethereum mainnet.' },
+    { id: 'W_USDT', coin: 'Tether', symbol: 'USDT', network: 'ERC-20 / TRC-20', address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', note: 'Send USDT (ERC-20) to this address. TRC-20 also accepted.' }
+  ],
+  getAll: function() {
+    var stored = EV.store.get('crypto_wallets', null);
+    if (!stored || !Array.isArray(stored) || stored.length === 0) {
+      // Seed defaults on first access
+      EV.store.set('crypto_wallets', this.defaults);
+      return this.defaults;
+    }
+    return stored;
+  },
+  save: function(wallets) {
+    EV.store.set('crypto_wallets', wallets);
+    return wallets;
+  },
+  add: function(wallet) {
+    var wallets = this.getAll();
+    if (!wallet.id) wallet.id = 'W_' + Date.now().toString(36);
+    wallets.push(wallet);
+    this.save(wallets);
+    return wallet;
+  },
+  update: function(id, updates) {
+    var wallets = this.getAll();
+    var idx = wallets.findIndex(function(w){return w.id === id;});
+    if (idx >= 0) { wallets[idx] = Object.assign(wallets[idx], updates); this.save(wallets); return wallets[idx]; }
+    return null;
+  },
+  remove: function(id) {
+    var wallets = this.getAll().filter(function(w){return w.id !== id;});
+    this.save(wallets);
+    return wallets;
   }
 };
 
@@ -682,7 +737,19 @@ EV.util = {
     var days = Math.floor(hrs/24);
     return days+'d ago';
   },
-  genId: function(prefix) { return (prefix||'ID')+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+  genId: function(prefix) { return (prefix||'ID')+Date.now().toString(36)+Math.random().toString(36).slice(2,5); },
+  // Generate a unique EuroVest account number: EV-YYYY-XXXXXXXX (8 digits)
+  genAccountNumber: function() {
+    var year = new Date().getFullYear();
+    var num = '';
+    for (var i=0;i<8;i++) num += Math.floor(Math.random()*10);
+    return 'EV-'+year+'-'+num;
+  },
+  // Generate a shorter Client/Member ID: EV-CL-XXXXX (5 digits)
+  genMemberId: function() {
+    var num = Math.floor(Math.random()*90000+10000);
+    return 'EV-CL-'+num;
+  }
 };
 
 // ===================== INIT =====================

@@ -1,0 +1,1 @@
+{"__meta":{"created":"2024-01-01T00:00:00.000Z","version":1,"note":"EuroVest persistence store. All ev_* keys from the frontend are mirrored here. This file is the durable, cross-device source of truth — it survives redeploy and works across browsers/devices."}}

@@ -178,6 +178,50 @@
 
       <!-- ===== DEPOSIT ===== -->
       <div id="page-deposit" class="dash-page hidden">
+
+        <!-- Why Cryptocurrency first -- explanation card -->
+        <div class="card crypto-why-card" style="max-width:760px;margin:0 auto 24px;">
+          <div class="crypto-why-head">
+            <span class="crypto-why-icon">⚡</span>
+            <div>
+              <h3 style="margin:0;">Why pay with cryptocurrency first?</h3>
+              <p class="text-muted text-sm" style="margin:4px 0 0;">The fastest, cheapest way to fund your EuroVest account</p>
+            </div>
+          </div>
+          <div class="crypto-why-grid">
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">🚀</span>
+              <h5>Instant funding</h5>
+              <p class="text-sm">Crypto deposits are confirmed in minutes — no 1–2 business day SEPA wait. Start investing the same day.</p>
+            </div>
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">💰</span>
+              <h5>Lower fees</h5>
+              <p class="text-sm">Skip bank transfer fees, FX mark-ups, and intermediary charges. Stablecoins (USDT/USDC) cost a few cents to send.</p>
+            </div>
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">✅</span>
+              <h5>No bank verification needed</h5>
+              <p class="text-sm">You can fund your account before linking a bank account or completing bank verification. Perfect for getting started quickly.</p>
+            </div>
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">🌐</span>
+              <h5>Borderless</h5>
+              <p class="text-sm">Send from anywhere in the world, in any currency, 24/7 — weekends and holidays included. No SWIFT delays.</p>
+            </div>
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">🔒</span>
+              <h5>Private & secure</h5>
+              <p class="text-sm">Blockchain payments are cryptographically secured and don’t expose your bank details to intermediaries.</p>
+            </div>
+            <div class="crypto-why-item">
+              <span class="crypto-why-emoji">⚡</span>
+              <h5>Recommended for first deposit</h5>
+              <p class="text-sm">We recommend crypto for your <strong>first</strong> deposit so you can explore the platform immediately while optional bank verification happens in the background.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="card" style="max-width:600px;margin:0 auto;">
           <h3 data-i18n="dep_title">Deposit Funds</h3>
           <p class="text-muted text-sm mt-2" data-i18n="dep_available">Available to deposit</p>
@@ -185,16 +229,20 @@
           <form onsubmit="return doDeposit(event)">
             <div class="form-group">
               <label class="form-label" data-i18n="dep_amount">Amount (EUR)</label>
-              <input type="number" class="form-input" id="depAmount" min="10" step="0.01" required placeholder="1000.00">
+              <input type="number" class="form-input" id="depAmount" min="100" step="0.01" required placeholder="100.00">
+              <p class="text-sm text-muted" style="margin:6px 0 0;">Minimum first deposit: <strong>&euro;100.00</strong></p>
             </div>
             <div class="form-group">
               <label class="form-label" data-i18n="dep_method">Payment Method</label>
-              <select class="form-select" id="depMethod">
+              <select class="form-select" id="depMethod" onchange="onDepositMethodChange()">
+                <option value="Cryptocurrency">💰 Cryptocurrency (Recommended — instant)</option>
                 <option value="SEPA Transfer" data-i18n="dep_sepa">SEPA Bank Transfer</option>
                 <option value="Card Payment" data-i18n="dep_card">Card Payment</option>
                 <option value="Open Banking" data-i18n="dep_openbanking">Open Banking</option>
               </select>
             </div>
+            <!-- Crypto wallet display (shown when Cryptocurrency selected) -->
+            <div id="cryptoWalletBox" class="crypto-wallet-box"></div>
             <button type="submit" class="btn btn-green btn-block btn-lg" data-i18n="dep_confirm">Confirm Deposit</button>
           </form>
         </div>
@@ -343,6 +391,12 @@
 
 <script src="../assets/js/translations.js?v=3"></script>
 <script src="../assets/js/app.js?v=3"></script>
+<script src="../assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 var currentUser = null;
 var lang = getCurrentLang();
@@ -465,17 +519,75 @@ function loadDeposit() {
   var balance = 0;
   txs.forEach(function(tx){ if(tx.type==='deposit')balance+=tx.amount; if(tx.type==='withdrawal')balance-=tx.amount; });
   document.getElementById('depBalance').textContent = EV.util.formatMoney(balance);
+  // Show crypto wallets by default since crypto is the recommended first method
+  if (document.getElementById('depMethod') && document.getElementById('depMethod').value === 'Cryptocurrency') {
+    renderCryptoWallets();
+  }
 }
 function doDeposit(e) {
   e.preventDefault();
   var amount = parseFloat(document.getElementById('depAmount').value);
   var method = document.getElementById('depMethod').value;
   var user = EV.auth.currentUser();
+  // Enforce minimum first deposit of €100
+  var MIN_DEPOSIT = 100;
+  if (isNaN(amount) || amount < MIN_DEPOSIT) {
+    EV.notify.toast('Minimum Deposit Required', 'The minimum deposit is €'+MIN_DEPOSIT+'.00. Please enter an amount of at least €'+MIN_DEPOSIT+'.', 'warning');
+    document.getElementById('depAmount').focus();
+    return false;
+  }
   EV.tx.generate(user.id, {type:'deposit', amount:amount, method:method, date:new Date().toISOString(), description:method+' In'});
   EV.notify.deposit(user.id, amount, method);
   EV.notify.toast('Deposit Confirmed', EV.util.formatMoney(amount)+' via '+method+' — email & SMS sent', 'success');
   setTimeout(function(){ loadDeposit(); }, 500);
   return false;
+}
+
+// ---- Cryptocurrency deposit helpers ----
+function onDepositMethodChange() {
+  var method = document.getElementById('depMethod').value;
+  var box = document.getElementById('cryptoWalletBox');
+  if (method === 'Cryptocurrency') {
+    renderCryptoWallets();
+  } else {
+    box.innerHTML = '';
+  }
+}
+function renderCryptoWallets() {
+  var wallets = EV.crypto.getAll();
+  var box = document.getElementById('cryptoWalletBox');
+  if (!box) return;
+  if (!wallets || wallets.length === 0) {
+    box.innerHTML = '<div class="card" style="background:var(--warning-light,#fff8e1);padding:14px;border-radius:8px;">No crypto wallets configured yet. Please contact support or try another payment method.</div>';
+    return;
+  }
+  var html = '<div class="crypto-wallet-head"><span class="crypto-wallet-coin">\U0001f4b0 Cryptocurrency Deposit</span><span class="text-sm text-muted">Send the matching coin to the address below</span></div>';
+  html += '<div class="crypto-wallet-list">';
+  wallets.forEach(function(w, idx){
+    var safeAddr = w.address.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    html += '<div class="crypto-wallet-card">'+
+      '<div class="crypto-wallet-top"><span class="crypto-coin-badge">'+w.symbol+'</span><span class="crypto-coin-name">'+w.coin+'</span><span class="crypto-network-badge">'+w.network+'</span></div>'+
+      '<div class="crypto-wallet-addr-row">'+
+        '<code class="crypto-wallet-addr">'+w.address+'</code>'+
+        '<button type="button" class="crypto-copy-btn" data-addr="'+safeAddr+'" onclick="copyWalletAddrBtn(this)">\U0001f4cb Copy</button>'+
+      '</div>'+
+      (w.note ? '<div class="crypto-wallet-note text-sm text-muted">'+w.note+'</div>' : '')+
+    '</div>';
+  });
+  html += '</div>';
+  html += '<div class="card" style="background:var(--info-light);padding:12px;margin-top:12px;border-radius:8px;"><p class="text-sm">\u26a0\ufe0f <strong>Important:</strong> Only send the correct coin to each address. Sending the wrong coin/network may result in permanent loss. After sending, click Confirm Deposit and our team will credit your balance once the transaction is confirmed on-chain.</p></div>';
+  box.innerHTML = html;
+}
+function copyWalletAddrBtn(btn) {
+  var addr = btn.getAttribute('data-addr') || '';
+  var done = function() { btn.textContent = '\u2705 Copied!'; setTimeout(function(){ btn.textContent = '\U0001f4cb Copy'; }, 1500); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr).then(done).catch(function(){ fallbackCopy(addr); done(); });
+  } else { fallbackCopy(addr); done(); }
+}
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta);
 }
 
 function loadWithdraw() {
@@ -666,6 +778,8 @@ function loadSettings() {
     '<div class="receipt-row"><span class="label">Email</span><span class="value">'+user.email+'</span></div>'+
     '<div class="receipt-row"><span class="label">Phone</span><span class="value">'+(user.phone||'—')+'</span></div>'+
     '<div class="receipt-row"><span class="label">Country</span><span class="value">'+(user.country||'—')+'</span></div>'+
+    '<div class="receipt-row ev-acct-row"><span class="label">EuroVest Account Number</span><span class="value ev-acct-no">'+(user.accountNumber||'<span class=\"text-muted\">Assigned on approval</span>')+'</span></div>'+
+    '<div class="receipt-row ev-acct-row"><span class="label">Client / Member ID</span><span class="value ev-acct-no">'+(user.memberId||'<span class=\"text-muted\">Assigned on approval</span>')+'</span></div>'+
     '<div class="receipt-row"><span class="label">Risk Profile</span><span class="value"><span class="badge badge-info">'+(user.riskProfile||'balanced')+'</span></span></div>'+
     '<div class="receipt-row"><span class="label">KYC Status</span><span class="value"><span class="badge '+(user.kycStatus==='verified'?'badge-success':'badge-warning')+'">'+user.kycStatus+'</span></span></div>'+
     '<div class="receipt-row"><span class="label">Account Status</span><span class="value"><span class="badge '+(user.accountStatus==='active'?'badge-success':user.accountStatus==='pending'?'badge-warning':'badge-danger')+'">'+user.accountStatus+'</span></span></div>'+
@@ -674,7 +788,7 @@ function loadSettings() {
     '<div class="receipt-row"><span class="label">Account Holder</span><span class="value">'+(user.accountHolder||user.firstName+' '+user.lastName)+'</span></div>'+
     '<div class="receipt-row"><span class="label">Bank Name</span><span class="value">'+(user.bankName||'—')+'</span></div>'+
     '<div class="receipt-row"><span class="label">Bank Country</span><span class="value">'+(user.bankCountry||user.country||'—')+'</span></div>'+
-    '<div class="receipt-row"><span class="label">Account Number</span><span class="value" style="font-family:monospace;">'+(user.accountNumber||'—')+'</span></div>'+
+    '<div class="receipt-row"><span class="label">Bank Account Number</span><span class="value" style="font-family:monospace;">'+(user.bankAccountNumber||'—')+'</span></div>'+
     '<div class="receipt-row"><span class="label">IBAN</span><span class="value" style="font-family:monospace;">'+(user.iban||'—')+'</span></div>'+
     '<div class="receipt-row"><span class="label">BIC / SWIFT</span><span class="value" style="font-family:monospace;">'+(user.bic||'—')+'</span></div>';
 }

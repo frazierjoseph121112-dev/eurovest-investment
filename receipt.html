@@ -41,6 +41,12 @@
 
 <script src="assets/js/translations.js?v=3"></script>
 <script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 function getParam(name) {
   var params = new URLSearchParams(window.location.search);
@@ -89,7 +95,8 @@ function loadReceipt() {
   html += '<div class="divider"></div>';
   html += '<h4 style="margin-bottom:16px;">Account Details</h4>';
   html += '<div class="receipt-row"><span class="label">Account Holder</span><span class="value">'+r.accountHolder+'</span></div>';
-  html += '<div class="receipt-row"><span class="label">Account Number</span><span class="value">'+r.accountNumber+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">EuroVest Account Number</span><span class="value font-bold" style="font-family:monospace;">'+r.accountNumber+'</span></div>';
+  if (r.memberId) html += '<div class="receipt-row"><span class="label">Client / Member ID</span><span class="value" style="font-family:monospace;">'+r.memberId+'</span></div>';
   html += '<div class="receipt-row"><span class="label">IBAN</span><span class="value text-sm">'+r.iban+'</span></div>';
   html += '<div class="receipt-row"><span class="label">BIC/SWIFT</span><span class="value">'+r.bic+'</span></div>';
   

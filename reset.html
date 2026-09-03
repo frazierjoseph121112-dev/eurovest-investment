@@ -52,6 +52,12 @@
 </div>
 <script src="assets/js/translations.js?v=3"></script>
 <script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 function doReset(e) {
   e.preventDefault();

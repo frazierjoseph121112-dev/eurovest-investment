@@ -96,8 +96,14 @@
   <div class="footer-col"><h4>Platform</h4><a href="../markets.html">Markets</a><a href="../portfolios.html">Portfolios</a><a href="../register.html">Open Account</a><a href="../login.html">Login</a></div>
   <div class="footer-col"><h4>Legal</h4><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="risk.html">Risk Disclosure</a><a href="fees.html">Fees</a></div>
   <div class="footer-col"><h4>Support</h4><a href="complaints.html">Complaints</a><a href="aml.html">AML / KYC</a><a href="regulatory.html">Regulatory</a><a href="cookies.html">Cookies</a></div>
-</div><div class="footer-bottom">© 2024 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div></footer>
+</div><div class="footer-bottom">© 2025 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div></footer>
 <script src="../assets/js/translations.js"></script>
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 </body>
 </html>

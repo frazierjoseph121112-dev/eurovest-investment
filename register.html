@@ -163,21 +163,21 @@
       <!-- Step 3: Bank Account Verification -->
       <div id="step3" class="reg-step hidden">
         <div class="bank-verify-card">
-          <h4>🏦 Bank Account Verification</h4>
-          <p>Please provide your bank account details for verification. This account will be used for deposits and withdrawals. All details are verified per your country's banking regulations.</p>
+          <h4>🏦 Bank Account Details <span class="badge badge-info" style="font-size:.7rem;vertical-align:middle;">OPTIONAL</span></h4>
+          <p>Linking a bank account is <strong>completely optional</strong>. You can skip this step and add your bank details later from your dashboard settings, or simply fund your account using <strong>cryptocurrency</strong> (fastest, no bank verification needed). If you do provide bank details, this account will be used for SEPA deposits and withdrawals.</p>
         </div>
         <div class="form-group">
           <label class="form-label">Account Holder Name <span style="font-size:.8rem;color:#64748b">(as shown on bank statement)</span></label>
-          <input type="text" class="form-input" id="accountHolder" required placeholder="Jean Dupont">
+          <input type="text" class="form-input" id="accountHolder" placeholder="Jean Dupont">
         </div>
         <div class="form-group">
           <label class="form-label">Bank Name</label>
-          <input type="text" class="form-input" id="bankName" required placeholder="e.g. Crédit Agricole, UniCredit, BNP Paribas">
+          <input type="text" class="form-input" id="bankName" placeholder="e.g. Crédit Agricole, UniCredit, BNP Paribas">
         </div>
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label">Bank Country</label>
-            <select class="form-select" id="bankCountry" required>
+            <select class="form-select" id="bankCountry">
               <option value="">Select...</option>
               <option value="FR">🇫🇷 France</option>
               <option value="IT">🇮🇹 Italy</option>
@@ -191,23 +191,24 @@
           </div>
           <div class="form-group">
             <label class="form-label">Account Number</label>
-            <input type="text" class="form-input" id="accountNumber" required placeholder="Bank account number">
+            <input type="text" class="form-input" id="accountNumber" placeholder="Bank account number">
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">IBAN <span style="font-size:.8rem;color:#64748b">(International Bank Account Number)</span></label>
-          <input type="text" class="form-input iban-input" id="iban" required placeholder="FR76 1234 5678 9012 3456 7890 123" style="text-transform:uppercase">
+          <input type="text" class="form-input iban-input" id="iban" placeholder="FR76 1234 5678 9012 3456 7890 123" style="text-transform:uppercase">
         </div>
         <div class="form-group">
           <label class="form-label">BIC / SWIFT Code</label>
-          <input type="text" class="form-input iban-input" id="bic" required placeholder="e.g. AGRIFRPP" style="text-transform:uppercase">
+          <input type="text" class="form-input iban-input" id="bic" placeholder="e.g. AGRIFRPP" style="text-transform:uppercase">
         </div>
-        <div class="card" style="background:var(--bg);padding:16px;margin-bottom:20px;">
-          <p class="text-sm">📋 <strong>Verification process:</strong> Your bank account will be verified by our compliance team. This is a standard security measure required by European banking regulations (AMLD5). Your account will be set to <strong>pending</strong> status until verification is complete (typically 1-2 business days).</p>
+        <div class="card" style="background:var(--info-light);padding:16px;margin-bottom:20px;border-left:4px solid var(--brand-blue);">
+          <p class="text-sm">ℹ️ <strong>No bank account? No problem.</strong> You can start investing right away using cryptocurrency — it's faster, has lower fees, and needs no bank verification. Add a bank account anytime later from your dashboard settings if you want SEPA transfers.</p>
         </div>
         <div class="flex gap-4">
           <button class="btn btn-ghost" onclick="showStep(2)">Back</button>
-          <button class="btn btn-primary btn-block" onclick="goStep4()">Continue</button>
+          <button class="btn btn-green" onclick="goStep4()" style="flex:0 0 auto;">⚡ Continue</button>
+          <button class="btn btn-primary btn-block" onclick="skipBank()">Skip — Add Later</button>
         </div>
       </div>
 
@@ -289,8 +290,8 @@
               <span>I am not a Politically Exposed Person (PEP) or related to one.</span>
             </label>
             <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
-              <input type="checkbox" id="chkBankAuth" required style="margin-top:3px;">
-              <span>I confirm the bank account details provided are my own and I authorize EuroVest to verify them with my bank.</span>
+              <input type="checkbox" id="chkBankAuth" style="margin-top:3px;">
+              <span><em>(Only if you provided bank details)</em> I confirm the bank account details provided are my own and I authorize EuroVest to verify them with my bank.</span>
             </label>
             <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
               <input type="checkbox" id="chkTerms" required style="margin-top:3px;">
@@ -320,6 +321,12 @@
 
 <script src="assets/js/translations.js?v=3"></script>
 <script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 var countryLangMap = {FR:'fr',IT:'it',DE:'de',ES:'es',PT:'pt'};
 
@@ -349,8 +356,16 @@ function goStep3() {
   showStep(3);
 }
 function goStep4() {
-  var req = ['accountHolder','bankName','bankCountry','accountNumber','iban','bic'];
-  for (var i=0;i<req.length;i++) { if(!document.getElementById(req[i]).value){ alert('Please fill all bank account fields'); return; } }
+  // Bank fields are now optional. Only validate IBAN format if an IBAN was entered.
+  var iban = document.getElementById('iban').value.trim();
+  if (iban && iban.length < 14) { alert('IBAN looks too short — please check it or leave it blank.'); return; }
+  showStep(4);
+}
+function skipBank() {
+  // Clear any partially entered bank fields and continue
+  ['accountHolder','bankName','bankCountry','accountNumber','iban','bic'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
   showStep(4);
 }
 function goStep5() {
@@ -361,8 +376,13 @@ function goStep5() {
 function showErr(id,msg) { var el=document.getElementById(id); el.textContent=msg; el.classList.remove('hidden'); }
 
 function completeRegistration() {
+  // Bank auth is only required if the user actually entered bank details
+  var hasBank = document.getElementById('accountNumber').value.trim() || document.getElementById('iban').value.trim();
+  if (hasBank && !document.getElementById('chkBankAuth').checked) {
+    showErr('step5err','Since you provided bank details, please confirm the bank authorization checkbox.'); return;
+  }
   if (!document.getElementById('chkAML').checked || !document.getElementById('chkSanctions').checked ||
-      !document.getElementById('chkPEP').checked || !document.getElementById('chkTerms').checked || !document.getElementById('chkBankAuth').checked) {
+      !document.getElementById('chkPEP').checked || !document.getElementById('chkTerms').checked) {
     showErr('step5err','Please accept all required compliance terms to continue');
     return;
   }
@@ -387,7 +407,7 @@ function completeRegistration() {
     accountHolder: document.getElementById('accountHolder').value,
     bankName: document.getElementById('bankName').value,
     bankCountry: document.getElementById('bankCountry').value,
-    accountNumber: document.getElementById('accountNumber').value,
+    bankAccountNumber: document.getElementById('accountNumber').value,
     iban: document.getElementById('iban').value.toUpperCase(),
     bic: document.getElementById('bic').value.toUpperCase(),
     // Investor profile

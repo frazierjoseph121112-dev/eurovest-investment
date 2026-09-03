@@ -48,6 +48,12 @@
 </div>
 <script src="../assets/js/translations.js"></script>
 <script src="../assets/js/app.js"></script>
+<script src="../assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 // If already logged in as admin, redirect
 if (EV.auth.isAdmin()) window.location.href = 'dashboard.html';

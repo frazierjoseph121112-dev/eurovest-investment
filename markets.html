@@ -209,6 +209,12 @@
 
 <script src="assets/js/translations.js?v=3"></script>
 <script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 EV.toggleChat=function(){document.getElementById('chatBox').classList.toggle('open');};
 EV.sendChat=function(){var i=document.getElementById('chatInput');var m=i.value.trim();if(!m)return;var ms=document.getElementById('chatMessages');var u=document.createElement('div');u.className='chat-msg user';u.textContent=m;ms.appendChild(u);i.value='';ms.scrollTop=ms.scrollHeight;var user=EV.auth.currentUser();var uid=user?user.id:'guest';var ticket=EV.msg.userToSupport(uid,m);setTimeout(function(){var r=ticket.replies[ticket.replies.length-1];var b=document.createElement('div');b.className='chat-msg bot';b.textContent=r.text;ms.appendChild(b);if(ticket.escalated){var s=document.createElement('div');s.className='chat-msg system';s.textContent='⏳ A human agent has been notified and will respond shortly.';ms.appendChild(s);}ms.scrollTop=ms.scrollHeight;},800);};

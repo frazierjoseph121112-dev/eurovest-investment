@@ -525,6 +525,21 @@
             <button type="submit" class="btn btn-primary">Update Admin Password</button>
           </form>
           <div class="divider"></div>
+          <h4 style="margin-bottom:4px;">💰 Cryptocurrency Wallet Management</h4>
+          <p class="text-muted text-sm" style="margin-bottom:16px;">These wallet addresses are shown to users whenever they choose <strong>Cryptocurrency</strong> as their deposit method. Add, edit, or remove wallets below. Changes are saved and persist across redeploy/devices.</p>
+          <div id="adminCryptoWallets"></div>
+          <div class="card" style="background:var(--bg);padding:16px;margin-top:16px;border:1px dashed var(--border);border-radius:8px;">
+            <h5 style="margin:0 0 12px;">Add new wallet</h5>
+            <div class="grid-2" style="gap:10px;">
+              <input type="text" class="form-input" id="newWCoin" placeholder="Coin name (e.g. Bitcoin)">
+              <input type="text" class="form-input" id="newWSymbol" placeholder="Symbol (e.g. BTC)">
+              <input type="text" class="form-input" id="newWNetwork" placeholder="Network (e.g. ERC-20, TRC-20, BTC)">
+              <input type="text" class="form-input" id="newWAddress" placeholder="Wallet address">
+            </div>
+            <input type="text" class="form-input" id="newWNote" placeholder="Note for users (optional)" style="margin-top:10px;">
+            <button class="btn btn-green" onclick="adminAddWallet()" style="margin-top:12px;">+ Add Wallet</button>
+          </div>
+          <div class="divider"></div>
           <h4 style="margin-bottom:16px;">Email Notifications</h4>
           <div style="display:flex;flex-direction:column;gap:12px;">
             <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me when a user visits the website</label>
@@ -539,6 +554,15 @@
           <h4 style="margin-bottom:16px;">SMS Notifications (Platform-wide)</h4>
           <p class="text-muted text-sm">SMS notifications are sent to users who opted in during registration. Individual users can toggle this in their settings.</p>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Enable SMS notifications for all opted-in users</label>
+          <div class="divider"></div>
+          <h4 style="margin-bottom:4px;">🔒 Data Persistence — Backend Server URL</h4>
+          <p class="text-muted text-sm" style="margin-bottom:16px;">Enter the URL of your EuroVest backend server (e.g. <code>https://your-app.onrender.com</code>). When set, all user accounts, transactions, and wallet data are synced to this server so <strong>nothing is lost on redeployment or device change</strong>. Leave empty to use local-only mode (data stays in this browser only).</p>
+          <div class="form-group">
+            <label class="form-label">Backend Server URL</label>
+            <input type="text" class="form-input" id="adminBackendURL" placeholder="https://your-eurovest-backend.onrender.com" style="font-family:monospace;">
+          </div>
+          <button class="btn btn-primary" onclick="adminSaveBackendURL()">Save Backend URL</button>
+          <p id="backendStatus" class="text-sm" style="margin-top:10px;"></p>
         </div>
       </div>
 
@@ -560,6 +584,12 @@
 
 <script src="../assets/js/translations.js?v=3"></script>
 <script src="../assets/js/app.js?v=3"></script>
+<script src="../assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 // Guard: must be admin
 if (!EV.auth.isAdmin()) { window.location.href = 'login.html'; }
@@ -573,6 +603,8 @@ var adminTitles = {
 var selectedTemplate = null;
 
 function showAdminPage(page) {
+  if (page === 'settings' && typeof loadAdminCryptoWallets === 'function') loadAdminCryptoWallets();
+  if (page === 'settings' && typeof loadAdminBackendURL === 'function') loadAdminBackendURL();
   document.querySelectorAll('.dash-page').forEach(function(p){p.classList.add('hidden');});
   document.getElementById('apage-'+page).classList.remove('hidden');
   document.querySelectorAll('.dash-nav-item').forEach(function(n){n.classList.remove('active');});
@@ -680,7 +712,7 @@ function loadPending() {
         bankDetail('Account Holder', u.accountHolder||u.firstName+' '+u.lastName)+
         bankDetail('Bank Name', u.bankName||'N/A')+
         bankDetail('Bank Country', u.bankCountry||u.country||'N/A')+
-        bankDetail('Account Number', u.accountNumber||'N/A')+
+        bankDetail('Bank Account Number', u.bankAccountNumber||'N/A')+
         bankDetail('IBAN', u.iban||'N/A')+
         bankDetail('BIC / SWIFT', u.bic||'N/A')+
       '</div>'+
@@ -757,11 +789,20 @@ function viewUserDetail(userId) {
     bankDetail('SMS Opt-in', u.smsOptIn?'✅ Yes':'❌ No')+
     bankDetail('Bank Auth', u.bankAuth?'✅ Authorized':'❌ Not authorized')+
   '</div>';
+  if (u.accountNumber || u.memberId) {
+    html += '<div class="ev-acct-card" style="margin:16px 0;padding:16px;border-radius:10px;background:linear-gradient(135deg,#0A1A3F,#0055A4);color:#fff;">'+
+      '<h5 style="margin:0 0 8px;color:#fff;">🦔 EuroVest Account Identifiers</h5>'+
+      '<div style="display:flex;gap:24px;flex-wrap:wrap;">'+
+        '<div><div style="font-size:.75rem;opacity:.8;">Account Number</div><div style="font-family:monospace;font-size:1.1rem;font-weight:700;">'+(u.accountNumber||'N/A')+'</div></div>'+
+        '<div><div style="font-size:.75rem;opacity:.8;">Client / Member ID</div><div style="font-family:monospace;font-size:1.1rem;font-weight:700;">'+(u.memberId||'N/A')+'</div></div>'+
+        '<div><div style="font-size:.75rem;opacity:.8;">Approved On</div><div style="font-size:.95rem;">'+(u.approvedAt?EV.util.formatDate(u.approvedAt):'N/A')+'</div></div>'+
+      '</div></div>';
+  }
   html += '<h5 style="margin:20px 0 8px;">🏦 Bank Account Verification</h5><div class="bank-detail-grid">'+
     bankDetail('Account Holder', u.accountHolder||u.firstName+' '+u.lastName)+
     bankDetail('Bank Name', u.bankName||'N/A')+
     bankDetail('Bank Country', u.bankCountry||u.country||'N/A')+
-    bankDetail('Account Number', u.accountNumber||'N/A')+
+    bankDetail('Bank Account Number', u.bankAccountNumber||'N/A')+
     bankDetail('IBAN', u.iban||'N/A')+
     bankDetail('BIC / SWIFT', u.bic||'N/A')+
   '</div>';
@@ -1126,8 +1167,92 @@ setInterval(function(){
   }
 }, 10000);
 
+// ===== CRYPTO WALLET MANAGEMENT =====
+function loadAdminCryptoWallets() {
+  var wallets = EV.crypto.getAll();
+  var box = document.getElementById('adminCryptoWallets');
+  if (!box) return;
+  if (!wallets || wallets.length === 0) {
+    box.innerHTML = '<p class="text-muted text-sm">No crypto wallets configured. Add one below.</p>';
+    return;
+  }
+  box.innerHTML = wallets.map(function(w){
+    return '<div class="admin-wallet-card">'+
+      '<div class="admin-wallet-top">'+
+        '<span class="crypto-coin-badge">'+w.symbol+'</span>'+
+        '<span class="admin-wallet-coinname">'+w.coin+'</span>'+
+        '<span class="crypto-network-badge">'+w.network+'</span>'+
+      '</div>'+
+      '<div class="admin-wallet-row"><span class="text-muted text-sm">Address</span><code class="crypto-wallet-addr">'+w.address+'</code></div>'+
+      '<div class="admin-wallet-row"><span class="text-muted text-sm">Note</span><span class="text-sm">'+(w.note||'—')+'</span></div>'+
+      '<div class="admin-wallet-actions">'+
+        '<button class="btn btn-ghost btn-sm" onclick="adminEditWallet(\''+w.id+'\')">✏️ Edit</button>'+
+        '<button class="btn btn-danger btn-sm" onclick="adminDeleteWallet(\''+w.id+'\')">🗑 Delete</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function adminAddWallet() {
+  var coin = document.getElementById('newWCoin').value.trim();
+  var symbol = document.getElementById('newWSymbol').value.trim();
+  var network = document.getElementById('newWNetwork').value.trim();
+  var address = document.getElementById('newWAddress').value.trim();
+  var note = document.getElementById('newWNote').value.trim();
+  if (!coin || !symbol || !address) { EV.notify.toast('Missing fields','Coin name, symbol, and address are required.','danger'); return; }
+  EV.crypto.add({ coin:coin, symbol:symbol, network:(network||'Standard'), address:address, note:note });
+  EV.notify.toast('Wallet Added', symbol+' wallet saved successfully.','success');
+  ['newWCoin','newWSymbol','newWNetwork','newWAddress','newWNote'].forEach(function(id){ document.getElementById(id).value=''; });
+  loadAdminCryptoWallets();
+}
+function adminDeleteWallet(id) {
+  if (!confirm('Delete this crypto wallet? Users will no longer see it as a deposit option.')) return;
+  EV.crypto.remove(id);
+  EV.notify.toast('Wallet Deleted','The wallet has been removed.','info');
+  loadAdminCryptoWallets();
+}
+function adminEditWallet(id) {
+  var wallets = EV.crypto.getAll();
+  var w = wallets.find(function(x){return x.id===id;});
+  if (!w) return;
+  var coin = prompt('Coin name:', w.coin);
+  if (coin === null) return;
+  var symbol = prompt('Symbol (e.g. BTC):', w.symbol);
+  if (symbol === null) return;
+  var network = prompt('Network (e.g. ERC-20):', w.network);
+  if (network === null) return;
+  var address = prompt('Wallet address:', w.address);
+  if (address === null) return;
+  var note = prompt('Note for users (optional):', w.note || '');
+  if (note === null) return;
+  EV.crypto.update(id, { coin:coin.trim(), symbol:symbol.trim(), network:network.trim(), address:address.trim(), note:note.trim() });
+  EV.notify.toast('Wallet Updated','Changes saved successfully.','success');
+  loadAdminCryptoWallets();
+}
+
 // Initial load
 loadOverview();
+
+// ---- Backend URL management ----
+function loadAdminBackendURL(){
+  var inp = document.getElementById('adminBackendURL');
+  if(inp) inp.value = localStorage.getItem('ev_backend_url') || '';
+  var st = document.getElementById('backendStatus');
+  if(st){
+    var u = localStorage.getItem('ev_backend_url') || '';
+    if(u){ st.innerHTML = '<span style="color:var(--green);">✓ Backend URL is set. Data syncs to: '+u+'</span>'; }
+    else { st.innerHTML = '<span style="color:var(--orange);">⚠ No backend URL set — data is stored locally only.</span>'; }
+  }
+}
+function adminSaveBackendURL(){
+  var inp = document.getElementById('adminBackendURL');
+  if(!inp) return;
+  var url = inp.value.trim().replace(/\/+$/,''); // strip trailing slash
+  localStorage.setItem('ev_backend_url', url);
+  if(window.EV && EV.sync){ EV.sync.init(url); }
+  loadAdminBackendURL();
+  EV.toast && EV.toast('Backend URL saved. Data will now persist across redeploy & devices.', 'success');
+}
+
 </script>
 </body>
 </html>

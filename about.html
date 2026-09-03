@@ -84,7 +84,7 @@
 
 <div class="stat-strip">
   <div class="ss"><div class="num">€2.4B</div><div class="lbl">Assets Under Mgmt</div></div>
-  <div class="ss"><div class="num">48,000+</div><div class="lbl">Active Investors</div></div>
+  <div class="ss"><div class="num">50,000+</div><div class="lbl">Active Investors</div></div>
   <div class="ss"><div class="num">10</div><div class="lbl">Languages</div></div>
   <div class="ss"><div class="num">2014</div><div class="lbl">Established</div></div>
 </div>
@@ -139,7 +139,7 @@
     <div class="footer-col"><h4>Legal</h4><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/risk.html">Risk Disclosure</a><a href="legal/fees.html">Fees</a></div>
     <div class="footer-col"><h4>Support</h4><a href="legal/complaints.html">Complaints</a><a href="legal/aml.html">AML / KYC</a><a href="legal/regulatory.html">Regulatory</a><a href="legal/cookies.html">Cookies</a></div>
   </div>
-  <div class="footer-bottom">© 2024 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div>
+  <div class="footer-bottom">© 2025 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div>
 </footer>
 
 <div class="chat-widget" id="chatWidget">
@@ -152,6 +152,12 @@
 </div>
 <script src="assets/js/translations.js?v=3"></script>
 <script src="assets/js/app.js?v=3"></script>
+<script src="assets/js/sync.js"></script>
+<script>
+  // Cross-device persistence — point at your deployed backend (see server/README.md).
+  // Leave empty string for local-only (localStorage) during dev.
+  if (window.EV && EV.sync) EV.sync.init(localStorage.getItem("ev_backend_url") || "");
+</script>
 <script>
 function toggleChat(){const p=document.getElementById('chatPanel');p.style.display=p.style.display==='none'?'flex':'none';}
 function sendChat(){const i=document.getElementById('chatInput');const v=i.value.trim();if(!v)return;const b=document.getElementById('chatBody');b.innerHTML+=`<div class="msg user">${v}</div>`;i.value='';setTimeout(()=>{const r=EV.ai.respond(v,getCurrentLang()||'en');b.innerHTML+=`<div class="msg bot">${r}</div>`;b.scrollTop=b.scrollHeight;},500);b.scrollTop=b.scrollHeight;}
