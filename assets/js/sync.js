@@ -24,7 +24,8 @@
   EV.sync = {
     // ---- CONFIG: set this to your backend URL (or leave '' for local-only) ----
     // e.g. 'https://eurovest-backend.onrender.com'
-    serverURL: '',
+    // Auto-detect: use the same origin as the page (works on Railway where server + static are same host)
+    serverURL: (typeof window !== 'undefined' && window.location && window.location.origin) ? window.location.origin : '',
 
     // how often to flush local changes to the server (ms)
     flushInterval: 30000,
