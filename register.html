@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<style>
+.bank-verify-card{background:linear-gradient(135deg,#e7f0ff,#e7f7ee);border:1px solid #c7e0ff;border-radius:12px;padding:18px;margin-bottom:18px}
+.bank-verify-card h4{margin:0 0 4px;color:var(--brand-navy);display:flex;align-items:center;gap:8px}
+.bank-verify-card p{margin:0;font-size:.85rem;color:#475569}
+.iban-input{font-family:monospace;letter-spacing:1px;text-transform:uppercase}
+.pending-banner{background:#fff4e6;border:1px solid #ffe0b3;border-radius:12px;padding:20px;margin:20px 0;text-align:center}
+.pending-banner h3{color:#b45309;margin:0 0 8px}
+</style>
+</head>
+<body>
+
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div class="auth-side-content">
+      <div style="display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:40px;">
+        <span style="width:38px;height:38px;border-radius:10px;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;">€</span> EuroVest
+      </div>
+      <h2 data-i18n="auth_welcome">Welcome to EuroVest</h2>
+      <p data-i18n="auth_welcome_sub">Your trusted European investment platform. Join thousands of investors building diversified portfolios across global markets.</p>
+      <div style="margin-top:32px;">
+        <div style="display:flex;gap:12px;margin-bottom:16px;"><span style="color:#5CC88F;font-size:1.2rem;">✓</span> <span style="color:rgba(255,255,255,0.8);">12 asset classes across global markets</span></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;"><span style="color:#5CC88F;font-size:1.2rem;">✓</span> <span style="color:rgba(255,255,255,0.8);">Full loan options for every need</span></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;"><span style="color:#5CC88F;font-size:1.2rem;">✓</span> <span style="color:rgba(255,255,255,0.8);">Bank account verification in your country</span></div>
+        <div style="display:flex;gap:12px;margin-bottom:16px;"><span style="color:#5CC88F;font-size:1.2rem;">✓</span> <span style="color:rgba(255,255,255,0.8);">Multi-language support (10 languages)</span></div>
+        <div style="display:flex;gap:12px;"><span style="color:#5CC88F;font-size:1.2rem;">✓</span> <span style="color:rgba(255,255,255,0.8);">24/7 AI-powered customer support</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-main">
+    <div class="auth-card" style="max-width:540px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <div class="lang-selector">
+          <button class="lang-btn"><span class="lang-current-flag">🇬🇧</span> <span class="lang-current-name">English</span> ▾</button>
+          <div class="lang-dropdown"></div>
+        </div>
+        <a href="index.html" class="btn btn-ghost btn-sm">← Home</a>
+      </div>
+      <h2 data-i18n="reg_title">Create Your Account</h2>
+      <p class="subtitle" data-i18n="reg_sub">Start investing in minutes — 5 quick steps</p>
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step active" id="step1ind"><div class="step-circle">1</div><div class="step-label">Account</div></div>
+        <div class="step-line" id="line12"></div>
+        <div class="step" id="step2ind"><div class="step-circle">2</div><div class="step-label">Identity</div></div>
+        <div class="step-line" id="line23"></div>
+        <div class="step" id="step3ind"><div class="step-circle">3</div><div class="step-label">Bank</div></div>
+        <div class="step-line" id="line34"></div>
+        <div class="step" id="step4ind"><div class="step-circle">4</div><div class="step-label">Profile</div></div>
+        <div class="step-line" id="line45"></div>
+        <div class="step" id="step5ind"><div class="step-circle">5</div><div class="step-label">Compliance</div></div>
+      </div>
+
+      <!-- Step 1: Account -->
+      <div id="step1" class="reg-step">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input type="text" class="form-input" id="firstName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input type="text" class="form-input" id="lastName" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone Number <span style="font-size:.8rem;color:#64748b">(for SMS notifications)</span></label>
+          <input type="tel" class="form-input" id="phone" required placeholder="+33 6 12 34 56 78">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="password" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-input" id="confirmPassword" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country of Residence</label>
+          <select class="form-select" id="country" required>
+            <option value="">Select country...</option>
+            <option value="FR">🇫🇷 France</option>
+            <option value="IT">🇮🇹 Italy</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="ES">🇪🇸 Spain</option>
+            <option value="PT">🇵🇹 Portugal</option>
+            <option value="BE">🇧🇪 Belgium</option>
+            <option value="NL">🇳🇱 Netherlands</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div id="step1err" class="form-error hidden"></div>
+        <button class="btn btn-primary btn-block btn-lg" onclick="goStep2()">Continue</button>
+      </div>
+
+      <!-- Step 2: Identity (KYC) -->
+      <div id="step2" class="reg-step hidden">
+        <div class="form-group">
+          <label class="form-label">Government ID Type</label>
+          <select class="form-select" id="idType" required>
+            <option value="">Select ID type...</option>
+            <option>National Identity Card</option>
+            <option>Passport</option>
+            <option>Driver's License</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ID Number</label>
+          <input type="text" class="form-input" id="idNumber" required>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-input" id="dob" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tax Residency</label>
+            <select class="form-select" id="taxResidency" required>
+              <option value="">Select...</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="IT">🇮🇹 Italy</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" class="form-input" id="address" required placeholder="Street address">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">City</label>
+            <input type="text" class="form-input" id="city" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Postal Code</label>
+            <input type="text" class="form-input" id="postalCode" required>
+          </div>
+        </div>
+        <div class="card" style="background:var(--info-light);padding:16px;margin-bottom:20px;">
+          <p class="text-sm">📷 <strong>Selfie / Liveness Check:</strong> You will be asked to complete a selfie verification after account creation.</p>
+        </div>
+        <div class="flex gap-4">
+          <button class="btn btn-ghost" onclick="showStep(1)">Back</button>
+          <button class="btn btn-primary btn-block" onclick="goStep3()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Bank Account Verification -->
+      <div id="step3" class="reg-step hidden">
+        <div class="bank-verify-card">
+          <h4>🏦 Bank Account Verification</h4>
+          <p>Please provide your bank account details for verification. This account will be used for deposits and withdrawals. All details are verified per your country's banking regulations.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Holder Name <span style="font-size:.8rem;color:#64748b">(as shown on bank statement)</span></label>
+          <input type="text" class="form-input" id="accountHolder" required placeholder="Jean Dupont">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <input type="text" class="form-input" id="bankName" required placeholder="e.g. Crédit Agricole, UniCredit, BNP Paribas">
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Bank Country</label>
+            <select class="form-select" id="bankCountry" required>
+              <option value="">Select...</option>
+              <option value="FR">🇫🇷 France</option>
+              <option value="IT">🇮🇹 Italy</option>
+              <option value="DE">🇩🇪 Germany</option>
+              <option value="ES">🇪🇸 Spain</option>
+              <option value="PT">🇵🇹 Portugal</option>
+              <option value="BE">🇧🇪 Belgium</option>
+              <option value="NL">🇳🇱 Netherlands</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Number</label>
+            <input type="text" class="form-input" id="accountNumber" required placeholder="Bank account number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">IBAN <span style="font-size:.8rem;color:#64748b">(International Bank Account Number)</span></label>
+          <input type="text" class="form-input iban-input" id="iban" required placeholder="FR76 1234 5678 9012 3456 7890 123" style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label">BIC / SWIFT Code</label>
+          <input type="text" class="form-input iban-input" id="bic" required placeholder="e.g. AGRIFRPP" style="text-transform:uppercase">
+        </div>
+        <div class="card" style="background:var(--bg);padding:16px;margin-bottom:20px;">
+          <p class="text-sm">📋 <strong>Verification process:</strong> Your bank account will be verified by our compliance team. This is a standard security measure required by European banking regulations (AMLD5). Your account will be set to <strong>pending</strong> status until verification is complete (typically 1-2 business days).</p>
+        </div>
+        <div class="flex gap-4">
+          <button class="btn btn-ghost" onclick="showStep(2)">Back</button>
+          <button class="btn btn-primary btn-block" onclick="goStep4()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Investor Profile -->
+      <div id="step4" class="reg-step hidden">
+        <div class="form-group">
+          <label class="form-label">Investment Experience</label>
+          <select class="form-select" id="experience" required>
+            <option value="">Select...</option>
+            <option value="none">No experience</option>
+            <option value="basic">Basic — some savings/investments</option>
+            <option value="intermediate">Intermediate — regular investor</option>
+            <option value="advanced">Advanced — experienced investor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Annual Income Range</label>
+          <select class="form-select" id="income" required>
+            <option value="">Select...</option>
+            <option>Under €25,000</option>
+            <option>€25,000 - €50,000</option>
+            <option>€50,000 - €100,000</option>
+            <option>€100,000 - €250,000</option>
+            <option>Over €250,000</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Investment Objective</label>
+          <select class="form-select" id="objective" required>
+            <option value="">Select...</option>
+            <option>Capital preservation</option>
+            <option>Income / dividends</option>
+            <option>Balanced growth</option>
+            <option>Aggressive growth</option>
+            <option>Retirement planning</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time Horizon</label>
+          <select class="form-select" id="horizon" required>
+            <option value="">Select...</option>
+            <option>Less than 1 year</option>
+            <option>1-3 years</option>
+            <option>3-5 years</option>
+            <option>5-10 years</option>
+            <option>More than 10 years</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Risk Tolerance</label>
+          <select class="form-select" id="riskTolerance" required>
+            <option value="">Select...</option>
+            <option value="conservative">Conservative — low risk</option>
+            <option value="balanced">Balanced — moderate risk</option>
+            <option value="growth">Growth — high risk</option>
+          </select>
+        </div>
+        <div class="flex gap-4">
+          <button class="btn btn-ghost" onclick="showStep(3)">Back</button>
+          <button class="btn btn-primary btn-block" onclick="goStep5()">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Compliance -->
+      <div id="step5" class="reg-step hidden">
+        <div class="card" style="background:var(--bg);padding:20px;margin-bottom:20px;">
+          <h4 style="margin-bottom:12px;">📋 Compliance Screening</h4>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkAML" required style="margin-top:3px;">
+              <span>I confirm I am not on any AML (Anti-Money Laundering) watch list and the funds I will invest are from legitimate sources.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkSanctions" required style="margin-top:3px;">
+              <span>I am not subject to any international sanctions or restrictions.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkPEP" required style="margin-top:3px;">
+              <span>I am not a Politically Exposed Person (PEP) or related to one.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkBankAuth" required style="margin-top:3px;">
+              <span>I confirm the bank account details provided are my own and I authorize EuroVest to verify them with my bank.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkTerms" required style="margin-top:3px;">
+              <span>I agree to the <a href="legal/terms.html" target="_blank">Terms & Conditions</a>, <a href="legal/privacy.html" target="_blank">Privacy Policy</a>, and <a href="legal/risk.html" target="_blank">Risk Disclosure</a>.</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.9rem;cursor:pointer;">
+              <input type="checkbox" id="chkSMS" style="margin-top:3px;">
+              <span><strong>SMS Notifications:</strong> I would like to receive account activity notifications via SMS to my phone number (deposits, withdrawals, approvals, support replies). <em>Optional</em></span>
+            </label>
+          </div>
+        </div>
+        <div id="step5err" class="form-error hidden"></div>
+        <div class="flex gap-4">
+          <button class="btn btn-ghost" onclick="showStep(4)">Back</button>
+          <button class="btn btn-green btn-block" onclick="completeRegistration()">Submit Application</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+      <p class="text-center text-muted text-sm">
+        <span>Already have an account?</span>
+        <a href="login.html" style="font-weight:600;">Sign In</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+var countryLangMap = {FR:'fr',IT:'it',DE:'de',ES:'es',PT:'pt'};
+
+function showStep(n) {
+  for (var i=1;i<=5;i++) { document.getElementById('step'+i).classList.add('hidden'); }
+  document.getElementById('step'+n).classList.remove('hidden');
+  for (var i=1;i<=5;i++) {
+    var ind = document.getElementById('step'+i+'ind');
+    ind.classList.remove('active','completed');
+    if (i<n) ind.classList.add('completed');
+    if (i===n) ind.classList.add('active');
+  }
+}
+
+function goStep2() {
+  var req = ['firstName','lastName','email','phone','password','confirmPassword','country'];
+  for (var i=0;i<req.length;i++) { if(!document.getElementById(req[i]).value){ showErr('step1err','Please fill all fields'); return; } }
+  if (document.getElementById('password').value !== document.getElementById('confirmPassword').value) {
+    showErr('step1err','Passwords do not match'); return;
+  }
+  document.getElementById('step1err').classList.add('hidden');
+  showStep(2);
+}
+function goStep3() {
+  var req = ['idType','idNumber','dob','taxResidency','address','city','postalCode'];
+  for (var i=0;i<req.length;i++) { if(!document.getElementById(req[i]).value){ alert('Please fill all fields in Identity section'); return; } }
+  showStep(3);
+}
+function goStep4() {
+  var req = ['accountHolder','bankName','bankCountry','accountNumber','iban','bic'];
+  for (var i=0;i<req.length;i++) { if(!document.getElementById(req[i]).value){ alert('Please fill all bank account fields'); return; } }
+  showStep(4);
+}
+function goStep5() {
+  var req = ['experience','income','objective','horizon','riskTolerance'];
+  for (var i=0;i<req.length;i++) { if(!document.getElementById(req[i]).value){ alert('Please fill all fields'); return; } }
+  showStep(5);
+}
+function showErr(id,msg) { var el=document.getElementById(id); el.textContent=msg; el.classList.remove('hidden'); }
+
+function completeRegistration() {
+  if (!document.getElementById('chkAML').checked || !document.getElementById('chkSanctions').checked ||
+      !document.getElementById('chkPEP').checked || !document.getElementById('chkTerms').checked || !document.getElementById('chkBankAuth').checked) {
+    showErr('step5err','Please accept all required compliance terms to continue');
+    return;
+  }
+  var country = document.getElementById('country').value;
+  var data = {
+    firstName: document.getElementById('firstName').value,
+    lastName: document.getElementById('lastName').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    password: document.getElementById('password').value,
+    country: country,
+    lang: countryLangMap[country] || getCurrentLang(),
+    // Identity
+    idType: document.getElementById('idType').value,
+    idNumber: document.getElementById('idNumber').value,
+    dob: document.getElementById('dob').value,
+    taxResidency: document.getElementById('taxResidency').value,
+    address: document.getElementById('address').value,
+    city: document.getElementById('city').value,
+    postalCode: document.getElementById('postalCode').value,
+    // Bank
+    accountHolder: document.getElementById('accountHolder').value,
+    bankName: document.getElementById('bankName').value,
+    bankCountry: document.getElementById('bankCountry').value,
+    accountNumber: document.getElementById('accountNumber').value,
+    iban: document.getElementById('iban').value.toUpperCase(),
+    bic: document.getElementById('bic').value.toUpperCase(),
+    // Investor profile
+    experience: document.getElementById('experience').value,
+    income: document.getElementById('income').value,
+    objective: document.getElementById('objective').value,
+    horizon: document.getElementById('horizon').value,
+    riskProfile: document.getElementById('riskTolerance').value || 'balanced',
+    // Compliance
+    aml: true, sanctions: true, pep: false,
+    smsOptIn: document.getElementById('chkSMS').checked,
+    investorType: 'retail'
+  };
+  var result = EV.auth.register(data);
+  if (!result.ok) { showErr('step5err', result.msg); return; }
+  // Auto-login (account is pending but user can view dashboard)
+  EV.auth.login(data.email, data.password);
+  EV.notify.toast('Application Submitted!','Your account is pending verification. Check your email for confirmation.','success');
+  setTimeout(function(){ window.location.href = 'user/dashboard.html'; }, 2000);
+}
+</script>
+</body>
+</html>

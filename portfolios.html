@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Regional Portfolios — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+.portfolio-hero{background:var(--navy-grad);color:#fff;padding:64px 0 48px;text-align:center}
+.portfolio-hero h1{font-size:2.6rem;margin-bottom:12px}
+.portfolio-hero p{font-size:1.15rem;opacity:.85;max-width:680px;margin:0 auto}
+.pf-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:32px 0}
+.pf-tab{padding:10px 22px;border-radius:30px;background:#fff;border:2px solid var(--brand-blue);color:var(--brand-navy);font-weight:600;cursor:pointer;transition:.2s}
+.pf-tab.active,.pf-tab:hover{background:var(--brand-blue);color:#fff}
+.pf-section{display:none;max-width:1180px;margin:0 auto;padding:24px 20px 64px}
+.pf-section.active{display:block}
+.risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-top:24px}
+.risk-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 4px 18px rgba(10,26,63,.08);border:1px solid #eef2f8}
+.risk-card .top{padding:24px;color:#fff;position:relative}
+.risk-card.cons .top{background:linear-gradient(135deg,#1b7a4b,#008C45)}
+.risk-card.bal .top{background:linear-gradient(135deg,#0055A4,#003d7a)}
+.risk-card.gro .top{background:linear-gradient(135deg,#0A1A3F,#1a2d5e)}
+.risk-card .top h3{font-size:1.4rem;margin:0 0 4px}
+.risk-card .top .lvl{font-size:.85rem;opacity:.9;text-transform:uppercase;letter-spacing:1px}
+.risk-card .top .ret{position:absolute;top:20px;right:20px;font-size:1.6rem;font-weight:700}
+.risk-card .body{padding:22px}
+.risk-card .body p{color:#475569;font-size:.92rem;line-height:1.6;margin:0 0 16px}
+.alloc-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:.85rem}
+.alloc-row .label{flex:0 0 110px;font-weight:600;color:var(--brand-navy)}
+.alloc-row .bar{flex:1;height:8px;background:#eef2f8;border-radius:4px;overflow:hidden}
+.alloc-row .fill{height:100%;border-radius:4px}
+.alloc-row .pct{flex:0 0 40px;text-align:right;font-weight:700;color:var(--brand-navy)}
+.spec-list{list-style:none;padding:0;margin:16px 0 0;font-size:.85rem}
+.spec-list li{padding:6px 0;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between}
+.spec-list li span:first-child{color:#64748b}
+.spec-list li span:last-child{font-weight:600;color:var(--brand-navy)}
+.risk-card .cta{display:block;text-align:center;margin:18px 22px 22px;padding:12px;background:var(--brand-green);color:#fff;border-radius:8px;font-weight:600;text-decoration:none}
+.risk-card .cta:hover{filter:brightness(1.08)}
+.compare-table{width:100%;border-collapse:collapse;margin-top:32px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 18px rgba(10,26,63,.08)}
+.compare-table th,.compare-table td{padding:14px 16px;text-align:center;border-bottom:1px solid #eef2f8}
+.compare-table th{background:var(--brand-navy);color:#fff;font-size:.85rem;text-transform:uppercase;letter-spacing:.5px}
+.compare-table td:first-child{text-align:left;font-weight:600;color:var(--brand-navy)}
+.compare-table tr:hover{background:#f8fafc}
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><span class="logo-mark">EV</span> EuroVest</a>
+    <ul class="nav-links">
+      <li><a href="index.html" data-i18n="nav_home">Home</a></li>
+      <li><a href="markets.html" data-i18n="nav_markets">Markets</a></li>
+      <li><a href="loans.html">Loans</a></li>
+      <li><a href="portfolios.html" class="active" data-i18n="nav_portfolios">Portfolios</a></li>
+      <li><a href="about.html" data-i18n="nav_about">About</a></li>
+      <li><a href="register.html" data-i18n="nav_register">Register</a></li>
+      <li><a href="login.html" data-i18n="nav_login">Login</a></li>
+    </ul>
+    <div class="nav-right">
+      <div class="lang-dropdown"><button class="lang-btn" id="langBtn">🌐 EN</button><div class="lang-menu" id="langMenu"></div></div>
+      <button class="navbar-toggle" onclick="document.getElementById('mobileNav').classList.toggle('open')">☰</button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="markets.html">Markets</a>
+  <a href="loans.html">Loans</a>
+  <a href="portfolios.html">Portfolios</a>
+  <a href="about.html">About</a>
+  <a href="register.html">Register</a>
+  <a href="login.html">Login</a>
+</div>
+
+<section class="portfolio-hero">
+  <div style="max-width:1180px;margin:0 auto;padding:0 20px">
+    <div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">
+      <span class="flag-pill">🇫🇷 France</span><span class="flag-pill">🇮🇹 Italy</span><span class="flag-pill">🇪🇺 Euro</span><span class="flag-pill">🌍 Global</span>
+    </div>
+    <h1 data-i18n="pf_title">Regional Investment Portfolios</h1>
+    <p data-i18n="pf_subtitle">Professionally managed portfolios tailored to French and Italian investors, plus Euro-zone and Global growth strategies. Choose your risk level and let our experts do the rest.</p>
+  </div>
+</section>
+
+<div class="pf-tabs">
+  <button class="pf-tab active" onclick="showPf('fr')">🇫🇷 France Portfolios</button>
+  <button class="pf-tab" onclick="showPf('it')">🇮🇹 Italy Portfolios</button>
+  <button class="pf-tab" onclick="showPf('euro')">🇪🇺 Euro Growth</button>
+  <button class="pf-tab" onclick="showPf('global')">🌍 Global Growth</button>
+</div>
+
+<!-- FRANCE -->
+<div class="pf-section active" id="pf-fr">
+  <div class="risk-grid">
+    <div class="risk-card cons">
+      <div class="top"><span class="ret">3.2%</span><h3>Conservative</h3><span class="lvl">Low Risk · France</span></div>
+      <div class="body">
+        <p>A capital-preservation portfolio built around French government bonds (OAT), Livret A, LDDS and high-grade European fixed income. Ideal for risk-averse savers seeking steady returns above inflation.</p>
+        <div class="alloc-row"><span class="label">OAT Bonds</span><div class="bar"><div class="fill" style="width:45%;background:#0055A4"></div></div><span class="pct">45%</span></div>
+        <div class="alloc-row"><span class="label">Livret A/LDDS</span><div class="bar"><div class="fill" style="width:25%;background:#008C45"></div></div><span class="pct">25%</span></div>
+        <div class="alloc-row"><span class="label">Money Market</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Blue Chips</span><div class="bar"><div class="fill" style="width:10%;background:#64748b"></div></div><span class="pct">10%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>3.2% p.a.</span></li>
+          <li><span>Volatility</span><span>2.1%</span></li>
+          <li><span>Minimum investment</span><span>€5,000</span></li>
+          <li><span>Management fee</span><span>0.45%</span></li>
+          <li><span>Liquidity</span><span>T+2</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Conservative</a>
+      </div>
+    </div>
+    <div class="risk-card bal">
+      <div class="top"><span class="ret">6.5%</span><h3>Balanced</h3><span class="lvl">Medium Risk · France</span></div>
+      <div class="body">
+        <p>A diversified blend of CAC 40 equities, European ETFs, SCPI real estate and OAT bonds. Designed for investors seeking growth with moderate downside protection over a 5–7 year horizon.</p>
+        <div class="alloc-row"><span class="label">CAC 40 Equities</span><div class="bar"><div class="fill" style="width:35%;background:#0055A4"></div></div><span class="pct">35%</span></div>
+        <div class="alloc-row"><span class="label">EU ETFs</span><div class="bar"><div class="fill" style="width:25%;background:#008C45"></div></div><span class="pct">25%</span></div>
+        <div class="alloc-row"><span class="label">SCPI Real Estate</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">OAT Bonds</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>6.5% p.a.</span></li>
+          <li><span>Volatility</span><span>8.4%</span></li>
+          <li><span>Minimum investment</span><span>€10,000</span></li>
+          <li><span>Management fee</span><span>0.85%</span></li>
+          <li><span>Liquidity</span><span>T+3</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Balanced</a>
+      </div>
+    </div>
+    <div class="risk-card gro">
+      <div class="top"><span class="ret">9.8%</span><h3>Growth</h3><span class="lvl">High Risk · France</span></div>
+      <div class="body">
+        <p>An aggressive growth portfolio overweight in French and European tech, luxury, and green-energy equities, complemented by private equity and sustainable funds. For investors with a 7–10+ year horizon.</p>
+        <div class="alloc-row"><span class="label">Growth Equities</span><div class="bar"><div class="fill" style="width:40%;background:#0055A4"></div></div><span class="pct">40%</span></div>
+        <div class="alloc-row"><span class="label">Private Equity</span><div class="bar"><div class="fill" style="width:20%;background:#008C45"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">ESG Funds</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Innovation ETFs</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>9.8% p.a.</span></li>
+          <li><span>Volatility</span><span>15.2%</span></li>
+          <li><span>Minimum investment</span><span>€25,000</span></li>
+          <li><span>Management fee</span><span>1.25%</span></li>
+          <li><span>Liquidity</span><span>T+5</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Growth</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ITALY -->
+<div class="pf-section" id="pf-it">
+  <div class="risk-grid">
+    <div class="risk-card cons">
+      <div class="top"><span class="ret">3.5%</span><h3>Conservative</h3><span class="lvl">Low Risk · Italy</span></div>
+      <div class="body">
+        <p>Capital preservation anchored in Italian government bonds (BTP), Bot and Tusaccia instruments, plus European investment-grade credit. Designed for Italian savers prioritizing stability and regular coupon income.</p>
+        <div class="alloc-row"><span class="label">BTP Bonds</span><div class="bar"><div class="fill" style="width:50%;background:#008C45"></div></div><span class="pct">50%</span></div>
+        <div class="alloc-row"><span class="label">BOT/T- Bills</span><div class="bar"><div class="fill" style="width:20%;background:#0055A4"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">EU Corp Bonds</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Blue Chips</span><div class="bar"><div class="fill" style="width:10%;background:#64748b"></div></div><span class="pct">10%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>3.5% p.a.</span></li>
+          <li><span>Volatility</span><span>2.6%</span></li>
+          <li><span>Minimum investment</span><span>€5,000</span></li>
+          <li><span>Management fee</span><span>0.45%</span></li>
+          <li><span>Liquidity</span><span>T+2</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Conservative</a>
+      </div>
+    </div>
+    <div class="risk-card bal">
+      <div class="top"><span class="ret">6.8%</span><h3>Balanced</h3><span class="lvl">Medium Risk · Italy</span></div>
+      <div class="body">
+        <p>A balanced mix of FTSE MIB equities, European ETFs, Italian real estate funds and BTP bonds. Suited for investors wanting growth potential with controlled risk over a medium-term horizon.</p>
+        <div class="alloc-row"><span class="label">FTSE MIB</span><div class="bar"><div class="fill" style="width:35%;background:#008C45"></div></div><span class="pct">35%</span></div>
+        <div class="alloc-row"><span class="label">EU ETFs</span><div class="bar"><div class="fill" style="width:25%;background:#0055A4"></div></div><span class="pct">25%</span></div>
+        <div class="alloc-row"><span class="label">RE Funds</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">BTP Bonds</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>6.8% p.a.</span></li>
+          <li><span>Volatility</span><span>9.1%</span></li>
+          <li><span>Minimum investment</span><span>€10,000</span></li>
+          <li><span>Management fee</span><span>0.85%</span></li>
+          <li><span>Liquidity</span><span>T+3</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Balanced</a>
+      </div>
+    </div>
+    <div class="risk-card gro">
+      <div class="top"><span class="ret">10.2%</span><h3>Growth</h3><span class="lvl">High Risk · Italy</span></div>
+      <div class="body">
+        <p>A high-growth strategy focused on Italian mid-caps, luxury, industrial automation, and Mediterranean fintech, combined with European innovation ETFs and sustainable infrastructure funds.</p>
+        <div class="alloc-row"><span class="label">Growth Equities</span><div class="bar"><div class="fill" style="width:40%;background:#008C45"></div></div><span class="pct">40%</span></div>
+        <div class="alloc-row"><span class="label">Private Equity</span><div class="bar"><div class="fill" style="width:20%;background:#0055A4"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Sustainable Infra</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Innovation ETFs</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>10.2% p.a.</span></li>
+          <li><span>Volatility</span><span>16.0%</span></li>
+          <li><span>Minimum investment</span><span>€25,000</span></li>
+          <li><span>Management fee</span><span>1.25%</span></li>
+          <li><span>Liquidity</span><span>T+5</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Growth</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EURO GROWTH -->
+<div class="pf-section" id="pf-euro">
+  <div class="risk-grid" style="grid-template-columns:repeat(auto-fit,minmax(360px,1fr))">
+    <div class="risk-card bal" style="grid-column:1/-1;max-width:760px;margin:0 auto">
+      <div class="top"><span class="ret">8.4%</span><h3>Euro Growth Portfolio</h3><span class="lvl">Medium-High Risk · Eurozone</span></div>
+      <div class="body">
+        <p>A pan-European growth strategy spanning the Eurozone's strongest economies — France, Italy, Germany, Spain and the Netherlands. Combines Euro Stoxx 50 equities, Eurozone government bonds, green-transition infrastructure, and European innovation ETFs for diversified Euro-denominated growth.</p>
+        <div class="alloc-row"><span class="label">Euro Stoxx 50</span><div class="bar"><div class="fill" style="width:35%;background:#0055A4"></div></div><span class="pct">35%</span></div>
+        <div class="alloc-row"><span class="label">EU Innovation ETFs</span><div class="bar"><div class="fill" style="width:25%;background:#008C45"></div></div><span class="pct">25%</span></div>
+        <div class="alloc-row"><span class="label">Green Infrastructure</span><div class="bar"><div class="fill" style="width:20%;background:#0A1A3F"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">EU Gov Bonds</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>8.4% p.a.</span></li>
+          <li><span>Volatility</span><span>12.3%</span></li>
+          <li><span>Minimum investment</span><span>€15,000</span></li>
+          <li><span>Management fee</span><span>1.05%</span></li>
+          <li><span>Liquidity</span><span>T+4</span></li>
+          <li><span>Currency</span><span>EUR</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Euro Growth</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL GROWTH -->
+<div class="pf-section" id="pf-global">
+  <div class="risk-grid" style="grid-template-columns:repeat(auto-fit,minmax(360px,1fr))">
+    <div class="risk-card gro" style="grid-column:1/-1;max-width:760px;margin:0 auto">
+      <div class="top"><span class="ret">11.5%</span><h3>Global Growth Portfolio</h3><span class="lvl">High Risk · Worldwide</span></div>
+      <div class="body">
+        <p>Our flagship global strategy with exposure across North America, Europe, Asia-Pacific and emerging markets. Blends MSCI World equities, emerging-market growth, global tech leaders, commodities, and a satellite allocation to digital assets. For investors seeking maximum long-term capital appreciation.</p>
+        <div class="alloc-row"><span class="label">MSCI World</span><div class="bar"><div class="fill" style="width:35%;background:#0A1A3F"></div></div><span class="pct">35%</span></div>
+        <div class="alloc-row"><span class="label">Emerging Markets</span><div class="bar"><div class="fill" style="width:20%;background:#008C45"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Global Tech</span><div class="bar"><div class="fill" style="width:20%;background:#0055A4"></div></div><span class="pct">20%</span></div>
+        <div class="alloc-row"><span class="label">Commodities</span><div class="bar"><div class="fill" style="width:15%;background:#64748b"></div></div><span class="pct">15%</span></div>
+        <div class="alloc-row"><span class="label">Digital Assets</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <div class="alloc-row"><span class="label">Cash</span><div class="bar"><div class="fill" style="width:5%;background:#cbd5e1"></div></div><span class="pct">5%</span></div>
+        <ul class="spec-list">
+          <li><span>Target return</span><span>11.5% p.a.</span></li>
+          <li><span>Volatility</span><span>18.7%</span></li>
+          <li><span>Minimum investment</span><span>€25,000</span></li>
+          <li><span>Management fee</span><span>1.45%</span></li>
+          <li><span>Liquidity</span><span>T+5</span></li>
+          <li><span>Currency hedging</span><span>Available</span></li>
+        </ul>
+        <a href="register.html" class="cta">Invest in Global Growth</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Comparison table -->
+<div style="max-width:1180px;margin:0 auto;padding:0 20px 80px">
+  <h2 style="text-align:center;color:var(--brand-navy);margin-bottom:8px">Portfolio Comparison</h2>
+  <p style="text-align:center;color:#64748b;margin-bottom:24px">Compare all strategies side by side</p>
+  <table class="compare-table">
+    <thead><tr><th>Portfolio</th><th>Target Return</th><th>Volatility</th><th>Min. Investment</th><th>Fee</th><th>Risk Level</th><th>Horizon</th></tr></thead>
+    <tbody>
+      <tr><td>FR Conservative</td><td>3.2%</td><td>2.1%</td><td>€5,000</td><td>0.45%</td><td>Low</td><td>1–3 yrs</td></tr>
+      <tr><td>FR Balanced</td><td>6.5%</td><td>8.4%</td><td>€10,000</td><td>0.85%</td><td>Medium</td><td>5–7 yrs</td></tr>
+      <tr><td>FR Growth</td><td>9.8%</td><td>15.2%</td><td>€25,000</td><td>1.25%</td><td>High</td><td>7–10+ yrs</td></tr>
+      <tr><td>IT Conservative</td><td>3.5%</td><td>2.6%</td><td>€5,000</td><td>0.45%</td><td>Low</td><td>1–3 yrs</td></tr>
+      <tr><td>IT Balanced</td><td>6.8%</td><td>9.1%</td><td>€10,000</td><td>0.85%</td><td>Medium</td><td>5–7 yrs</td></tr>
+      <tr><td>IT Growth</td><td>10.2%</td><td>16.0%</td><td>€25,000</td><td>1.25%</td><td>High</td><td>7–10+ yrs</td></tr>
+      <tr><td>Euro Growth</td><td>8.4%</td><td>12.3%</td><td>€15,000</td><td>1.05%</td><td>Med-High</td><td>5–10 yrs</td></tr>
+      <tr><td>Global Growth</td><td>11.5%</td><td>18.7%</td><td>€25,000</td><td>1.45%</td><td>High</td><td>7–10+ yrs</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="logo"><span class="logo-mark">EV</span> EuroVest</div>
+      <p>The multi-region investment marketplace for France & Italy. Regulated, secure, multilingual.</p>
+    </div>
+    <div class="footer-col"><h4>Platform</h4><a href="markets.html">Markets</a><a href="portfolios.html">Portfolios</a><a href="register.html">Open Account</a><a href="login.html">Login</a></div>
+    <div class="footer-col"><h4>Legal</h4><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/risk.html">Risk Disclosure</a><a href="legal/fees.html">Fees</a></div>
+    <div class="footer-col"><h4>Support</h4><a href="legal/complaints.html">Complaints</a><a href="legal/aml.html">AML / KYC</a><a href="legal/regulatory.html">Regulatory</a><a href="legal/cookies.html">Cookies</a></div>
+  </div>
+  <div class="footer-bottom">© 2024 EuroVest — France 🇫🇷 & Italy 🇮🇹. All rights reserved.</div>
+</footer>
+
+<div class="chat-widget" id="chatWidget">
+  <div class="chat-bubble" onclick="toggleChat()">💬</div>
+  <div class="chat-panel" id="chatPanel" style="display:none">
+    <div class="chat-head"><span>🤖 EuroVest AI Support</span><span onclick="toggleChat()">✕</span></div>
+    <div class="chat-body" id="chatBody"></div>
+    <div class="chat-input"><input id="chatInput" placeholder="Type your question..." onkeydown="if(event.key==='Enter')sendChat()"><button onclick="sendChat()">Send</button></div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+function showPf(id){
+  document.querySelectorAll('.pf-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.pf-section').forEach(s=>s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('pf-'+id).classList.add('active');
+}
+function toggleChat(){const p=document.getElementById('chatPanel');p.style.display=p.style.display==='none'?'flex':'none';}
+function sendChat(){const i=document.getElementById('chatInput');const v=i.value.trim();if(!v)return;const b=document.getElementById('chatBody');b.innerHTML+=`<div class="msg user">${v}</div>`;i.value='';setTimeout(()=>{const r=EV.ai.respond(v,getCurrentLang()||'en');b.innerHTML+=`<div class="msg bot">${r}</div>`;b.scrollTop=b.scrollHeight;},500);b.scrollTop=b.scrollHeight;}
+</script>
+</body>
+</html>

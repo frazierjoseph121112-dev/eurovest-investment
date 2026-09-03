@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — EuroVest</title>
+<link rel="stylesheet" href="../assets/css/style.css">
+<style>
+  .notif-item { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:var(--transition); }
+  .notif-item:hover { background:var(--bg); }
+  .notif-item.unread { border-left:3px solid var(--brand-blue); }
+  .notif-item.unread .notif-text { font-weight:600; }
+  .notif-icon { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .gen-preview { background:var(--bg); border-radius:12px; padding:16px; margin-top:16px; font-family:monospace; font-size:0.82rem; max-height:300px; overflow-y:auto; }
+  .msg-compose { background:#fff; border-radius:12px; padding:24px; box-shadow:var(--shadow); }
+  .ticket-card { background:#fff; border-radius:12px; padding:20px; box-shadow:var(--shadow); margin-bottom:16px; border-left:4px solid var(--border); }
+  .ticket-card.escalated { border-left-color:var(--warning); }
+  .ticket-card.answered { border-left-color:var(--success); }
+  .ticket-reply { background:var(--bg); border-radius:8px; padding:12px 16px; margin-top:8px; font-size:0.88rem; }
+  .pending-card { background:#fff; border-radius:12px; padding:24px; box-shadow:var(--shadow); margin-bottom:16px; border-left:4px solid var(--warning); }
+  .bank-detail-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin-top:16px; }
+  .bank-detail { background:var(--bg); border-radius:8px; padding:12px 14px; }
+  .bank-detail .label { font-size:0.72rem; text-transform:uppercase; color:var(--text-secondary); letter-spacing:1px; }
+  .bank-detail .value { font-size:0.92rem; font-weight:600; margin-top:4px; word-break:break-all; }
+  .template-card { background:#fff; border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:var(--transition); margin-bottom:12px; }
+  .template-card:hover { border-color:var(--brand-blue); transform:translateY(-2px); }
+  .template-card.selected { border-color:var(--brand-blue); background:var(--info-light); }
+  .template-card .tpl-icon { font-size:1.8rem; }
+  .template-preview { background:var(--bg); border-radius:12px; padding:24px; margin-top:16px; white-space:pre-wrap; font-size:0.88rem; line-height:1.6; max-height:400px; overflow-y:auto; border:1px solid var(--border); }
+  .email-preview { background:#fff; border-radius:12px; padding:0; margin-bottom:12px; box-shadow:var(--shadow); overflow:hidden; border:1px solid var(--border); }
+  .email-preview .email-head { background:var(--grad-navy); color:#fff; padding:16px 20px; }
+  .email-preview .email-head h5 { margin:0 0 4px; font-size:1rem; }
+  .email-preview .email-head .meta { font-size:0.78rem; opacity:0.85; }
+  .email-preview .email-body { padding:20px; white-space:pre-wrap; font-size:0.88rem; line-height:1.6; }
+  .sms-log-item { display:flex; align-items:flex-start; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); }
+  .sms-icon { width:36px; height:36px; border-radius:50%; background:var(--success-light); color:var(--success); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+  .multi-select { min-height:120px; border:1px solid var(--border); border-radius:8px; padding:12px; overflow-y:auto; }
+  .multi-select label { display:flex; align-items:center; gap:8px; padding:6px 0; cursor:pointer; }
+  .multi-select label:hover { color:var(--brand-blue); }
+  .toggle-switch { position:relative; display:inline-block; width:44px; height:24px; }
+  .toggle-switch input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:var(--border); border-radius:24px; transition:0.3s; }
+  .toggle-slider:before { content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
+  input:checked + .toggle-slider { background:var(--brand-green); }
+  input:checked + .toggle-slider:before { transform:translateX(20px); }
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<div class="dash-layout">
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="dash-sidebar-head">
+      <div class="logo"><span class="logo-mark">€</span> EuroVest <span style="font-size:0.7rem;background:var(--brand-green);padding:2px 8px;border-radius:10px;margin-left:4px;">ADMIN</span></div>
+    </div>
+    <nav class="dash-nav">
+      <div class="dash-nav-section">Dashboard</div>
+      <div class="dash-nav-item active" onclick="showAdminPage('overview')"><span class="icon">📊</span> <span data-i18n="admin_overview">Overview</span> <span class="badge-count" id="notifCount">0</span></div>
+      <div class="dash-nav-section">Management</div>
+      <div class="dash-nav-item" onclick="showAdminPage('pending')"><span class="icon">⏳</span> Pending Accounts <span class="badge-count" id="pendingCount">0</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('users')"><span class="icon">👥</span> <span data-i18n="admin_users">Users</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('generate')"><span class="icon">⚡</span> <span data-i18n="admin_generate">Generate Transactions</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('transactions')"><span class="icon">🧾</span> <span data-i18n="admin_transactions">Transactions</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('templates')"><span class="icon">📧</span> Motivational Emails</div>
+      <div class="dash-nav-item" onclick="showAdminPage('messages')"><span class="icon">✉️</span> <span data-i18n="admin_messages">Messaging</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('support')"><span class="icon">🎧</span> <span data-i18n="admin_support">Support Inbox</span> <span class="badge-count" id="ticketCount">0</span></div>
+      <div class="dash-nav-section">Operations</div>
+      <div class="dash-nav-item" onclick="showAdminPage('compliance')"><span class="icon">🛡️</span> <span data-i18n="admin_compliance">Compliance</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('products')"><span class="icon">📈</span> <span data-i18n="admin_products">Investments</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('loans')"><span class="icon">💰</span> Loan Management</div>
+      <div class="dash-nav-item" onclick="showAdminPage('emaillog')"><span class="icon">📬</span> Email & SMS Log</div>
+      <div class="dash-nav-item" onclick="showAdminPage('reports')"><span class="icon">📋</span> <span data-i18n="admin_reports">Reports</span></div>
+      <div class="dash-nav-section">System</div>
+      <div class="dash-nav-item" onclick="showAdminPage('settings')"><span class="icon">⚙️</span> <span data-i18n="admin_settings">Settings</span></div>
+    </nav>
+    <div class="dash-sidebar-foot">
+      <div class="dash-nav-item" onclick="EV.auth.logout()"><span class="icon">🚪</span> Logout</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="dash-main">
+    <header class="dash-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="dash-menu-btn" onclick="document.querySelector('.dash-sidebar').classList.toggle('open')">☰</button>
+        <h1 id="adminPageTitle">Dashboard Overview</h1>
+      </div>
+      <div class="dash-header-actions">
+        <div style="position:relative;">
+          <button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()">🔔 <span id="bellCount">0</span></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="text-align:right;">
+            <div style="font-weight:600;font-size:0.9rem;">Administrator</div>
+            <div style="font-size:0.78rem;color:var(--text-secondary);">admin@eurovest.eu</div>
+          </div>
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--grad-navy);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">A</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dash-content">
+
+      <!-- ===== OVERVIEW ===== -->
+      <div id="apage-overview" class="dash-page">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--info-light);color:var(--brand-blue);">👥</div>
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value" id="aTotalUsers">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--warning-light);color:var(--warning);">⏳</div>
+            <div class="stat-label">Pending Approvals</div>
+            <div class="stat-value" id="aPendingUsers">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--success-light);color:var(--success);">👁️</div>
+            <div class="stat-label">Total Visits</div>
+            <div class="stat-value" id="aTotalVisits">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:var(--danger-light);color:var(--danger);">🏧</div>
+            <div class="stat-label">Withdrawals (Requests)</div>
+            <div class="stat-value" id="aWithdrawals">0</div>
+          </div>
+        </div>
+
+        <div class="grid-2 gap-6">
+          <div class="card">
+            <h3 style="margin-bottom:20px;">🔔 Live Notifications</h3>
+            <div id="notifList" style="max-height:400px;overflow-y:auto;"></div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom:20px;">📈 Recent Activity</h3>
+            <div id="recentActivity"></div>
+          </div>
+        </div>
+
+        <div class="card mt-6">
+          <h3 style="margin-bottom:20px;">🌍 Visits by Language</h3>
+          <div id="visitsByLang"></div>
+        </div>
+      </div>
+
+      <!-- ===== PENDING ACCOUNTS ===== -->
+      <div id="apage-pending" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>⏳ Pending Account Verification</h3>
+          <p class="text-muted text-sm mt-2">New registrations with bank account details awaiting your review. All bank verification fields are shown below for compliance checking (AMLD5). Approve to activate the account — user receives email + SMS confirmation.</p>
+        </div>
+        <div id="pendingList"></div>
+      </div>
+
+      <!-- ===== USERS ===== -->
+      <div id="apage-users" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>User Management</h3>
+          <p class="text-muted text-sm mt-2">View and manage all registered users — KYC status, verification, account status, risk profile. Click "View" to see full bank verification details.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Country</th><th>Lang</th><th>KYC</th><th>Status</th><th>Risk</th><th>Balance</th><th>Actions</th></tr></thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== USER DETAIL MODAL ===== -->
+      <div id="userDetailModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;overflow-y:auto;">
+        <div style="max-width:700px;margin:40px auto;background:#fff;border-radius:16px;overflow:hidden;">
+          <div style="background:var(--grad-navy);color:#fff;padding:24px;display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;" id="udName">User Details</h3>
+            <button class="btn btn-ghost btn-sm" style="color:#fff;" onclick="closeUserDetail()">✕ Close</button>
+          </div>
+          <div style="padding:24px;">
+            <div id="udContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== GENERATE TRANSACTIONS ===== -->
+      <div id="apage-generate" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>⚡ Generate Transactions</h3>
+          <p class="text-muted text-sm mt-2">Generate realistic transactions for any user — single or bulk. Now includes all portfolios, all loan types (disbursement & repayment), portfolio investment & rebalancing. Each transaction has a clickable detailed receipt dated as far back as needed.</p>
+        </div>
+
+        <div class="grid-2 gap-6">
+          <!-- Single Transaction -->
+          <div class="card">
+            <h4 style="margin-bottom:20px;">📝 Single Transaction</h4>
+            <div class="form-group">
+              <label class="form-label">Select User</label>
+              <select class="form-select" id="genUserSingle"></select>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Transaction Type</label>
+                <select class="form-select" id="genType">
+                  <option value="deposit">Deposit</option>
+                  <option value="withdrawal">Withdrawal</option>
+                  <option value="purchase">Purchase (Investment Product)</option>
+                  <option value="sale">Sale (Investment Product)</option>
+                  <option value="dividend">Dividend</option>
+                  <option value="interest">Interest</option>
+                  <option value="fee">Fee</option>
+                  <option value="loan_disbursement">Loan Disbursement</option>
+                  <option value="loan_repayment">Loan Repayment</option>
+                  <option value="portfolio_investment">Portfolio Investment</option>
+                  <option value="portfolio_rebalance">Portfolio Rebalance</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Amount (EUR)</label>
+                <input type="number" class="form-input" id="genAmount" placeholder="1000.00" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date (leave empty for random up to 3 years ago)</label>
+              <input type="date" class="form-input" id="genDate">
+              <div class="form-hint">If left empty, a random date up to 3 years in the past will be used.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description (optional)</label>
+              <input type="text" class="form-input" id="genDesc" placeholder="Auto-generated if empty">
+              <div class="form-hint">Auto-generated from all portfolios, loan types, and products if empty.</div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="generateSingle()">Generate Transaction</button>
+          </div>
+
+          <!-- Bulk Transactions -->
+          <div class="card">
+            <h4 style="margin-bottom:20px;">📊 Bulk Transaction Generation</h4>
+            <div class="form-group">
+              <label class="form-label">Select User</label>
+              <select class="form-select" id="genUserBulk"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number of Transactions</label>
+              <input type="number" class="form-input" id="genCount" value="10" min="1" max="100">
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Type Filter (optional)</label>
+                <select class="form-select" id="genBulkType">
+                  <option value="">Mixed (all types — incl. loans & portfolios)</option>
+                  <option value="deposit">Deposits only</option>
+                  <option value="purchase">Purchases only</option>
+                  <option value="dividend">Dividends only</option>
+                  <option value="interest">Interest only</option>
+                  <option value="loan_disbursement">Loan Disbursements only</option>
+                  <option value="loan_repayment">Loan Repayments only</option>
+                  <option value="portfolio_investment">Portfolio Investments only</option>
+                  <option value="portfolio_rebalance">Portfolio Rebalances only</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Max Amount</label>
+                <input type="number" class="form-input" id="genMaxAmount" value="5000" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date Range Start (empty = 3 years ago)</label>
+              <input type="date" class="form-input" id="genDateFrom">
+            </div>
+            <button class="btn btn-green btn-block" onclick="generateBulk()">Generate Bulk Transactions</button>
+            <div class="gen-preview hidden" id="bulkPreview"></div>
+          </div>
+        </div>
+
+        <div class="card mt-6">
+          <h4 style="margin-bottom:16px;">📋 Last Generated Transactions</h4>
+          <div id="genResults"></div>
+        </div>
+      </div>
+
+      <!-- ===== ALL TRANSACTIONS ===== -->
+      <div id="apage-transactions" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>All Transactions</h3>
+          <p class="text-muted text-sm mt-2">All transactions across all users with clickable receipts</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Reference</th><th>User</th><th>Type</th><th>Description</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+            <tbody id="allTxBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MOTIVATIONAL EMAIL TEMPLATES ===== -->
+      <div id="apage-templates" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>📧 Motivational Email Templates</h3>
+          <p class="text-muted text-sm mt-2">Select from pre-built motivational templates, preview, personalize, and send to single, multiple, or all users. Each recipient gets a personalized copy (with their name) delivered to their email AND dashboard in the official EuroVest template. SMS notification is sent if the user opted in.</p>
+        </div>
+
+        <div class="grid-2 gap-6">
+          <!-- Template Selection -->
+          <div>
+            <h4 style="margin-bottom:16px;">1. Choose a Template</h4>
+            <div id="templateList"></div>
+          </div>
+
+          <!-- Preview & Send -->
+          <div>
+            <h4 style="margin-bottom:16px;">2. Preview & Send</h4>
+            <div id="templatePreview" class="template-preview" style="color:var(--text-secondary);font-style:italic;">
+              Select a template from the left to see a preview here.
+            </div>
+
+            <div class="card mt-6">
+              <h4 style="margin-bottom:16px;">3. Select Recipients</h4>
+              <div class="form-group">
+                <label class="form-label">Send To</label>
+                <select class="form-select" id="tplTargetType" onchange="toggleTplTarget()">
+                  <option value="all">📢 All Users (Broadcast)</option>
+                  <option value="select">☑️ Select Specific Users</option>
+                </select>
+              </div>
+              <div id="tplMultiSelectWrap" style="display:none;">
+                <label class="form-label" style="display:block;margin-bottom:8px;">Check the users you want to send to:</label>
+                <div class="multi-select" id="tplMultiSelect"></div>
+                <button class="btn btn-ghost btn-sm mt-2" onclick="selectAllTplUsers(true)">Select All</button>
+                <button class="btn btn-ghost btn-sm" onclick="selectAllTplUsers(false)">Clear All</button>
+              </div>
+              <div class="form-group mt-4">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                  <span class="toggle-switch"><input type="checkbox" id="tplSendSMS" checked><span class="toggle-slider"></span></span>
+                  Also send SMS notification to users who opted in
+                </label>
+              </div>
+              <button class="btn btn-primary btn-block btn-lg" onclick="sendTemplate()">📧 Send Motivational Email</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MESSAGING ===== -->
+      <div id="apage-messages" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>✉️ Messaging Center</h3>
+          <p class="text-muted text-sm mt-2">Send custom messages to all users or individuals. Messages are delivered to user email and dashboard. For motivational templates, use the "Motivational Emails" page. You write in English — users receive in their native language.</p>
+        </div>
+
+        <div class="msg-compose">
+          <h4 style="margin-bottom:20px;">Compose Message</h4>
+          <div class="form-group">
+            <label class="form-label">Recipient</label>
+            <select class="form-select" id="msgTarget">
+              <option value="all">📢 All Users (Broadcast)</option>
+            </select>
+            <div class="form-hint">Tip: You can also select multiple users by holding Ctrl/Cmd. Or use the Motivational Emails page for template-based sends.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input type="text" class="form-input" id="msgSubject" placeholder="Message subject">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message (English — auto-translated to user's language)</label>
+            <textarea class="form-textarea" id="msgBody" placeholder="Type your message here... Use {name} to personalize with the user's name."></textarea>
+            <div class="form-hint">This message will be automatically displayed in each user's selected language. Use {name} as a placeholder for the recipient's name.</div>
+          </div>
+          <button class="btn btn-primary btn-lg" onclick="sendMessage()">📤 Send Message</button>
+        </div>
+
+        <div class="card mt-6">
+          <h4 style="margin-bottom:16px;">🗂️ Sent Messages History</h4>
+          <div id="sentMsgs"></div>
+        </div>
+      </div>
+
+      <!-- ===== SUPPORT INBOX ===== -->
+      <div id="apage-support" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>🎧 Support Inbox</h3>
+          <p class="text-muted text-sm mt-2">All customer support messages. AI handles common questions automatically. You are notified by email when AI is responding. Escalated tickets need your reply.</p>
+        </div>
+        <div class="grid-2 gap-6">
+          <div>
+            <h4 style="margin-bottom:16px;">⚠️ Escalated / Open Tickets (Need your reply)</h4>
+            <div id="escalatedTickets"></div>
+          </div>
+          <div>
+            <h4 style="margin-bottom:16px;">✅ AI-Handled Tickets</h4>
+            <div id="aiTickets"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== COMPLIANCE ===== -->
+      <div id="apage-compliance" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>🛡️ Compliance Center</h3>
+          <p class="text-muted text-sm mt-2">AML alerts, sanctions screening, suspicious transactions, audit trail</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--success-light);color:var(--success);">✅</div><div class="stat-label">AML Checks Passed</div><div class="stat-value" id="cAMLPassed">0</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--warning-light);color:var(--warning);">⏳</div><div class="stat-label">Pending Reviews</div><div class="stat-value" id="cPending">0</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light);color:var(--danger);">🚨</div><div class="stat-label">Alerts</div><div class="stat-value" id="cAlerts">0</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--info-light);color:var(--brand-blue);">📋</div><div class="stat-label">Audit Entries</div><div class="stat-value" id="cAudit">0</div></div>
+        </div>
+        <div class="card mt-6">
+          <h4 style="margin-bottom:16px;">📋 Audit Trail</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Timestamp</th><th>Action</th><th>User</th><th>Details</th></tr></thead>
+              <tbody id="auditBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PRODUCTS ===== -->
+      <div id="apage-products" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>Investment Products</h3>
+          <p class="text-muted text-sm mt-2">Manage investment products, prices, risk classifications</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Risk</th><th>Min. Investment</th><th>Fees</th><th>Status</th></tr></thead>
+            <tbody id="productsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== LOAN MANAGEMENT ===== -->
+      <div id="apage-loans" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>💰 Loan Management</h3>
+          <p class="text-muted text-sm mt-2">EuroVest offers a full suite of loan products for users in France, Italy, and across Europe. View all loan types, manage active loans, and generate loan transactions.</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-icon" style="background:var(--info-light);color:var(--brand-blue);">📋</div><div class="stat-label">Loan Types Offered</div><div class="stat-value" id="lTypes">12</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--success-light);color:var(--success);">💸</div><div class="stat-label">Total Disbursed</div><div class="stat-value" id="lDisbursed">€0</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--warning-light);color:var(--warning);">🔄</div><div class="stat-label">Active Loans</div><div class="stat-value" id="lActive">0</div></div>
+          <div class="stat-card"><div class="stat-icon" style="background:var(--danger-light);color:var(--danger);">📊</div><div class="stat-label">Total Repayments</div><div class="stat-value" id="lRepaid">€0</div></div>
+        </div>
+        <div class="card mt-6">
+          <h4 style="margin-bottom:16px;">📋 Loan Products Catalog</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Loan Type</th><th>Min Amount</th><th>Max Amount</th><th>Rate (APR)</th><th>Term</th><th>Status</th></tr></thead>
+              <tbody id="loansBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card mt-6">
+          <h4 style="margin-bottom:16px;">⚡ Generate a Loan Transaction</h4>
+          <div class="grid-2 gap-6">
+            <div class="form-group">
+              <label class="form-label">Select User</label>
+              <select class="form-select" id="loanGenUser"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Loan Type</label>
+              <select class="form-select" id="loanGenType"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Amount (EUR)</label>
+              <input type="number" class="form-input" id="loanGenAmount" placeholder="15000" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Action</label>
+              <select class="form-select" id="loanGenAction">
+                <option value="loan_disbursement">Loan Disbursement (credit user)</option>
+                <option value="loan_repayment">Loan Repayment (debit user)</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="generateLoanTx()">Generate Loan Transaction</button>
+        </div>
+      </div>
+
+      <!-- ===== EMAIL & SMS LOG ===== -->
+      <div id="apage-emaillog" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>📬 Email & SMS Log</h3>
+          <p class="text-muted text-sm mt-2">Complete log of all emails and SMS messages sent by the platform (simulated). Every user activity triggers an email to the user, an email to admin, and an SMS if the user opted in.</p>
+        </div>
+        <div class="grid-2 gap-6">
+          <div class="card">
+            <h4 style="margin-bottom:16px;">📧 Email Log (<span id="emailLogCount">0</span>)</h4>
+            <div id="emailLog" style="max-height:600px;overflow-y:auto;"></div>
+          </div>
+          <div class="card">
+            <h4 style="margin-bottom:16px;">📱 SMS Log (<span id="smsLogCount">0</span>)</h4>
+            <div id="smsLog" style="max-height:600px;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REPORTS ===== -->
+      <div id="apage-reports" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>📋 Reports</h3>
+          <p class="text-muted text-sm mt-2">Generate portfolio, transaction, tax, and regulatory reports</p>
+        </div>
+        <div class="grid-2 gap-6">
+          <div class="card"><h4>📊 Portfolio Reports</h4><p class="text-muted text-sm mt-2">Aggregated portfolio performance across all users</p><button class="btn btn-primary mt-4">Generate Report</button></div>
+          <div class="card"><h4>🧾 Transaction Reports</h4><p class="text-muted text-sm mt-2">All transactions with filtering by date, type, user</p><button class="btn btn-primary mt-4">Generate Report</button></div>
+          <div class="card"><h4>💼 Tax Documents</h4><p class="text-muted text-sm mt-2">Tax statements for French (PER) and Italian (PIR) investors</p><button class="btn btn-primary mt-4">Generate Report</button></div>
+          <div class="card"><h4>🏛️ Regulatory Reports</h4><p class="text-muted text-sm mt-2">AML/KYC compliance and regulatory filings</p><button class="btn btn-primary mt-4">Generate Report</button></div>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div id="apage-settings" class="dash-page hidden">
+        <div class="card" style="max-width:600px;">
+          <h3>Admin Settings</h3>
+          <div class="divider"></div>
+          <h4 style="margin-bottom:16px;">Reset Admin Login Details</h4>
+          <form onsubmit="return adminResetPass(event)">
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <input type="password" class="form-input" id="adminCurPass" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-input" id="adminNewPass" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Admin Password</button>
+          </form>
+          <div class="divider"></div>
+          <h4 style="margin-bottom:16px;">Email Notifications</h4>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me when a user visits the website</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me when AI is responding to a user</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me on new user registration</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me on deposit requests</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me on withdrawal requests</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me on escalated support tickets</label>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Notify me on any user account activity</label>
+          </div>
+          <div class="divider"></div>
+          <h4 style="margin-bottom:16px;">SMS Notifications (Platform-wide)</h4>
+          <p class="text-muted text-sm">SMS notifications are sent to users who opted in during registration. Individual users can toggle this in their settings.</p>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;"><span class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></span> Enable SMS notifications for all opted-in users</label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Notification panel dropdown -->
+<div id="notifPanel" style="position:fixed;top:64px;right:24px;width:380px;max-height:500px;overflow-y:auto;background:#fff;border-radius:12px;box-shadow:var(--shadow-lg);z-index:1000;display:none;border:1px solid var(--border);">
+  <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+    <h4 style="margin:0;">Notifications</h4>
+    <button class="btn btn-ghost btn-sm" onclick="markAllRead()">Mark all read</button>
+  </div>
+  <div id="notifPanelList"></div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-wrap"></div>
+
+<script src="../assets/js/translations.js?v=3"></script>
+<script src="../assets/js/app.js?v=3"></script>
+<script>
+// Guard: must be admin
+if (!EV.auth.isAdmin()) { window.location.href = 'login.html'; }
+
+var adminTitles = {
+  overview:'Dashboard Overview',pending:'Pending Account Verification',users:'User Management',generate:'Generate Transactions',
+  transactions:'All Transactions',templates:'Motivational Email Templates',messages:'Messaging Center',support:'Support Inbox',
+  compliance:'Compliance Center',products:'Investment Products',loans:'Loan Management',emaillog:'Email & SMS Log',
+  reports:'Reports',settings:'Admin Settings'
+};
+var selectedTemplate = null;
+
+function showAdminPage(page) {
+  document.querySelectorAll('.dash-page').forEach(function(p){p.classList.add('hidden');});
+  document.getElementById('apage-'+page).classList.remove('hidden');
+  document.querySelectorAll('.dash-nav-item').forEach(function(n){n.classList.remove('active');});
+  if(event&&event.currentTarget)event.currentTarget.classList.add('active');
+  document.getElementById('adminPageTitle').textContent = adminTitles[page]||'Dashboard';
+  if(page==='overview')loadOverview();
+  if(page==='pending')loadPending();
+  if(page==='users')loadUsers();
+  if(page==='generate')loadGenerate();
+  if(page==='transactions')loadAllTx();
+  if(page==='templates')loadTemplates();
+  if(page==='messages')loadMessaging();
+  if(page==='support')loadSupportAdmin();
+  if(page==='compliance')loadCompliance();
+  if(page==='products')loadProducts();
+  if(page==='loans')loadLoans();
+  if(page==='emaillog')loadEmailLog();
+}
+
+// ===== OVERVIEW =====
+function loadOverview() {
+  var users = EV.store.get('users', []);
+  var visits = EV.store.get('visits', []);
+  var notifs = EV.store.get('admin_notifications', []);
+  var deposits = notifs.filter(function(n){return n.type==='deposit';}).length;
+  var withdrawals = notifs.filter(function(n){return n.type==='withdraw';}).length;
+  var pendingUsers = users.filter(function(u){return u.accountStatus==='pending';}).length;
+  document.getElementById('aTotalUsers').textContent = users.length;
+  document.getElementById('aPendingUsers').textContent = pendingUsers;
+  document.getElementById('aTotalVisits').textContent = visits.length;
+  document.getElementById('aWithdrawals').textContent = withdrawals;
+  document.getElementById('pendingCount').textContent = pendingUsers;
+  // Notifications
+  var unread = notifs.filter(function(n){return !n.read;});
+  document.getElementById('notifCount').textContent = unread.length;
+  document.getElementById('bellCount').textContent = unread.length;
+  var notifIcons = {visit:'👁️',deposit:'💳',withdraw:'🏧',support:'🎧',message_sent:'📤',account_registered:'⏳',activity:'📊',loan:'💰'};
+  var notifColors = {visit:'var(--info-light)',deposit:'var(--success-light)',withdraw:'var(--warning-light)',support:'var(--danger-light)',message_sent:'var(--info-light)',account_registered:'var(--warning-light)',activity:'var(--info-light)',loan:'var(--success-light)'};
+  var notifList = notifs.slice(-20).reverse().map(function(n){
+    return '<div class="notif-item '+(n.read?'':'unread')+'" onclick="markNotifRead('+n.id+')">'+
+      '<div class="notif-icon" style="background:'+(notifColors[n.type]||'var(--bg)')+';">'+(notifIcons[n.type]||'ℹ️')+'</div>'+
+      '<div style="flex:1;"><div class="notif-text">'+n.text+'</div><div class="text-muted text-sm">'+EV.util.timeAgo(n.time)+'</div></div></div>';
+  }).join('');
+  document.getElementById('notifList').innerHTML = notifList || '<p class="text-muted text-sm" style="padding:16px;">No notifications yet.</p>';
+  // Recent activity
+  var allTx = EV.store.get('all_transactions', []);
+  var recentAct = allTx.slice(-10).reverse().map(function(tx){
+    return '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><span class="badge badge-info">'+tx.type+'</span> '+tx.description+'</div><div class="text-sm text-muted">'+EV.util.formatDate(tx.date)+'</div></div>';
+  }).join('');
+  document.getElementById('recentActivity').innerHTML = recentAct || '<p class="text-muted text-sm">No recent activity.</p>';
+  // Visits by language
+  var langCounts = {};
+  visits.forEach(function(v){langCounts[v.lang]=(langCounts[v.lang]||0)+1;});
+  var langHtml = Object.keys(langCounts).map(function(l){
+    var pct = (langCounts[l]/visits.length*100).toFixed(0);
+    return '<div class="mb-2"><div class="flex justify-between mb-2"><span>'+l.toUpperCase()+'</span><span>'+langCounts[l]+' visits ('+pct+'%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;"></div></div></div>';
+  }).join('');
+  document.getElementById('visitsByLang').innerHTML = langHtml || '<p class="text-muted text-sm">No visit data.</p>';
+}
+
+function toggleNotifPanel() {
+  var panel = document.getElementById('notifPanel');
+  panel.style.display = panel.style.display==='none'?'block':'none';
+  if(panel.style.display==='block') {
+    var notifs = EV.store.get('admin_notifications', []);
+    var notifIcons = {visit:'👁️',deposit:'💳',withdraw:'🏧',support:'🎧',message_sent:'📤',account_registered:'⏳',activity:'📊',loan:'💰'};
+    document.getElementById('notifPanelList').innerHTML = notifs.slice(-30).reverse().map(function(n){
+      return '<div class="notif-item '+(n.read?'':'unread')+'"><div class="notif-icon">'+(notifIcons[n.type]||'ℹ️')+'</div><div style="flex:1;"><div class="notif-text" style="font-size:0.85rem;">'+n.text+'</div><div class="text-muted" style="font-size:0.75rem;">'+EV.util.timeAgo(n.time)+'</div></div></div>';
+    }).join('') || '<p class="text-muted" style="padding:16px;">No notifications.</p>';
+  }
+}
+function markNotifRead(id) {
+  var notifs = EV.store.get('admin_notifications', []);
+  var n = notifs.find(function(x){return x.id===id;});
+  if(n) n.read = true;
+  EV.store.set('admin_notifications', notifs);
+  loadOverview();
+}
+function markAllRead() {
+  var notifs = EV.store.get('admin_notifications', []);
+  notifs.forEach(function(n){n.read=true;});
+  EV.store.set('admin_notifications', notifs);
+  toggleNotifPanel();
+  loadOverview();
+}
+
+// ===== PENDING ACCOUNTS =====
+function loadPending() {
+  var users = EV.store.get('users', []);
+  var pending = users.filter(function(u){return u.accountStatus==='pending';});
+  document.getElementById('pendingCount').textContent = pending.length;
+  if (!pending.length) {
+    document.getElementById('pendingList').innerHTML = '<div class="card text-center"><p class="text-muted" style="padding:40px;">✅ No pending accounts. All registrations have been reviewed.</p></div>';
+    return;
+  }
+  var html = pending.map(function(u){
+    return '<div class="pending-card">'+
+      '<div class="flex justify-between items-start mb-4">'+
+        '<div><h4 style="margin:0 0 4px;">'+u.firstName+' '+u.lastName+'</h4>'+
+        '<p class="text-muted text-sm" style="margin:0;">'+u.email+' · 📱 '+(u.phone||'N/A')+' · '+(u.country||'N/A')+' · Language: '+(u.lang||'en').toUpperCase()+'</p></div>'+
+        '<span class="badge badge-warning">⏳ PENDING</span>'+
+      '</div>'+
+      '<h5 style="margin-bottom:8px;">🏦 Bank Account Verification Details</h5>'+
+      '<div class="bank-detail-grid">'+
+        bankDetail('Account Holder', u.accountHolder||u.firstName+' '+u.lastName)+
+        bankDetail('Bank Name', u.bankName||'N/A')+
+        bankDetail('Bank Country', u.bankCountry||u.country||'N/A')+
+        bankDetail('Account Number', u.accountNumber||'N/A')+
+        bankDetail('IBAN', u.iban||'N/A')+
+        bankDetail('BIC / SWIFT', u.bic||'N/A')+
+      '</div>'+
+      '<div class="bank-detail-grid mt-4">'+
+        bankDetail('Date of Birth', u.dob||'N/A')+
+        bankDetail('Nationality', u.nationality||'N/A')+
+        bankDetail('Address', u.address||'N/A')+
+        bankDetail('City', u.city||'N/A')+
+        bankDetail('Postal Code', u.postalCode||'N/A')+
+        bankDetail('Risk Profile', u.riskProfile||'balanced')+
+        bankDetail('Experience', u.experience||'N/A')+
+        bankDetail('Annual Income', u.income||'N/A')+
+        bankDetail('Objective', u.objective||'N/A')+
+        bankDetail('Horizon', u.horizon||'N/A')+
+        bankDetail('SMS Opt-in', u.smsOptIn?'✅ Yes':'❌ No')+
+        bankDetail('Bank Auth', u.bankAuth?'✅ Authorized':'❌ Not authorized')+
+      '</div>'+
+      '<div class="flex gap-2 mt-6">'+
+        '<button class="btn btn-green" onclick="approveUser(\''+u.id+'\')">✅ Approve & Activate Account</button>'+
+        '<button class="btn btn-ghost" onclick="viewUserDetail(\''+u.id+'\')">👁️ View Full Details</button>'+
+        '<button class="btn btn-danger" onclick="rejectUser(\''+u.id+'\')">❌ Reject</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('pendingList').innerHTML = html;
+}
+function bankDetail(label, value) {
+  return '<div class="bank-detail"><div class="label">'+label+'</div><div class="value">'+value+'</div></div>';
+}
+function approveUser(userId) {
+  EV.auth.approveAccount(userId);
+  EV.notify.toast('Account Approved!', 'User account activated. Approval email + SMS sent.', 'success');
+  loadPending();
+  loadOverview();
+}
+function rejectUser(userId) {
+  var users = EV.store.get('users', []);
+  var u = users.find(function(x){return x.id===userId;});
+  if(u) {
+    u.accountStatus = 'rejected';
+    EV.store.set('users', users);
+    EV.mail.send(u.email, 'Account Application Update — EuroVest',
+      'Dear '+u.firstName+',\n\nUnfortunately, we were unable to approve your account application at this time. This may be due to incomplete verification details or compliance requirements.\n\nIf you believe this is an error, please contact our support team at support@eurovest.eu.\n\nThe EuroVest Compliance Team',
+      {type:'account_rejected', userId:u.id});
+    EV.notify.toast('Account Rejected', 'Rejection email sent to user.', 'info');
+  }
+  loadPending();
+}
+
+// ===== USER DETAIL MODAL =====
+function viewUserDetail(userId) {
+  var users = EV.store.get('users', []);
+  var u = users.find(function(x){return x.id===userId;});
+  if(!u) return;
+  document.getElementById('udName').textContent = u.firstName+' '+u.lastName;
+  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹'};
+  var html = '<div class="bank-detail-grid">'+
+    bankDetail('Email', u.email)+
+    bankDetail('Phone', u.phone||'N/A')+
+    bankDetail('Country', (flags[u.country]||'🌍')+' '+(u.country||'N/A'))+
+    bankDetail('Language', (u.lang||'en').toUpperCase())+
+    bankDetail('Date of Birth', u.dob||'N/A')+
+    bankDetail('Nationality', u.nationality||'N/A')+
+    bankDetail('Address', u.address||'N/A')+
+    bankDetail('City', u.city||'N/A')+
+    bankDetail('Postal Code', u.postalCode||'N/A')+
+    bankDetail('Account Status', u.accountStatus||'N/A')+
+    bankDetail('KYC Status', u.kycStatus||'N/A')+
+    bankDetail('Risk Profile', u.riskProfile||'balanced')+
+    bankDetail('Experience', u.experience||'N/A')+
+    bankDetail('Annual Income', u.income||'N/A')+
+    bankDetail('Objective', u.objective||'N/A')+
+    bankDetail('Horizon', u.horizon||'N/A')+
+    bankDetail('SMS Opt-in', u.smsOptIn?'✅ Yes':'❌ No')+
+    bankDetail('Bank Auth', u.bankAuth?'✅ Authorized':'❌ Not authorized')+
+  '</div>';
+  html += '<h5 style="margin:20px 0 8px;">🏦 Bank Account Verification</h5><div class="bank-detail-grid">'+
+    bankDetail('Account Holder', u.accountHolder||u.firstName+' '+u.lastName)+
+    bankDetail('Bank Name', u.bankName||'N/A')+
+    bankDetail('Bank Country', u.bankCountry||u.country||'N/A')+
+    bankDetail('Account Number', u.accountNumber||'N/A')+
+    bankDetail('IBAN', u.iban||'N/A')+
+    bankDetail('BIC / SWIFT', u.bic||'N/A')+
+  '</div>';
+  if(u.accountStatus==='pending') {
+    html += '<div class="flex gap-2 mt-6"><button class="btn btn-green" onclick="approveUser(\''+u.id+'\');closeUserDetail();">✅ Approve Account</button></div>';
+  }
+  document.getElementById('udContent').innerHTML = html;
+  document.getElementById('userDetailModal').style.display = 'block';
+}
+function closeUserDetail() {
+  document.getElementById('userDetailModal').style.display = 'none';
+}
+
+// ===== USERS =====
+function loadUsers() {
+  var users = EV.store.get('users', []);
+  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹'};
+  var html = users.length ? users.map(function(u){
+    var txs = EV.store.get('user_tx_'+u.id, []);
+    var balance = 0;
+    txs.forEach(function(tx){if(tx.type==='deposit')balance+=tx.amount;if(tx.type==='withdrawal')balance-=tx.amount;});
+    var statusBadge = u.accountStatus==='active'?'badge-success':u.accountStatus==='pending'?'badge-warning':u.accountStatus==='rejected'?'badge-danger':'badge-neutral';
+    return '<tr><td><strong>'+u.firstName+' '+u.lastName+'</strong></td><td class="text-sm">'+u.email+'</td><td>'+(flags[u.country]||'🌍')+' '+u.country+'</td><td><span class="badge badge-neutral">'+u.lang.toUpperCase()+'</span></td><td><span class="badge '+(u.kycStatus==='verified'?'badge-success':'badge-warning')+'">'+u.kycStatus+'</span></td><td><span class="badge '+statusBadge+'">'+u.accountStatus+'</span></td><td><span class="badge badge-info">'+(u.riskProfile||'balanced')+'</span></td><td>'+EV.util.formatMoney(balance)+'</td><td><button class="btn btn-ghost btn-sm" onclick="viewUserDetail(\''+u.id+'\')">👁️ View</button> <button class="btn btn-ghost btn-sm" onclick="toggleUserStatus(\''+u.id+'\')">Toggle</button></td></tr>';
+  }).join('') : '<tr><td colspan="9" class="text-center text-muted">No users registered yet.</td></tr>';
+  document.getElementById('usersBody').innerHTML = html;
+}
+function toggleUserStatus(userId) {
+  var users = EV.store.get('users', []);
+  var u = users.find(function(x){return x.id===userId;});
+  if(u) {
+    u.accountStatus = u.accountStatus==='active'?'suspended':'active';
+    EV.store.set('users',users);
+    EV.notify.activity(u.id, 'admin_status_change', 'Account status changed to '+u.accountStatus);
+    EV.notify.toast('User Updated','Account status changed to '+u.accountStatus,'info');
+    loadUsers();
+  }
+}
+
+// ===== GENERATE =====
+function loadGenerate() {
+  var users = EV.store.get('users', []);
+  var opts = users.length ? users.map(function(u){return '<option value="'+u.id+'">'+u.firstName+' '+u.lastName+' ('+u.email+')</option>';}).join('') : '<option value="">No users — register a user first</option>';
+  document.getElementById('genUserSingle').innerHTML = opts;
+  document.getElementById('genUserBulk').innerHTML = opts;
+  populateLoanUserDropdown();
+  // Also populate messaging target
+  var msgTarget = document.getElementById('msgTarget');
+  if(msgTarget && msgTarget.children.length<=1) {
+    users.forEach(function(u){
+      var opt = document.createElement('option');
+      opt.value = u.id; opt.textContent = u.firstName+' '+u.lastName+' ('+u.email+')';
+      msgTarget.appendChild(opt);
+    });
+  }
+}
+
+function generateSingle() {
+  var userId = document.getElementById('genUserSingle').value;
+  if(!userId){EV.notify.toast('Error','Select a user first','danger');return;}
+  var type = document.getElementById('genType').value;
+  var amount = document.getElementById('genAmount').value;
+  var date = document.getElementById('genDate').value;
+  var desc = document.getElementById('genDesc').value;
+  var opts = {type:type};
+  if(amount) opts.amount = parseFloat(amount);
+  if(date) opts.date = new Date(date).toISOString();
+  if(desc) opts.description = desc;
+  var tx = EV.tx.generate(userId, opts);
+  EV.notify.toast('Transaction Generated!', tx.type+' of '+EV.util.formatMoney(tx.amount)+' — Ref: '+tx.reference, 'success');
+  showGenResults([tx]);
+}
+
+function generateBulk() {
+  var userId = document.getElementById('genUserBulk').value;
+  if(!userId){EV.notify.toast('Error','Select a user first','danger');return;}
+  var count = parseInt(document.getElementById('genCount').value)||10;
+  var maxAmt = parseFloat(document.getElementById('genMaxAmount').value)||5000;
+  var typeFilter = document.getElementById('genBulkType').value;
+  var dateFrom = document.getElementById('genDateFrom').value;
+  var results = [];
+  for(var i=0;i<count;i++){
+    var opts = {};
+    if(typeFilter) opts.type = typeFilter;
+    opts.amount = Math.random()*maxAmt+10;
+    if(dateFrom) {
+      var from = new Date(dateFrom).getTime();
+      var to = Date.now();
+      opts.date = new Date(from+Math.random()*(to-from)).toISOString();
+    }
+    results.push(EV.tx.generate(userId, opts));
+  }
+  EV.notify.toast('Bulk Generation Complete!', count+' transactions generated with receipts', 'success');
+  var preview = document.getElementById('bulkPreview');
+  preview.classList.remove('hidden');
+  preview.innerHTML = '<strong>Generated '+count+' transactions:</strong><br>'+results.map(function(tx){
+    return tx.reference+' | '+tx.type+' | '+EV.util.formatMoney(tx.amount)+' | '+EV.util.formatDate(tx.date);
+  }).join('<br>');
+  showGenResults(results);
+}
+
+function showGenResults(txs) {
+  var html = txs.map(function(tx){
+    var user = EV.store.get('users',[]).find(function(u){return u.id===tx.userId;});
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);"><div><div style="font-weight:600;">'+tx.description+'</div><div class="text-sm text-muted">'+tx.reference+' · '+EV.util.formatDate(tx.date)+'</div></div><div style="display:flex;align-items:center;gap:16px;"><span style="font-weight:700;">'+EV.util.formatMoney(tx.amount)+'</span><a class="btn btn-ghost btn-sm" href="../receipt.html?id='+tx.id+'&user='+tx.userId+'" target="_blank">🧾 View Receipt</a></div></div>';
+  }).join('');
+  document.getElementById('genResults').innerHTML = html;
+}
+
+// ===== ALL TRANSACTIONS =====
+function loadAllTx() {
+  var allTx = EV.store.get('all_transactions', []);
+  var users = EV.store.get('users', []);
+  var html = allTx.length ? allTx.slice().reverse().map(function(tx){
+    var u = users.find(function(x){return x.id===tx.userId;});
+    return '<tr><td>'+EV.util.formatDate(tx.date)+'</td><td class="text-sm">'+tx.reference+'</td><td>'+(u?u.firstName+' '+u.lastName:'Unknown')+'</td><td><span class="badge badge-info">'+tx.type+'</span></td><td>'+tx.description+'</td><td style="font-weight:700;">'+EV.util.formatMoney(tx.amount)+'</td><td><span class="badge badge-success">'+tx.status+'</span></td><td><a class="btn btn-ghost btn-sm" href="../receipt.html?id='+tx.id+'&user='+tx.userId+'" target="_blank">🧾 Receipt</a></td></tr>';
+  }).join('') : '<tr><td colspan="8" class="text-center text-muted">No transactions yet.</td></tr>';
+  document.getElementById('allTxBody').innerHTML = html;
+}
+
+// ===== MOTIVATIONAL EMAIL TEMPLATES =====
+function loadTemplates() {
+  // Populate multi-select
+  var users = EV.store.get('users', []);
+  var msHtml = users.length ? users.map(function(u){
+    return '<label><input type="checkbox" value="'+u.id+'" class="tpl-user-chk"> '+u.firstName+' '+u.lastName+' <span class="text-muted text-sm">('+u.email+')</span></label>';
+  }).join('') : '<p class="text-muted text-sm">No users registered.</p>';
+  document.getElementById('tplMultiSelect').innerHTML = msHtml;
+  // Render template list
+  var html = EV.emailTemplates.map(function(tpl){
+    return '<div class="template-card" id="tplCard_'+tpl.id+'" onclick="selectTemplate(\''+tpl.id+'\')">'+
+      '<div class="flex justify-between items-center"><div><span class="tpl-icon">'+tpl.icon+'</span> <strong>'+tpl.name+'</strong></div></div>'+
+      '<p class="text-muted text-sm mt-2" style="margin:8px 0 0;">'+tpl.subject+'</p>'+
+    '</div>';
+  }).join('');
+  document.getElementById('templateList').innerHTML = html;
+}
+function selectTemplate(tplId) {
+  selectedTemplate = EV.emailTemplates.find(function(t){return t.id===tplId;});
+  if(!selectedTemplate) return;
+  // Update card styles
+  document.querySelectorAll('.template-card').forEach(function(c){c.classList.remove('selected');});
+  document.getElementById('tplCard_'+tplId).classList.add('selected');
+  // Show preview as official email template
+  var preview = document.getElementById('templatePreview');
+  preview.style.color = '';
+  preview.style.fontStyle = '';
+  preview.innerHTML = '<div class="email-preview">'+
+    '<div class="email-head"><h5>📧 '+selectedTemplate.subject+'</h5><div class="meta">From: EuroVest Team &lt;no-reply@eurovest.eu&gt; · To: {user email} · Official EuroVest Email</div></div>'+
+    '<div class="email-body">'+selectedTemplate.body.replace(/{name}/g, '<strong style="color:var(--brand-blue);">{User Name}</strong>')+'</div>'+
+  '</div>';
+}
+function toggleTplTarget() {
+  var val = document.getElementById('tplTargetType').value;
+  document.getElementById('tplMultiSelectWrap').style.display = val==='select'?'block':'none';
+}
+function selectAllTplUsers(check) {
+  document.querySelectorAll('.tpl-user-chk').forEach(function(c){c.checked=check;});
+}
+function sendTemplate() {
+  if(!selectedTemplate){EV.notify.toast('Error','Select a template first','danger');return;}
+  var targetType = document.getElementById('tplTargetType').value;
+  var target;
+  if(targetType==='all') {
+    target = 'all';
+  } else {
+    var checked = [];
+    document.querySelectorAll('.tpl-user-chk:checked').forEach(function(c){checked.push(c.value);});
+    if(!checked.length){EV.notify.toast('Error','Select at least one user','danger');return;}
+    target = checked.join(',');
+  }
+  var sendSMS = document.getElementById('tplSendSMS').checked;
+  var result = EV.msg.adminSend(target, selectedTemplate.subject, selectedTemplate.body,
+    {isMotivational:true, template:selectedTemplate.id, sendSMS:sendSMS});
+  EV.notify.toast('Motivational Email Sent! 🎉',
+    'Sent "'+selectedTemplate.name+'" to '+result.count+' user(s) via email + dashboard'+(sendSMS?' + SMS':''),
+    'success');
+}
+
+// ===== MESSAGING =====
+function loadMessaging() {
+  loadGenerate();
+  var msgs = EV.store.get('admin_messages', []);
+  var html = msgs.length ? msgs.slice().reverse().map(function(m){
+    var tplBadge = m.isMotivational?'<span class="badge badge-info">📧 Template: '+(m.template||'custom')+'</span> ':'';
+    return '<div class="card mb-4"><div class="flex justify-between items-center mb-2"><h5 style="margin:0;">'+m.subject+'</h5><span class="text-muted text-sm">'+EV.util.timeAgo(m.time)+'</span></div><p class="text-muted text-sm">'+m.body.substring(0,200)+(m.body.length>200?'...':'')+'</p><div class="text-sm text-muted mt-2">'+tplBadge+'To: '+(m.userEmail||'all users')+'</div></div>';
+  }).join('') : '<p class="text-muted text-sm">No messages sent yet.</p>';
+  document.getElementById('sentMsgs').innerHTML = html;
+}
+
+function sendMessage() {
+  var target = document.getElementById('msgTarget').value;
+  var subject = document.getElementById('msgSubject').value;
+  var body = document.getElementById('msgBody').value;
+  if(!subject||!body){EV.notify.toast('Error','Subject and message are required','danger');return;}
+  var result = EV.msg.adminSend(target, subject, body);
+  EV.notify.toast('Message Sent!','Delivered to '+result.count+' user(s) via email and dashboard','success');
+  document.getElementById('msgSubject').value='';
+  document.getElementById('msgBody').value='';
+  loadMessaging();
+}
+
+// ===== SUPPORT =====
+function loadSupportAdmin() {
+  var tickets = EV.store.get('support_tickets', []);
+  var open = tickets.filter(function(t){return t.escalated||t.status==='open';});
+  var aiHandled = tickets.filter(function(t){return t.aiHandled&&!t.escalated;});
+  document.getElementById('ticketCount').textContent = open.length;
+  var escHtml = open.length ? open.reverse().map(function(t){
+    var replies = t.replies.map(function(r){
+      return '<div class="ticket-reply"><strong>'+(r.from==='admin'?'You:':'AI:')+'</strong> '+r.text+' <span class="text-muted text-sm">'+EV.util.timeAgo(r.time)+'</span></div>';
+    }).join('');
+    return '<div class="ticket-card escalated"><div class="flex justify-between"><strong>'+t.userName+'</strong><span class="text-muted text-sm">'+EV.util.timeAgo(t.time)+'</span></div><div class="text-sm text-muted">'+t.userEmail+' · '+t.lang.toUpperCase()+'</div><p style="margin-top:12px;">'+t.message+'</p>'+replies+'<div class="flex gap-2 mt-4"><input type="text" class="form-input" id="reply_'+t.id+'" placeholder="Type your reply..."><button class="btn btn-primary btn-sm" onclick="adminReplyTicket(\''+t.id+'\')">Reply</button></div></div>';
+  }).join('') : '<p class="text-muted text-sm">No escalated tickets. AI is handling all queries.</p>';
+  document.getElementById('escalatedTickets').innerHTML = escHtml;
+  var aiHtml = aiHandled.length ? aiHandled.reverse().slice(0,10).map(function(t){
+    return '<div class="ticket-card answered"><div class="flex justify-between"><strong>'+t.userName+'</strong><span class="badge badge-success">AI Handled</span></div><p class="text-sm mt-2">'+t.message+'</p><div class="ticket-reply"><strong>AI:</strong> '+t.replies[0].text+'</div></div>';
+  }).join('') : '<p class="text-muted text-sm">No AI-handled tickets yet.</p>';
+  document.getElementById('aiTickets').innerHTML = aiHtml;
+}
+
+function adminReplyTicket(ticketId) {
+  var input = document.getElementById('reply_'+ticketId);
+  var reply = input.value.trim();
+  if(!reply) return;
+  EV.msg.adminReply(ticketId, reply);
+  EV.notify.toast('Reply Sent!','Your reply has been sent to the user via email + dashboard','success');
+  loadSupportAdmin();
+}
+
+// ===== COMPLIANCE =====
+function loadCompliance() {
+  var users = EV.store.get('users', []);
+  var verified = users.filter(function(u){return u.kycStatus==='verified';}).length;
+  var pending = users.filter(function(u){return u.kycStatus==='pending';}).length;
+  var notifs = EV.store.get('admin_notifications', []);
+  document.getElementById('cAMLPassed').textContent = verified;
+  document.getElementById('cPending').textContent = pending;
+  document.getElementById('cAlerts').textContent = notifs.filter(function(n){return n.type==='support'&&!n.aiHandled;}).length;
+  document.getElementById('cAudit').textContent = notifs.length;
+  var audit = notifs.slice().reverse().slice(0,30).map(function(n){
+    return '<tr><td class="text-sm">'+EV.util.formatDateTime(n.time)+'</td><td><span class="badge badge-info">'+n.type+'</span></td><td class="text-sm">'+(n.userName||'Visitor')+'</td><td class="text-sm">'+n.text+'</td></tr>';
+  }).join('');
+  document.getElementById('auditBody').innerHTML = audit || '<tr><td colspan="4" class="text-center text-muted">No audit entries.</td></tr>';
+}
+
+// ===== PRODUCTS =====
+function loadProducts() {
+  var products = [
+    {name:'CAC 40 Index Fund',cat:'Stocks',price:'€5,420',risk:'Medium',min:'€100',fee:'0.25%',status:'Active'},
+    {name:'FTSE MIB ETF',cat:'Stocks',price:'€28.50',risk:'Medium',min:'€100',fee:'0.20%',status:'Active'},
+    {name:'Euro Stoxx 50 ETF',cat:'ETFs',price:'€45.20',risk:'Medium',min:'€100',fee:'0.15%',status:'Active'},
+    {name:'MSCI World ETF',cat:'ETFs',price:'€78.40',risk:'Medium',min:'€100',fee:'0.22%',status:'Active'},
+    {name:'S&P 500 ETF',cat:'ETFs',price:'€425.00',risk:'Medium',min:'€250',fee:'0.07%',status:'Active'},
+    {name:'BTP Italia 2035',cat:'Bonds',price:'€98.50',risk:'Low',min:'€1,000',fee:'0.10%',status:'Active'},
+    {name:'French OAT 10Y',cat:'Bonds',price:'€102.30',risk:'Low',min:'€1,000',fee:'0.10%',status:'Active'},
+    {name:'Green Bond Fund',cat:'Sustainable',price:'€105.00',risk:'Low',min:'€500',fee:'0.30%',status:'Active'},
+    {name:'European SCPI',cat:'Real Estate',price:'€850.00',risk:'Medium',min:'€1,000',fee:'0.80%',status:'Active'},
+    {name:'Bitcoin',cat:'Crypto',price:'€67,500',risk:'High',min:'€10',fee:'1.50%',status:'Active'},
+    {name:'Ethereum',cat:'Crypto',price:'€3,450',risk:'High',min:'€10',fee:'1.50%',status:'Active'},
+    {name:'Gold ETC',cat:'Commodities',price:'€185.40',risk:'Medium',min:'€100',fee:'0.25%',status:'Active'},
+    {name:'PER Retirement Fund',cat:'Retirement',price:'€500.00',risk:'Low',min:'€100',fee:'0.50%',status:'Active'},
+    {name:'Livret A Savings',cat:'Cash',price:'€1.00',risk:'Low',min:'€10',fee:'0.00%',status:'Active'},
+  ];
+  var riskBadge = {Low:'badge-success',Medium:'badge-warning',High:'badge-danger'};
+  document.getElementById('productsBody').innerHTML = products.map(function(p){
+    return '<tr><td><strong>'+p.name+'</strong></td><td>'+p.cat+'</td><td>'+p.price+'</td><td><span class="badge '+riskBadge[p.risk]+'">'+p.risk+'</span></td><td>'+p.min+'</td><td>'+p.fee+'</td><td><span class="badge badge-success">'+p.status+'</span></td></tr>';
+  }).join('');
+}
+
+// ===== LOANS =====
+var loanCatalog = [
+  {type:'Personal Loan',min:'€1,000',max:'€50,000',rate:'5.9%',term:'1-7 years',icon:'👤'},
+  {type:'Mortgage Loan',min:'€50,000',max:'€1,000,000',rate:'3.2%',term:'10-30 years',icon:'🏠'},
+  {type:'Auto Loan',min:'€5,000',max:'€80,000',rate:'4.5%',term:'2-7 years',icon:'🚗'},
+  {type:'Business Loan',min:'€10,000',max:'€500,000',rate:'6.5%',term:'1-10 years',icon:'🏢'},
+  {type:'Student Loan',min:'€1,000',max:'€30,000',rate:'2.9%',term:'5-15 years',icon:'🎓'},
+  {type:'Debt Consolidation Loan',min:'€5,000',max:'€75,000',rate:'5.2%',term:'2-10 years',icon:'🔄'},
+  {type:'Home Equity Loan',min:'€10,000',max:'€250,000',rate:'4.8%',term:'5-20 years',icon:'🏡'},
+  {type:'Bridge Loan',min:'€25,000',max:'€400,000',rate:'8.5%',term:'6-18 months',icon:'🌉'},
+  {type:'Equipment Financing',min:'€5,000',max:'€200,000',rate:'5.5%',term:'2-7 years',icon:'⚙️'},
+  {type:'Credit Line / revolving',min:'€2,000',max:'€50,000',rate:'7.9%',term:'Revolving',icon:'💳'},
+  {type:'Green Energy Loan',min:'€3,000',max:'€100,000',rate:'3.5%',term:'2-15 years',icon:'🌱'},
+  {type:'Medical Loan',min:'€1,000',max:'€40,000',rate:'6.2%',term:'1-5 years',icon:'⚕️'},
+];
+function loadLoans() {
+  document.getElementById('lTypes').textContent = loanCatalog.length;
+  // Calculate from transactions
+  var allTx = EV.store.get('all_transactions', []);
+  var disbursed = 0, repaid = 0, active = 0;
+  allTx.forEach(function(tx){
+    if(tx.type==='loan_disbursement'){disbursed+=tx.amount;active++;}
+    if(tx.type==='loan_repayment'){repaid+=tx.amount;active--;}
+  });
+  document.getElementById('lDisbursed').textContent = EV.util.formatMoney(disbursed);
+  document.getElementById('lActive').textContent = Math.max(0, active);
+  document.getElementById('lRepaid').textContent = EV.util.formatMoney(repaid);
+  // Loan catalog table
+  document.getElementById('loansBody').innerHTML = loanCatalog.map(function(l){
+    return '<tr><td>'+l.icon+' <strong>'+l.type+'</strong></td><td>'+l.min+'</td><td>'+l.max+'</td><td>'+l.rate+'</td><td>'+l.term+'</td><td><span class="badge badge-success">Active</span></td></tr>';
+  }).join('');
+  populateLoanUserDropdown();
+}
+function populateLoanUserDropdown() {
+  var users = EV.store.get('users', []);
+  var opts = users.length ? users.map(function(u){return '<option value="'+u.id+'">'+u.firstName+' '+u.lastName+' ('+u.email+')</option>';}).join('') : '<option value="">No users</option>';
+  var loanUser = document.getElementById('loanGenUser');
+  if(loanUser) loanUser.innerHTML = opts;
+  var loanType = document.getElementById('loanGenType');
+  if(loanType) loanType.innerHTML = loanCatalog.map(function(l){return '<option value="'+l.type+'">'+l.icon+' '+l.type+'</option>';}).join('');
+}
+function generateLoanTx() {
+  var userId = document.getElementById('loanGenUser').value;
+  if(!userId){EV.notify.toast('Error','Select a user','danger');return;}
+  var loanType = document.getElementById('loanGenType').value;
+  var amount = parseFloat(document.getElementById('loanGenAmount').value);
+  var action = document.getElementById('loanGenAction').value;
+  if(!amount){EV.notify.toast('Error','Enter an amount','danger');return;}
+  var tx = EV.tx.generate(userId, {
+    type: action, amount: amount,
+    description: (action==='loan_disbursement'?'Loan Disbursement: ':'Loan Repayment: ')+loanType,
+    date: new Date().toISOString()
+  });
+  EV.notify.toast('Loan Transaction Generated!', action+' for '+loanType+' — '+EV.util.formatMoney(amount), 'success');
+  showGenResults([tx]);
+  loadLoans();
+}
+
+// ===== EMAIL & SMS LOG =====
+function loadEmailLog() {
+  var emails = EV.store.get('email_log', []);
+  var sms = EV.store.get('sms_log', []);
+  document.getElementById('emailLogCount').textContent = emails.length;
+  document.getElementById('smsLogCount').textContent = sms.length;
+  var emailHtml = emails.length ? emails.slice().reverse().map(function(e){
+    return '<div class="email-preview"><div class="email-head"><h5>📧 '+e.subject+'</h5><div class="meta">To: '+e.to+' · '+EV.util.formatDateTime(e.time)+' · '+(e.template?'Template: '+e.template:e.type)+'</div></div><div class="email-body">'+e.body.substring(0,300)+(e.body.length>300?'...':'')+'</div></div>';
+  }).join('') : '<p class="text-muted text-sm" style="padding:16px;">No emails sent yet.</p>';
+  document.getElementById('emailLog').innerHTML = emailHtml;
+  var smsHtml = sms.length ? sms.slice().reverse().map(function(s){
+    return '<div class="sms-log-item"><div class="sms-icon">📱</div><div style="flex:1;"><div style="font-weight:600;font-size:0.9rem;">'+s.message+'</div><div class="text-muted text-sm">To: '+s.to+' · '+EV.util.formatDateTime(s.time)+' · '+s.type+'</div></div></div>';
+  }).join('') : '<p class="text-muted text-sm" style="padding:16px;">No SMS sent yet.</p>';
+  document.getElementById('smsLog').innerHTML = smsHtml;
+}
+
+// ===== SETTINGS =====
+function adminResetPass(e) {
+  e.preventDefault();
+  var cur = document.getElementById('adminCurPass').value;
+  var newp = document.getElementById('adminNewPass').value;
+  var admin = EV.store.get('admin', {email:'admin@eurovest.eu',password:'admin123'});
+  if(admin.password !== cur){EV.notify.toast('Error','Current password is incorrect','danger');return false;}
+  EV.auth.resetAdminPassword(newp);
+  EV.notify.toast('Password Updated!','Admin password changed successfully','success');
+  document.getElementById('adminCurPass').value='';
+  document.getElementById('adminNewPass').value='';
+  return false;
+}
+
+// Auto-refresh notifications every 10 seconds
+setInterval(function(){
+  if(!document.getElementById('apage-overview').classList.contains('hidden')) {
+    loadOverview();
+  }
+}, 10000);
+
+// Initial load
+loadOverview();
+</script>
+</body>
+</html>

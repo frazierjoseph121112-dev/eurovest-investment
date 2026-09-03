@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loans & Financing — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<style>
+  .loan-hero{background:var(--grad-navy);color:#fff;padding:80px 0 60px;}
+  .loan-hero h1{color:#fff;font-size:2.6rem;margin-bottom:16px;}
+  .loan-hero p{color:rgba(255,255,255,0.75);font-size:1.15rem;max-width:640px;}
+  .loan-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
+  .loan-tab{padding:8px 18px;border-radius:30px;background:var(--bg);border:1px solid var(--border);cursor:pointer;font-size:0.85rem;font-weight:600;color:var(--text-secondary);transition:all .2s;}
+  .loan-tab:hover{border-color:var(--brand-blue);color:var(--brand-blue);}
+  .loan-tab.active{background:var(--grad-brand);color:#fff;border-color:transparent;}
+  .loan-detail-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:32px;box-shadow:var(--shadow);margin-bottom:40px;}
+  .loan-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+  .loan-info-block h4{font-size:1.3rem;margin-bottom:12px;color:var(--brand-navy);}
+  .loan-info-block ul{list-style:none;padding:0;}
+  .loan-info-block li{padding:8px 0 8px 28px;position:relative;color:var(--text-secondary);font-size:0.95rem;}
+  .loan-info-block li:before{content:'✓';position:absolute;left:0;color:var(--brand-green);font-weight:800;}
+  .loan-spec{background:var(--bg);border-radius:12px;padding:20px;margin-top:16px;}
+  .loan-spec-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+  .loan-spec-row:last-child{border-bottom:none;}
+  .loan-spec-label{color:var(--text-secondary);font-size:0.85rem;}
+  .loan-spec-value{font-weight:700;color:var(--brand-navy);}
+  .process-step{display:flex;gap:16px;align-items:flex-start;margin-bottom:24px;}
+  .process-num{flex-shrink:0;width:44px;height:44px;border-radius:50%;background:var(--grad-brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;}
+  .process-text h4{margin-bottom:6px;color:var(--brand-navy);}
+  .process-text p{color:var(--text-secondary);font-size:0.9rem;}
+  .faq-item{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden;}
+  .faq-q{padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:var(--brand-navy);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .3s;padding:0 24px;color:var(--text-secondary);font-size:0.92rem;}
+  .faq-item.open .faq-a{max-height:300px;padding:0 24px 18px;}
+  .faq-item.open .faq-arrow{transform:rotate(180deg);}
+  .faq-arrow{transition:transform .3s;color:var(--brand-blue);}
+  @media(max-width:768px){
+    .loan-detail-grid{grid-template-columns:1fr;}
+    .loan-hero h1{font-size:1.8rem;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="navbar-logo"><span class="logo-mark">€</span> EuroVest</a>
+    <div class="navbar-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="markets.html" data-i18n="nav_markets">Markets</a>
+      <a href="loans.html">Loans</a>
+      <a href="portfolios.html" data-i18n="nav_portfolios">Portfolios</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+    </div>
+    <div class="navbar-actions">
+      <div class="lang-selector"><button class="lang-btn"><span class="lang-current-flag">🇬🇧</span> <span class="lang-current-name">English</span> ▾</button><div class="lang-dropdown"></div></div>
+      <a href="login.html" class="btn btn-outline btn-sm" data-i18n="nav_login">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm" data-i18n="nav_register">Create Account</a>
+      <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="markets.html">Markets</a>
+  <a href="loans.html">Loans</a>
+  <a href="portfolios.html">Portfolios</a>
+  <a href="about.html">About</a>
+  <div class="mobile-nav-actions">
+    <a href="login.html" class="btn btn-outline btn-sm" style="flex:1;text-align:center;border:2px solid var(--brand-blue);">Sign In</a>
+    <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Create Account</a>
+  </div>
+</div>
+<script>function toggleMobileNav(){document.getElementById('mobileNav').classList.toggle('open');}</script>
+
+<!-- Hero -->
+<section class="loan-hero">
+  <div class="container">
+    <div class="flag-pills" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <span class="flag-pill">🇫🇷 France</span>
+      <span class="flag-pill">🇮🇹 Italy</span>
+      <span class="flag-pill">🇪🇺 Europe</span>
+    </div>
+    <h1>Loans & Financing Solutions</h1>
+    <p>Whether you are buying a home in Paris, financing a business in Milan, or consolidating debt across Europe — EuroVest offers a full range of regulated loan products with transparent rates and flexible terms.</p>
+    <div class="flex gap-4" style="flex-wrap:wrap;margin-top:28px;">
+      <a href="register.html" class="btn btn-green btn-lg">Apply Now</a>
+      <a href="#loan-types" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.4);">Explore Loan Types</a>
+    </div>
+  </div>
+</section>
+
+<!-- Quick filter tabs -->
+<section class="section" id="loan-types">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Financing Solutions</div>
+      <h2>Choose Your Loan Type</h2>
+      <p>Twelve specialized loan products designed for every stage of life and business.</p>
+    </div>
+    <div class="loan-tabs" id="loanTabs">
+      <div class="loan-tab active" onclick="selectLoan('personal',event)">💳 Personal</div>
+      <div class="loan-tab" onclick="selectLoan('mortgage',event)">🏠 Mortgage</div>
+      <div class="loan-tab" onclick="selectLoan('auto',event)">🚗 Auto</div>
+      <div class="loan-tab" onclick="selectLoan('business',event)">🏢 Business</div>
+      <div class="loan-tab" onclick="selectLoan('student',event)">🎓 Student</div>
+      <div class="loan-tab" onclick="selectLoan('consolidation',event)">📦 Consolidation</div>
+      <div class="loan-tab" onclick="selectLoan('homeequity',event)">🏡 Home Equity</div>
+      <div class="loan-tab" onclick="selectLoan('bridge',event)">🌉 Bridge</div>
+      <div class="loan-tab" onclick="selectLoan('equipment',event)">🔧 Equipment</div>
+      <div class="loan-tab" onclick="selectLoan('creditline',event)">🔄 Credit Line</div>
+      <div class="loan-tab" onclick="selectLoan('green',event)">🌱 Green Energy</div>
+      <div class="loan-tab" onclick="selectLoan('medical',event)">⚕️ Medical</div>
+    </div>
+
+    <!-- Detail container -->
+    <div id="loanDetailContainer"></div>
+  </div>
+</section>
+
+<!-- Application Process -->
+<section class="section" style="background:var(--bg);">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Simple & Transparent</div>
+      <h2>How to Apply in 4 Steps</h2>
+      <p>From application to disbursement — a streamlined process with full visibility.</p>
+    </div>
+    <div class="grid-2" style="grid-template-columns:repeat(4,1fr);gap:24px;">
+      <div class="process-step"><div class="process-num">1</div><div class="process-text"><h4>Create Account</h4><p>Register and complete bank account verification with IBAN, BIC, and identity details.</p></div></div>
+      <div class="process-step"><div class="process-num">2</div><div class="process-text"><h4>Choose Loan</h4><p>Select the loan type, amount, and repayment term that fits your needs.</p></div></div>
+      <div class="process-step"><div class="process-num">3</div><div class="process-text"><h4>Submit Application</h4><p>Your application is reviewed by our team. You'll receive email and SMS updates at every stage.</p></div></div>
+      <div class="process-step"><div class="process-num">4</div><div class="process-text"><h4>Get Funded</h4><p>Upon approval, funds are disbursed to your verified bank account within 3–5 business days.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Eligibility -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow">Who Can Apply</div>
+      <h2>Eligibility Requirements</h2>
+      <p>Open to residents of France, Italy, and across the European Union.</p>
+    </div>
+    <div class="grid-2 gap-8">
+      <div class="card">
+        <h3 style="margin-bottom:16px;">✅ Basic Eligibility</h3>
+        <ul style="list-style:none;padding:0;">
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Age 18 or older with valid government-issued ID</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Resident of France, Italy, or an EU member state</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Verified bank account with IBAN and BIC/SWIFT</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Proof of stable income or revenue (for business loans)</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Completed KYC/AML verification</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:16px;">📄 Required Documents</h3>
+        <ul style="list-style:none;padding:0;">
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">National ID card or passport</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Proof of address (utility bill or bank statement, &lt;3 months old)</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Recent payslips or tax return (last 2–3 months)</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Bank statements showing income deposits</li>
+          <li style="padding:10px 0 10px 28px;position:relative;color:var(--text-secondary);">Property documents (for mortgage & home equity loans)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" style="background:var(--bg);">
+  <div class="container" style="max-width:780px;">
+    <div class="section-header">
+      <div class="eyebrow">Frequently Asked Questions</div>
+      <h2>Loan Questions Answered</h2>
+    </div>
+    <div id="faqList">
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">What is the minimum and maximum loan amount?<span class="faq-arrow">▾</span></div><div class="faq-a">Loan amounts vary by type. Personal loans start from €1,000 up to €50,000. Mortgages range from €50,000 to €1,000,000. Business loans can go up to €500,000. Exact limits are shown on each loan type's detail card above.</div></div>
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How long does approval take?<span class="faq-arrow">▾</span></div><div class="faq-a">For personal and auto loans, preliminary approval can be received within 24–48 hours. Mortgages and business loans may take 5–10 business days due to additional documentation and property/business valuation. You will receive email and SMS notifications at each stage.</div></div>
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Can I apply if I live outside France or Italy?<span class="faq-arrow">▾</span></div><div class="faq-a">Yes. EuroVest serves residents across the European Union. You must have a verified bank account with a valid IBAN. Some loan products may have country-specific conditions based on local regulations.</div></div>
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Are there early repayment penalties?<span class="faq-arrow">▾</span></div><div class="faq-a">Most of our loan products allow early or partial repayment without penalties, in compliance with European consumer protection regulations. Mortgage early repayment terms may vary — full details are provided in your loan agreement.</div></div>
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">How are interest rates determined?<span class="faq-arrow">▾</span></div><div class="faq-a">Interest rates are based on the loan type, amount, term, your credit profile, and prevailing European Central Bank rates. Fixed and variable rate options are available. Your personalized rate is presented during the application process.</div></div>
+      <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q">Will I be notified about my application status?<span class="faq-arrow">▾</span></div><div class="faq-a">Absolutely. You will receive notifications via email, your EuroVest dashboard, and SMS (if opted in) at every stage: submission received, under review, approved/rejected, and funds disbursed. Our admin team is also notified of all activity.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="background:var(--grad-navy);color:#fff;text-align:center;">
+  <div class="container">
+    <h2 style="color:#fff;font-size:2rem;margin-bottom:16px;">Ready to Apply for a Loan?</h2>
+    <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;margin-bottom:28px;max-width:600px;margin-left:auto;margin-right:auto;">Create your EuroVest account today, complete bank verification, and apply for the loan that fits your needs. Our team will guide you through every step.</p>
+    <div class="flex gap-4" style="justify-content:center;flex-wrap:wrap;">
+      <a href="register.html" class="btn btn-green btn-lg">Create Account</a>
+      <a href="login.html" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.4);">Sign In to Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="logo-mark" style="width:34px;height:34px;border-radius:8px;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;">€</span> EuroVest</div>
+        <p style="font-size:0.9rem;max-width:300px;">European investment and financing platform serving France and Italy with access to global markets and a full range of loan products.</p>
+        <div class="flex gap-2 mt-4"><span class="flag-pill" style="font-size:0.75rem;">🇫🇷</span><span class="flag-pill" style="font-size:0.75rem;">🇮🇹</span><span class="flag-pill" style="font-size:0.75rem;">🇪🇺</span></div>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="markets.html">Markets</a>
+        <a href="loans.html">Loans</a>
+        <a href="portfolios.html">Portfolios</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="legal/terms.html">Terms & Conditions</a>
+        <a href="legal/privacy.html">Privacy Policy</a>
+        <a href="legal/risk.html">Risk Disclosure</a>
+        <a href="legal/aml.html">AML / KYC</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="login.html">Sign In</a>
+        <a href="register.html">Create Account</a>
+        <a href="admin/login.html">Admin Portal</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 EuroVest. All rights reserved.</span>
+      <span>🇫🇷 🇮🇹 European Investment Platform</span>
+    </div>
+    <p class="disclaimer">Capital at risk. The value of investments can go down as well as up. Past performance is not indicative of future results. Loans are subject to credit approval and eligibility. This platform is for demonstration purposes.</p>
+  </div>
+</footer>
+
+<div class="chat-widget">
+  <button class="chat-toggle" onclick="EV.toggleChat()">💬</button>
+  <div class="chat-box" id="chatBox">
+    <div class="chat-head"><div class="avatar">🤖</div><div class="info"><h4 data-i18n="support_title">Customer Support</h4><p data-i18n="support_online">Online — AI Assistant</p></div><button class="close" onclick="EV.toggleChat()">✕</button></div>
+    <div class="chat-messages" id="chatMessages"><div class="chat-msg bot" data-i18n="support_greeting">Hello! Welcome to EuroVest Support. How can I help you today?</div></div>
+    <div class="chat-input-wrap"><input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')EV.sendChat()"><button class="chat-send" onclick="EV.sendChat()">➤</button></div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+var LOANS = {
+  personal:{icon:'💳',name:'Personal Loan',min:1000,max:50000,rate:'5.9%–12.5%',term:'12–84 months',
+    desc:'Unsecured personal financing for any purpose — home improvements, travel, wedding, or unexpected expenses.',
+    features:['No collateral required','Fixed monthly payments','Quick approval within 24–48 hours','Flexible repayment terms','Early repayment without penalties'],
+    use:'Home renovation, medical expenses, travel, wedding, major purchases'},
+  mortgage:{icon:'🏠',name:'Mortgage Loan',min:50000,max:1000000,rate:'3.2%–5.8%',term:'5–30 years',
+    desc:'Finance your home purchase in France or Italy with competitive rates and flexible terms aligned with European mortgage standards.',
+    features:['Up to 90% loan-to-value','Fixed or variable rate options','Terms up to 30 years','PEA-eligible for French properties','Property valuation included'],
+    use:'Primary residence, second home, investment property, refinancing'},
+  auto:{icon:'🚗',name:'Auto Loan',min:5000,max:80000,rate:'4.5%–9.2%',term:'12–72 months',
+    desc:'Purchase a new or used vehicle with flexible financing. Available for cars, motorcycles, and light commercial vehicles.',
+    features:['New and used vehicle financing','Up to 100% of vehicle value','Competitive rates from 4.5%','Quick online approval','Optional gap insurance'],
+    use:'New car, used car, motorcycle, electric vehicle, commercial van'},
+  business:{icon:'🏢',name:'Business Loan',min:10000,max:500000,rate:'6.5%–14%',term:'6 months–10 years',
+    desc:'Fuel your business growth with working capital, expansion financing, or equipment purchase loans for SMEs across Europe.',
+    features:['Working capital and expansion financing','Term loans and revolving facilities','Revenue-based repayment options','Dedicated business advisor','Fast-track for existing EuroVest clients'],
+    use:'Working capital, equipment, inventory, expansion, hiring, marketing'},
+  student:{icon:'🎓',name:'Student Loan',min:2000,max:40000,rate:'3.9%–7.5%',term:'5–15 years',
+    desc:'Finance your education at European universities with deferred repayment options and competitive student rates.',
+    features:['Deferred repayment during studies','Grace period after graduation','No collateral for amounts under €25,000','Co-signer option for higher amounts','Cover tuition and living expenses'],
+    use:'University tuition, master\'s degree, living expenses, study abroad, professional certification'},
+  consolidation:{icon:'📦',name:'Debt Consolidation Loan',min:3000,max:75000,rate:'5.5%–13%',term:'12–96 months',
+    desc:'Combine multiple debts into a single manageable monthly payment with a potentially lower overall interest rate.',
+    features:['Single monthly payment','Potentially lower overall rate','Simplify your finances','Pay off credit cards and existing loans','Improve your debt-to-income ratio'],
+    use:'Credit card debt, multiple loan consolidation, refinancing high-interest debt'},
+  homeequity:{icon:'🏡',name:'Home Equity Loan',min:10000,max:300000,rate:'4.8%–8.5%',term:'5–25 years',
+    desc:'Borrow against the equity in your property for major expenses — renovation, education, or investment.',
+    features:['Borrow up to 80% of home equity','Lower rates than unsecured loans','Fixed or variable rates','Property appraisal required','Interest may be tax-deductible (consult advisor)'],
+    use:'Home renovation, property improvement, education funding, major life events'},
+  bridge:{icon:'🌉',name:'Bridge Loan',min:25000,max:500000,rate:'8%–15%',term:'6–18 months',
+    desc:'Short-term financing to bridge the gap between buying a new property and selling your existing one.',
+    features:['Short-term (6–18 months)','Fast approval and disbursement','Interest-only payments available','Secured against existing property','Exit via property sale or refinancing'],
+    use:'Property chain bridging, auction purchases, renovation projects, time-sensitive opportunities'},
+  equipment:{icon:'🔧',name:'Equipment Financing',min:5000,max:250000,rate:'5.5%–11%',term:'12–84 months',
+    desc:'Finance business equipment — machinery, vehicles, technology, or specialized tools — with the equipment as collateral.',
+    features:['Equipment serves as collateral','100% financing available','Flexible repayment aligned with usage','Tax benefits (consult advisor)','Purchase or lease options'],
+    use:'Machinery, vehicles, IT equipment, medical devices, restaurant equipment, construction tools'},
+  creditline:{icon:'🔄',name:'Credit Line / Revolving',min:2000,max:60000,rate:'7%–16%',term:'Revolving',
+    desc:'A flexible revolving credit line you can draw from as needed — pay interest only on what you use.',
+    features:['Draw funds as needed, anytime','Pay interest only on used amount','Replenishes as you repay','No reapplication for each draw','Online and mobile access'],
+    use:'Ongoing flexibility, irregular expenses, business cash flow, emergency fund'},
+  green:{icon:'🌱',name:'Green Energy Loan',min:3000,max:100000,rate:'3.5%–7%',term:'12–120 months',
+    desc:'Financing for energy-efficient home improvements, solar panels, heat pumps, and EV charging — with preferential green rates.',
+    features:['Preferential rates for eco projects','Solar panels and heat pumps','Home insulation and energy upgrades','EV charging station installation','Aligned with EU Green Deal objectives'],
+    use:'Solar panels, heat pumps, insulation, EV charger, energy-efficient windows, green renovation'},
+  medical:{icon:'⚕️',name:'Medical Loan',min:1000,max:50000,rate:'6%–12%',term:'12–72 months',
+    desc:'Cover medical, dental, or elective healthcare procedures with flexible repayment terms and quick approval.',
+    features:['Cover medical and dental procedures','Elective surgery and treatments','Fertility treatment financing','Quick approval process','No collateral required','Discreet and confidential'],
+    use:'Dental work, elective surgery, fertility treatment, vision correction, veterinary care, rehabilitation'}
+};
+
+function selectLoan(key, evt){
+  document.querySelectorAll('.loan-tab').forEach(function(t){t.classList.remove('active');});
+  if(evt && evt.target) evt.target.classList.add('active');
+  var l = LOANS[key];
+  var container = document.getElementById('loanDetailContainer');
+  var featuresHtml = l.features.map(function(f){return '<li>'+f+'</li>';}).join('');
+  container.innerHTML = '<div class="loan-detail-card">' +
+    '<div class="flex items-center gap-4" style="margin-bottom:24px;">' +
+      '<div style="font-size:3rem;">'+l.icon+'</div>' +
+      '<div><h3 style="font-size:1.6rem;color:var(--brand-navy);">'+l.name+'</h3><p style="color:var(--text-secondary);">'+l.desc+'</p></div>' +
+    '</div>' +
+    '<div class="loan-detail-grid">' +
+      '<div class="loan-info-block">' +
+        '<h4>Key Features</h4><ul>'+featuresHtml+'</ul>' +
+        '<div style="margin-top:20px;"><h4 style="margin-bottom:8px;">Common Uses</h4><p style="color:var(--text-secondary);font-size:0.92rem;">'+l.use+'</p></div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="loan-spec">' +
+          '<div class="loan-spec-row"><span class="loan-spec-label">Minimum Amount</span><span class="loan-spec-value">€'+l.min.toLocaleString()+'</span></div>' +
+          '<div class="loan-spec-row"><span class="loan-spec-label">Maximum Amount</span><span class="loan-spec-value">€'+l.max.toLocaleString()+'</span></div>' +
+          '<div class="loan-spec-row"><span class="loan-spec-label">Interest Rate</span><span class="loan-spec-value">'+l.rate+'</span></div>' +
+          '<div class="loan-spec-row"><span class="loan-spec-label">Repayment Term</span><span class="loan-spec-value">'+l.term+'</span></div>' +
+        '</div>' +
+        '<div style="margin-top:20px;background:var(--grad-navy);border-radius:12px;padding:24px;color:#fff;text-align:center;">' +
+          '<h4 style="color:#fff;margin-bottom:8px;">Interested in this loan?</h4>' +
+          '<p style="color:rgba(255,255,255,0.7);font-size:0.9rem;margin-bottom:16px;">Create an account or sign in to apply from your dashboard.</p>' +
+          '<a href="register.html" class="btn btn-green btn-block" style="margin-bottom:8px;">Apply Now</a>' +
+          '<a href="login.html" class="btn btn-outline btn-block" style="color:#fff;border-color:rgba(255,255,255,0.4);">Sign In</a>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function toggleFaq(item){
+  item.classList.toggle('open');
+}
+
+EV.toggleChat=function(){document.getElementById('chatBox').classList.toggle('open');};
+EV.sendChat=function(){var i=document.getElementById('chatInput');var m=i.value.trim();if(!m)return;var ms=document.getElementById('chatMessages');var u=document.createElement('div');u.className='chat-msg user';u.textContent=m;ms.appendChild(u);i.value='';ms.scrollTop=ms.scrollHeight;var user=EV.auth.currentUser();var uid=user?user.id:'guest';var ticket=EV.msg.userToSupport(uid,m);setTimeout(function(){var r=ticket.replies[ticket.replies.length-1];var b=document.createElement('div');b.className='chat-msg bot';b.textContent=r.text;ms.appendChild(b);if(ticket.escalated){var s=document.createElement('div');s.className='chat-msg system';s.textContent='⏳ A human agent has been notified and will respond shortly.';ms.appendChild(s);}ms.scrollTop=ms.scrollHeight;},800);};
+
+// Load first loan by default
+selectLoan('personal');
+// Mark the first tab as active visually
+var firstTab = document.querySelector('.loan-tab');
+if(firstTab) firstTab.classList.add('active');
+</script>
+</body>
+</html>

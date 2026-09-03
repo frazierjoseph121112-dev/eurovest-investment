@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EuroVest — Invest Across Global Markets</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="navbar-logo">
+      <span class="logo-mark">€</span> EuroVest
+    </a>
+    <div class="navbar-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="markets.html" data-i18n="nav_markets">Markets</a>
+      <a href="loans.html">Loans</a>
+      <a href="portfolios.html" data-i18n="nav_portfolios">Portfolios</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+      <a href="legal/terms.html" data-i18n="nav_legal">Legal</a>
+    </div>
+    <div class="navbar-actions">
+      <div class="lang-selector">
+        <button class="lang-btn"><span class="lang-current-flag">🇬🇧</span> <span class="lang-current-name">English</span> ▾</button>
+        <div class="lang-dropdown"></div>
+      </div>
+      <a href="login.html" class="btn btn-outline btn-sm" data-i18n="nav_login">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm" data-i18n="nav_register">Create Account</a>
+      <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="markets.html">Markets</a>
+  <a href="loans.html">Loans</a>
+  <a href="portfolios.html">Portfolios</a>
+  <a href="about.html">About</a>
+  <a href="legal/terms.html">Legal</a>
+  <div class="mobile-nav-actions">
+    <a href="login.html" class="btn btn-outline btn-sm" style="flex:1;text-align:center;border:2px solid var(--brand-blue);">Sign In</a>
+    <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Create Account</a>
+  </div>
+</div>
+<script>function toggleMobileNav(){document.getElementById('mobileNav').classList.toggle('open');}</script>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container hero-content">
+    <div class="flag-pills" style="display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;">
+      <span class="flag-pill">🇫🇷 France</span>
+      <span class="flag-pill">🇮🇹 Italy</span>
+      <span class="flag-pill">🇪🇺 Europe</span>
+      <span class="flag-pill">🌎 Global</span>
+    </div>
+    <h1 data-i18n="hero_title">Invest Across Global Markets</h1>
+    <p><span class="accent" data-i18n="hero_title_acc1">Build a diversified portfolio</span> <span class="accent-green" data-i18n="hero_title_acc2">across equities, ETFs, bonds, real estate and more.</span></p>
+    <p data-i18n="hero_sub">Access European and global investment opportunities with a regulated, transparent platform built for French and Italian investors.</p>
+    <div class="flex gap-4" style="flex-wrap:wrap;">
+      <a href="register.html" class="btn btn-green btn-lg" data-i18n="hero_cta1">Create Account</a>
+      <a href="markets.html" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.4);" data-i18n="hero_cta2">Explore Investments</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num" data-i18n="hero_stat1">€2.4B+ Assets</div><div class="label">Under Management</div></div>
+      <div class="hero-stat"><div class="num" data-i18n="hero_stat2">50,000+ Investors</div><div class="label">Across Europe</div></div>
+      <div class="hero-stat"><div class="num" data-i18n="hero_stat3">12 Asset Classes</div><div class="label">Diversified Access</div></div>
+      <div class="hero-stat"><div class="num" data-i18n="hero_stat4">FR · IT · EU · Global</div><div class="label">Markets Covered</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Investment Categories -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow" data-i18n="sec_cat_eyebrow">Investment Marketplace</div>
+      <h2 data-i18n="sec_cat_title">Everything You Need to Build Wealth</h2>
+      <p data-i18n="sec_cat_sub">From European equities to global cryptoassets — all in one regulated platform.</p>
+    </div>
+    <div class="cat-grid">
+      <div class="cat-card" onclick="location.href='markets.html#stocks'">
+        <div class="cat-icon">📈</div>
+        <h3 data-i18n="cat_stocks">Stocks</h3>
+        <p data-i18n="cat_stocks_d">CAC 40, FTSE MIB, European & global companies</p>
+        <div class="cat-meta"><span class="badge badge-info">CAC 40</span><span class="badge badge-info">FTSE MIB</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#etfs'">
+        <div class="cat-icon">📊</div>
+        <h3 data-i18n="cat_etfs">ETFs & Funds</h3>
+        <p data-i18n="cat_etfs_d">S&P 500, MSCI World, Euro Stoxx 50, sector funds</p>
+        <div class="cat-meta"><span class="badge badge-info">S&P 500</span><span class="badge badge-info">MSCI World</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#bonds'">
+        <div class="cat-icon">💶</div>
+        <h3 data-i18n="cat_bonds">Fixed Income</h3>
+        <p data-i18n="cat_bonds_d">French & Italian government bonds, corporate bonds</p>
+        <div class="cat-meta"><span class="badge badge-success">BTP</span><span class="badge badge-success">OAT</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#realestate'">
+        <div class="cat-icon">🏠</div>
+        <h3 data-i18n="cat_realestate">Real Estate</h3>
+        <p data-i18n="cat_realestate_d">Property funds, SCPI, REIT-style exposure</p>
+        <div class="cat-meta"><span class="badge badge-neutral">SCPI</span><span class="badge badge-neutral">REIT</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#sustainable'">
+        <div class="cat-icon">🌱</div>
+        <h3 data-i18n="cat_sustainable">Sustainable / ESG</h3>
+        <p data-i18n="cat_sustainable_d">Green bonds, renewable energy funds</p>
+        <div class="cat-meta"><span class="badge badge-success">ESG</span><span class="badge badge-success">Green</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#private'">
+        <div class="cat-icon">🚀</div>
+        <h3 data-i18n="cat_private">Private Markets</h3>
+        <p data-i18n="cat_private_d">Private equity, venture capital, infrastructure</p>
+        <div class="cat-meta"><span class="badge badge-warning">PE</span><span class="badge badge-warning">VC</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#commodities'">
+        <div class="cat-icon">🛢️</div>
+        <h3 data-i18n="cat_commodities">Commodities</h3>
+        <p data-i18n="cat_commodities_d">Gold, energy, agricultural commodities</p>
+        <div class="cat-meta"><span class="badge badge-warning">Gold</span><span class="badge badge-warning">Energy</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#crypto'">
+        <div class="cat-icon">🪙</div>
+        <h3 data-i18n="cat_crypto">Cryptoassets</h3>
+        <p data-i18n="cat_crypto_d">Bitcoin, Ethereum and eligible cryptoassets</p>
+        <div class="cat-meta"><span class="badge badge-danger">BTC</span><span class="badge badge-danger">ETH</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#retirement'">
+        <div class="cat-icon">🏖️</div>
+        <h3 data-i18n="cat_retirement">Retirement</h3>
+        <p data-i18n="cat_retirement_d">PER, pension schemes, long-term savings</p>
+        <div class="cat-meta"><span class="badge badge-info">PER</span><span class="badge badge-info">Pension</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='markets.html#cash'">
+        <div class="cat-icon">💵</div>
+        <h3 data-i18n="cat_cash">Cash & Savings</h3>
+        <p data-i18n="cat_cash_d">Livret A, LDDS, regulated savings products</p>
+        <div class="cat-meta"><span class="badge badge-success">Livret A</span><span class="badge badge-success">LDDS</span></div>
+      </div>
+      <div class="cat-card" onclick="location.href='loans.html'">
+        <div class="cat-icon">🏦</div>
+        <h3>Loans & Financing</h3>
+        <p>Personal, mortgage, auto, business, student & consolidation loans</p>
+        <div class="cat-meta"><span class="badge badge-info">Mortgage</span><span class="badge badge-info">Personal</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Regional Portfolios -->
+<section class="section" style="background:var(--bg);">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow" data-i18n="sec_region_eyebrow">Regional Portfolios</div>
+      <h2 data-i18n="sec_region_title">Choose Your Strategy</h2>
+      <p data-i18n="sec_region_sub">Model portfolios tailored to your risk profile and region.</p>
+    </div>
+    <div class="region-grid">
+      <div class="region-card fr" onclick="location.href='portfolios.html#france'">
+        <div class="region-head">
+          <div class="region-flag">🇫🇷</div>
+          <h3 data-i18n="reg_fr">France Portfolio</h3>
+          <p data-i18n="reg_fr_d">European equities, bonds & PEA-eligible products</p>
+        </div>
+        <div class="region-body">
+          <div class="risk-level risk-conservative">🛡️ <span data-i18n="risk_conservative">Conservative</span> — Bonds & Cash</div>
+          <div class="risk-level risk-balanced">⚖️ <span data-i18n="risk_balanced">Balanced</span> — Equities & Bonds</div>
+          <div class="risk-level risk-growth">📈 <span data-i18n="risk_growth">Growth</span> — Global Equities</div>
+        </div>
+      </div>
+      <div class="region-card it" onclick="location.href='portfolios.html#italy'">
+        <div class="region-head">
+          <div class="region-flag">🇮🇹</div>
+          <h3 data-i18n="reg_it">Italy Portfolio</h3>
+          <p data-i18n="reg_it_d">BTPs, Italian equities & PIR investments</p>
+        </div>
+        <div class="region-body">
+          <div class="risk-level risk-conservative">🛡️ <span data-i18n="risk_conservative">Conservative</span> — BTPs & Bonds</div>
+          <div class="risk-level risk-balanced">⚖️ <span data-i18n="risk_balanced">Balanced</span> — BTPs & Equities</div>
+          <div class="risk-level risk-growth">📈 <span data-i18n="risk_growth">Growth</span> — Italian + Global</div>
+        </div>
+      </div>
+      <div class="region-card eu" onclick="location.href='portfolios.html#euro'">
+        <div class="region-head">
+          <div class="region-flag">🇪🇺</div>
+          <h3 data-i18n="reg_eu">Euro Growth</h3>
+          <p data-i18n="reg_eu_d">Diversified European ETFs across sectors</p>
+        </div>
+        <div class="region-body">
+          <div class="risk-level risk-balanced">⚖️ <span data-i18n="risk_balanced">Balanced</span> — Euro Stoxx 50</div>
+          <div class="risk-level risk-growth">📈 <span data-i18n="risk_growth">Growth</span> — Sector ETFs</div>
+        </div>
+      </div>
+      <div class="region-card global" onclick="location.href='portfolios.html#global'">
+        <div class="region-head">
+          <div class="region-flag">🌎</div>
+          <h3 data-i18n="reg_global">Global Growth</h3>
+          <p data-i18n="reg_global_d">Global equities, ETFs & alternatives</p>
+        </div>
+        <div class="region-body">
+          <div class="risk-level risk-balanced">⚖️ <span data-i18n="risk_balanced">Balanced</span> — MSCI World</div>
+          <div class="risk-level risk-growth">📈 <span data-i18n="risk_growth">Growth</span> — S&P 500 + Alternatives</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Banque de France imagery section -->
+<section class="section" style="background:var(--grad-navy);color:#fff;">
+  <div class="container">
+    <div class="grid-2 items-center gap-8">
+      <div>
+        <div class="eyebrow" style="color:#4FA8E8;">Trusted & Regulated</div>
+        <h2 style="color:#fff;font-size:2rem;margin-bottom:20px;">Built on European Financial Standards</h2>
+        <p style="color:rgba(255,255,255,0.7);font-size:1.1rem;margin-bottom:24px;">EuroVest operates with the rigor and transparency expected of European financial institutions. Our platform follows AML/KYC compliance, investor protection standards, and transparent fee structures aligned with French and Italian regulatory frameworks.</p>
+        <div class="flex gap-4" style="flex-wrap:wrap;margin-bottom:24px;">
+          <div><div style="font-size:2rem;font-weight:800;color:#5CC88F;">100%</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">AML Compliant</div></div>
+          <div><div style="font-size:2rem;font-weight:800;color:#4FA8E8;">24/7</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">AI Support</div></div>
+          <div><div style="font-size:2rem;font-weight:800;color:#5CC88F;">10</div><div style="font-size:0.85rem;color:rgba(255,255,255,0.5);">Languages</div></div>
+        </div>
+        <a href="register.html" class="btn btn-green btn-lg" data-i18n="hero_cta1">Create Account</a>
+      </div>
+      <div style="position:relative;">
+        <img src="assets/images/heritage-poster.jpeg" alt="European Heritage" style="width:100%;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Paris map section -->
+<section class="section">
+  <div class="container">
+    <div class="grid-2 items-center gap-8">
+      <div style="order:2;">
+        <img src="assets/images/podcast-map.jpeg" alt="Paris Financial District" style="width:100%;border-radius:20px;box-shadow:var(--shadow-lg);">
+      </div>
+      <div style="order:1;">
+        <div class="eyebrow" style="color:var(--brand-green);">European Roots</div>
+        <h2 style="font-size:2rem;margin-bottom:20px;">Headquartered in the Heart of Europe</h2>
+        <p style="color:var(--text-secondary);font-size:1.1rem;margin-bottom:24px;">From Paris to Milan, EuroVest connects investors across France and Italy to global markets. Our platform reflects the elegance and reliability of European financial traditions, combined with modern technology for seamless investing.</p>
+        <div class="flex gap-4" style="flex-wrap:wrap;">
+          <span class="flag-pill">🇫🇷 Paris</span>
+          <span class="flag-pill">🇮🇹 Milan</span>
+          <span class="flag-pill">🇪🇺 Brussels</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="logo-mark" style="width:34px;height:34px;border-radius:8px;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;">€</span> EuroVest</div>
+        <p style="font-size:0.9rem;max-width:300px;">European investment platform serving France and Italy with access to global markets across 12 asset classes.</p>
+        <div class="flex gap-2 mt-4">
+          <span class="flag-pill" style="font-size:0.75rem;">🇫🇷</span>
+          <span class="flag-pill" style="font-size:0.75rem;">🇮🇹</span>
+          <span class="flag-pill" style="font-size:0.75rem;">🇪🇺</span>
+        </div>
+      </div>
+      <div>
+        <h4 data-i18n="footer_company">Company</h4>
+        <a href="about.html" data-i18n="nav_about">About</a>
+        <a href="markets.html" data-i18n="nav_markets">Markets</a>
+        <a href="loans.html">Loans</a>
+        <a href="portfolios.html" data-i18n="nav_portfolios">Portfolios</a>
+      </div>
+      <div>
+        <h4 data-i18n="footer_legal">Legal</h4>
+        <a href="legal/terms.html">Terms & Conditions</a>
+        <a href="legal/privacy.html">Privacy Policy</a>
+        <a href="legal/risk.html">Risk Disclosure</a>
+        <a href="legal/aml.html">AML / KYC</a>
+      </div>
+      <div>
+        <h4 data-i18n="footer_support">Support</h4>
+        <a href="login.html" data-i18n="nav_login">Sign In</a>
+        <a href="register.html" data-i18n="nav_register">Create Account</a>
+        <a href="admin/login.html">Admin Portal</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 EuroVest. All rights reserved.</span>
+      <span>🇫🇷 🇮🇹 European Investment Platform</span>
+    </div>
+    <p class="disclaimer" data-i18n="footer_disclaimer">Capital at risk. The value of investments can go down as well as up. Past performance is not indicative of future results. This platform is for demonstration purposes.</p>
+  </div>
+</footer>
+
+<!-- Chat Widget -->
+<div class="chat-widget">
+  <button class="chat-toggle" onclick="EV.toggleChat()">💬</button>
+  <div class="chat-box" id="chatBox">
+    <div class="chat-head">
+      <div class="avatar">🤖</div>
+      <div class="info">
+        <h4 data-i18n="support_title">Customer Support</h4>
+        <p data-i18n="support_online">Online — AI Assistant</p>
+      </div>
+      <button class="close" onclick="EV.toggleChat()">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg bot" data-i18n="support_greeting">Hello! Welcome to EuroVest Support. How can I help you today?</div>
+    </div>
+    <div class="chat-input-wrap">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')EV.sendChat()">
+      <button class="chat-send" onclick="EV.sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+EV.toggleChat = function() {
+  document.getElementById('chatBox').classList.toggle('open');
+};
+EV.sendChat = function() {
+  var input = document.getElementById('chatInput');
+  var msg = input.value.trim();
+  if (!msg) return;
+  var lang = getCurrentLang();
+  var msgs = document.getElementById('chatMessages');
+  // Show user message
+  var udiv = document.createElement('div');
+  udiv.className = 'chat-msg user'; udiv.textContent = msg;
+  msgs.appendChild(udiv);
+  input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  // Get current user (may be null if not logged in)
+  var user = EV.auth.currentUser();
+  var userId = user ? user.id : 'guest';
+  // Process through AI / support
+  var ticket = EV.msg.userToSupport(userId, msg);
+  // Show AI response
+  setTimeout(function(){
+    var lastReply = ticket.replies[ticket.replies.length-1];
+    var bdiv = document.createElement('div');
+    bdiv.className = 'chat-msg bot'; bdiv.textContent = lastReply.text;
+    msgs.appendChild(bdiv);
+    if (ticket.escalated) {
+      var sdiv = document.createElement('div');
+      sdiv.className = 'chat-msg system'; sdiv.textContent = '⏳ A human agent has been notified and will respond shortly.';
+      msgs.appendChild(sdiv);
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 800);
+};
+</script>
+</body>
+</html>

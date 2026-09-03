@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transaction Receipt — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  body { background: var(--bg); padding: 20px 0; }
+  .receipt-actions { max-width:700px; margin:0 auto 20px; display:flex; gap:12px; }
+  @media print { .receipt-actions, .navbar { display:none !important; } body { padding:0; } }
+</style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+<nav class="navbar" style="margin-bottom:20px;">
+  <div class="container navbar-inner">
+    <a href="index.html" class="navbar-logo"><span class="logo-mark">€</span> EuroVest</a>
+    <div class="navbar-actions">
+      <a href="user/dashboard.html" class="btn btn-ghost btn-sm">← Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="receipt-actions">
+  <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print Receipt</button>
+  <button class="btn btn-ghost btn-sm" onclick="downloadReceipt()">📄 Download PDF</button>
+  <a href="user/dashboard.html" class="btn btn-ghost btn-sm">← Back to Dashboard</a>
+</div>
+
+<div class="receipt-page" id="receiptContainer">
+  <div class="receipt-head">
+    <div class="receipt-logo">EUROVEST</div>
+    <div class="receipt-title">Official Transaction Receipt</div>
+  </div>
+  <div class="receipt-body" id="receiptBody">
+    <p class="text-center text-muted">Loading receipt...</p>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+function getParam(name) {
+  var params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function loadReceipt() {
+  var txId = getParam('id');
+  var userId = getParam('user');
+  if (!txId || !userId) {
+    document.getElementById('receiptBody').innerHTML = '<p class="text-center text-danger">Invalid receipt link.</p>';
+    return;
+  }
+  var txs = EV.store.get('user_tx_'+userId, []);
+  var tx = txs.find(function(t){return t.id === txId;});
+  if (!tx) {
+    document.getElementById('receiptBody').innerHTML = '<p class="text-center text-danger">Receipt not found.</p>';
+    return;
+  }
+  var user = EV.store.get('users', []).find(function(u){return u.id===userId;});
+  var holderName = user ? user.firstName+' '+user.lastName : 'Account Holder';
+  var r = tx.receiptData;
+  r.accountHolder = holderName;
+
+  var typeLabels = {deposit:'DEPOSIT CREDIT',withdrawal:'WITHDRAWAL DEBIT',purchase:'INVESTMENT PURCHASE',sale:'INVESTMENT SALE',dividend:'DIVIDEND PAYMENT',interest:'INTEREST PAYMENT',fee:'FEE CHARGE'};
+  var isInflow = tx.type==='deposit'||tx.type==='dividend'||tx.type==='interest'||tx.type==='sale';
+
+  var html = '';
+  html += '<div class="receipt-amount">';
+  html += '<div class="'+(isInflow?'text-success':'')+'" style="'+(isInflow?'':'color:var(--danger);')+'">';
+  html += '<span class="amount">'+(isInflow?'+':'−')+EV.util.formatMoney(r.amount).replace('€','')+'</span> <span class="currency">EUR</span>';
+  html += '</div></div>';
+  
+  html += '<div class="text-center" style="margin-bottom:24px;">';
+  html += '<div class="receipt-stamp">'+r.status+'</div>';
+  html += '</div>';
+
+  html += '<div class="receipt-row"><span class="label">Transaction Type</span><span class="value">'+(typeLabels[tx.type]||tx.type)+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Reference Number</span><span class="value font-bold">'+r.reference+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Description</span><span class="value">'+tx.description+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Date</span><span class="value">'+EV.util.formatDate(r.date)+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Time</span><span class="value">'+new Date(r.date).toLocaleTimeString('en-GB')+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Status</span><span class="value"><span class="badge badge-success">'+r.status+'</span></span></div>';
+  html += '<div class="receipt-row"><span class="label">Payment Method</span><span class="value">'+tx.method+'</span></div>';
+  
+  html += '<div class="divider"></div>';
+  html += '<h4 style="margin-bottom:16px;">Account Details</h4>';
+  html += '<div class="receipt-row"><span class="label">Account Holder</span><span class="value">'+r.accountHolder+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Account Number</span><span class="value">'+r.accountNumber+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">IBAN</span><span class="value text-sm">'+r.iban+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">BIC/SWIFT</span><span class="value">'+r.bic+'</span></div>';
+  
+  html += '<div class="divider"></div>';
+  html += '<h4 style="margin-bottom:16px;">Processing Details</h4>';
+  html += '<div class="receipt-row"><span class="label">Processing Code</span><span class="value text-sm">'+r.processingCode+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Authorization Code</span><span class="value">'+r.authCode+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Settlement Date</span><span class="value">'+EV.util.formatDate(r.settlementDate)+'</span></div>';
+  html += '<div class="receipt-row"><span class="label">Timestamp</span><span class="value text-sm">'+r.timestamp+'</span></div>';
+
+  document.getElementById('receiptBody').innerHTML = html;
+}
+
+function downloadReceipt() {
+  // Open print dialog which allows save as PDF
+  window.print();
+}
+
+loadReceipt();
+</script>
+</body>
+</html>

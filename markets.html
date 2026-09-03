@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markets — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+<nav class="navbar">
+  <div class="container navbar-inner">
+    <a href="index.html" class="navbar-logo"><span class="logo-mark">€</span> EuroVest</a>
+    <div class="navbar-links">
+      <a href="index.html" data-i18n="nav_home">Home</a>
+      <a href="markets.html" data-i18n="nav_markets">Markets</a>
+      <a href="loans.html">Loans</a>
+      <a href="portfolios.html" data-i18n="nav_portfolios">Portfolios</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+    </div>
+    <div class="navbar-actions">
+      <div class="lang-selector"><button class="lang-btn"><span class="lang-current-flag">🇬🇧</span> <span class="lang-current-name">English</span> ▾</button><div class="lang-dropdown"></div></div>
+      <a href="login.html" class="btn btn-outline btn-sm" data-i18n="nav_login">Sign In</a>
+      <a href="register.html" class="btn btn-primary btn-sm" data-i18n="nav_register">Create Account</a>
+      <button class="navbar-toggle" onclick="toggleMobileNav()">☰</button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="markets.html">Markets</a>
+  <a href="loans.html">Loans</a>
+  <a href="portfolios.html">Portfolios</a>
+  <a href="about.html">About</a>
+  <div class="mobile-nav-actions">
+    <a href="login.html" class="btn btn-outline btn-sm" style="flex:1;text-align:center;border:2px solid var(--brand-blue);">Sign In</a>
+    <a href="register.html" class="btn btn-primary btn-sm" style="flex:1;text-align:center;">Create Account</a>
+  </div>
+</div>
+<script>function toggleMobileNav(){document.getElementById('mobileNav').classList.toggle('open');}</script>
+
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="eyebrow" data-i18n="sec_cat_eyebrow">Investment Marketplace</div>
+      <h2 data-i18n="sec_cat_title">Everything You Need to Build Wealth</h2>
+      <p data-i18n="sec_cat_sub">From European equities to global cryptoassets — all in one regulated platform.</p>
+    </div>
+
+    <div id="stocks" class="mb-8">
+      <h3 style="margin-bottom:24px;">📈 <span data-i18n="cat_stocks">Stocks</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>CAC 40 Index Fund</h4><p class="text-muted text-sm">🇫🇷 France's benchmark index</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€5,420</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>FTSE MIB ETF</h4><p class="text-muted text-sm">🇮🇹 Italy's benchmark index</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€28.50</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>European Equities</h4><p class="text-muted text-sm">🇪🇺 Pan-European stocks</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€156.80</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>US Stocks</h4><p class="text-muted text-sm">🇺🇸 S&P 500 exposure</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €250</span><span class="font-bold">€425.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="etfs" class="mb-8">
+      <h3 style="margin-bottom:24px;">📊 <span data-i18n="cat_etfs">ETFs & Funds</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Euro Stoxx 50 ETF</h4><p class="text-muted text-sm">Top 50 Eurozone companies</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Fee: 0.15%</span><span class="font-bold">€45.20</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>MSCI World ETF</h4><p class="text-muted text-sm">Global developed markets</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Fee: 0.22%</span><span class="font-bold">€78.40</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>S&P 500 ETF</h4><p class="text-muted text-sm">US large-cap index</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Fee: 0.07%</span><span class="font-bold">€425.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>European Sector Funds</h4><p class="text-muted text-sm">Tech, healthcare, finance</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Fee: 0.35%</span><span class="font-bold">€112.30</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="bonds" class="mb-8">
+      <h3 style="margin-bottom:24px;">💶 <span data-i18n="cat_bonds">Fixed Income</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>French OAT 10Y</h4><p class="text-muted text-sm">🇫🇷 Government bond</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €1,000</span><span class="font-bold">€102.30</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>BTP Italia 2035</h4><p class="text-muted text-sm">🇮🇹 Italian government bond</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €1,000</span><span class="font-bold">€98.50</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>BTP Valore</h4><p class="text-muted text-sm">🇮🇹 Retail government bond</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €1,000</span><span class="font-bold">€100.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Corporate Bonds</h4><p class="text-muted text-sm">European investment grade</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €500</span><span class="font-bold">€101.20</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="realestate" class="mb-8">
+      <h3 style="margin-bottom:24px;">🏠 <span data-i18n="cat_realestate">Real Estate</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>European SCPI</h4><p class="text-muted text-sm">French property funds</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €1,000</span><span class="font-bold">€850.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>REIT Portfolio</h4><p class="text-muted text-sm">European commercial property</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €500</span><span class="font-bold">€145.60</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Residential Property Fund</h4><p class="text-muted text-sm">European residential</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €1,000</span><span class="font-bold">€320.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="sustainable" class="mb-8">
+      <h3 style="margin-bottom:24px;">🌱 <span data-i18n="cat_sustainable">Sustainable / ESG</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Green Bond Fund</h4><p class="text-muted text-sm">Renewable energy projects</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €500</span><span class="font-bold">€105.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>ESG Global Fund</h4><p class="text-muted text-sm">Sustainable global equities</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€89.50</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="private" class="mb-8">
+      <h3 style="margin-bottom:24px;">🚀 <span data-i18n="cat_private">Private Markets</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Private Equity Fund</h4><p class="text-muted text-sm">European mid-market PE</p></div><span class="badge badge-danger">High</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10,000</span><span class="font-bold">€1,000.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Venture Capital</h4><p class="text-muted text-sm">European tech startups</p></div><span class="badge badge-danger">High</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10,000</span><span class="font-bold">€750.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="commodities" class="mb-8">
+      <h3 style="margin-bottom:24px;">🛢️ <span data-i18n="cat_commodities">Commodities</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Gold ETC</h4><p class="text-muted text-sm">Physical gold exposure</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€185.40</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Energy Fund</h4><p class="text-muted text-sm">Oil & gas exposure</p></div><span class="badge badge-warning">Medium</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€52.30</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="crypto" class="mb-8">
+      <h3 style="margin-bottom:24px;">🪙 <span data-i18n="cat_crypto">Cryptoassets</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Bitcoin</h4><p class="text-muted text-sm">BTC — Store of value</p></div><span class="badge badge-danger">High</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10</span><span class="font-bold">€67,500</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Ethereum</h4><p class="text-muted text-sm">ETH — Smart contracts</p></div><span class="badge badge-danger">High</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10</span><span class="font-bold">€3,450</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="retirement" class="mb-8">
+      <h3 style="margin-bottom:24px;">🏖️ <span data-i18n="cat_retirement">Retirement</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>PER Retirement Fund</h4><p class="text-muted text-sm">🇫🇷 French retirement plan</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€500.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Pension Scheme</h4><p class="text-muted text-sm">🇮🇹 Italian complementary pension</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €100</span><span class="font-bold">€450.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <div id="cash" class="mb-8">
+      <h3 style="margin-bottom:24px;">💵 <span data-i18n="cat_cash">Cash & Savings</span></h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="flex justify-between"><div><h4>Livret A</h4><p class="text-muted text-sm">🇫🇷 French regulated savings</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10</span><span class="font-bold">€1.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+        <div class="cat-card"><div class="flex justify-between"><div><h4>LDDS</h4><p class="text-muted text-sm">🇫🇷 Sustainable development savings</p></div><span class="badge badge-success">Low</span></div><div class="mt-4 flex justify-between"><span class="text-muted text-sm">Min: €10</span><span class="font-bold">€1.00</span></div><button class="btn btn-primary btn-sm btn-block mt-4" onclick="location.href='register.html'">Invest</button></div>
+      </div>
+    </div>
+
+    <!-- Loans Section -->
+    <div id="loans" class="mb-8" style="margin-top:48px;padding-top:32px;border-top:2px solid var(--border);">
+      <div class="section-header" style="text-align:left;">
+        <div class="eyebrow">Financing Solutions</div>
+        <h2>Loans & Financing</h2>
+        <p>A full range of loan products for every need — from personal loans to mortgages and business financing.</p>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">💳</div><h3>Personal Loan</h3><p>€1,000–€50,000 · 5.9%–12.5% APR</p><div class="cat-meta"><span class="badge badge-info">Unsecured</span><span class="badge badge-info">12–84 mo</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🏠</div><h3>Mortgage Loan</h3><p>€50,000–€1,000,000 · 3.2%–5.8% APR</p><div class="cat-meta"><span class="badge badge-success">Low Rate</span><span class="badge badge-success">Up to 30yr</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🚗</div><h3>Auto Loan</h3><p>€5,000–€80,000 · 4.5%–9.2% APR</p><div class="cat-meta"><span class="badge badge-info">New & Used</span><span class="badge badge-info">12–72 mo</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🏢</div><h3>Business Loan</h3><p>€10,000–€500,000 · 6.5%–14% APR</p><div class="cat-meta"><span class="badge badge-warning">SME</span><span class="badge badge-warning">Working Capital</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🎓</div><h3>Student Loan</h3><p>€2,000–€40,000 · 3.9%–7.5% APR</p><div class="cat-meta"><span class="badge badge-success">Deferred</span><span class="badge badge-success">5–15 yr</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">📦</div><h3>Debt Consolidation</h3><p>€3,000–€75,000 · 5.5%–13% APR</p><div class="cat-meta"><span class="badge badge-info">Single Payment</span><span class="badge badge-info">12–96 mo</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🏡</div><h3>Home Equity Loan</h3><p>€10,000–€300,000 · 4.8%–8.5% APR</p><div class="cat-meta"><span class="badge badge-info">Secured</span><span class="badge badge-info">5–25 yr</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🌉</div><h3>Bridge Loan</h3><p>€25,000–€500,000 · 8%–15% APR</p><div class="cat-meta"><span class="badge badge-warning">Short-term</span><span class="badge badge-warning">6–18 mo</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🔧</div><h3>Equipment Financing</h3><p>€5,000–€250,000 · 5.5%–11% APR</p><div class="cat-meta"><span class="badge badge-info">Machinery</span><span class="badge badge-info">12–84 mo</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🔄</div><h3>Credit Line / Revolving</h3><p>€2,000–€60,000 · 7%–16% APR</p><div class="cat-meta"><span class="badge badge-info">Flexible</span><span class="badge badge-info">Revolving</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">🌱</div><h3>Green Energy Loan</h3><p>€3,000–€100,000 · 3.5%–7% APR</p><div class="cat-meta"><span class="badge badge-success">Eco</span><span class="badge badge-success">Solar/Heat Pump</span></div></div>
+        <div class="cat-card" onclick="location.href='loans.html'"><div class="cat-icon">⚕️</div><h3>Medical Loan</h3><p>€1,000–€50,000 · 6%–12% APR</p><div class="cat-meta"><span class="badge badge-info">Healthcare</span><span class="badge badge-info">12–72 mo</span></div></div>
+      </div>
+      <div style="text-align:center;margin-top:32px;">
+        <a href="loans.html" class="btn btn-primary btn-lg">View All Loan Details & Apply →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo"><span class="logo-mark" style="width:34px;height:34px;border-radius:8px;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;">€</span> EuroVest</div>
+        <p style="font-size:0.9rem;max-width:300px;">European investment platform serving France and Italy with access to global markets across 12 asset classes.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="markets.html">Markets</a>
+        <a href="loans.html">Loans</a>
+        <a href="portfolios.html">Portfolios</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="legal/terms.html">Terms & Conditions</a>
+        <a href="legal/privacy.html">Privacy Policy</a>
+        <a href="legal/risk.html">Risk Disclosure</a>
+        <a href="legal/aml.html">AML / KYC</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="login.html">Sign In</a>
+        <a href="register.html">Create Account</a>
+        <a href="admin/login.html">Admin Portal</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 EuroVest. All rights reserved.</span>
+      <span>🇫🇷 🇮🇹 European Investment Platform</span>
+    </div>
+    <p class="disclaimer" data-i18n="footer_disclaimer">Capital at risk. The value of investments can go down as well as up. Past performance is not indicative of future results. This platform is for demonstration purposes.</p>
+  </div>
+</footer>
+
+<div class="chat-widget">
+  <button class="chat-toggle" onclick="EV.toggleChat()">💬</button>
+  <div class="chat-box" id="chatBox">
+    <div class="chat-head"><div class="avatar">🤖</div><div class="info"><h4 data-i18n="support_title">Customer Support</h4><p data-i18n="support_online">Online — AI Assistant</p></div><button class="close" onclick="EV.toggleChat()">✕</button></div>
+    <div class="chat-messages" id="chatMessages"><div class="chat-msg bot" data-i18n="support_greeting">Hello! Welcome to EuroVest Support. How can I help you today?</div></div>
+    <div class="chat-input-wrap"><input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter')EV.sendChat()"><button class="chat-send" onclick="EV.sendChat()">➤</button></div>
+  </div>
+</div>
+
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+EV.toggleChat=function(){document.getElementById('chatBox').classList.toggle('open');};
+EV.sendChat=function(){var i=document.getElementById('chatInput');var m=i.value.trim();if(!m)return;var ms=document.getElementById('chatMessages');var u=document.createElement('div');u.className='chat-msg user';u.textContent=m;ms.appendChild(u);i.value='';ms.scrollTop=ms.scrollHeight;var user=EV.auth.currentUser();var uid=user?user.id:'guest';var ticket=EV.msg.userToSupport(uid,m);setTimeout(function(){var r=ticket.replies[ticket.replies.length-1];var b=document.createElement('div');b.className='chat-msg bot';b.textContent=r.text;ms.appendChild(b);if(ticket.escalated){var s=document.createElement('div');s.className='chat-msg system';s.textContent='⏳ A human agent has been notified and will respond shortly.';ms.appendChild(s);}ms.scrollTop=ms.scrollHeight;},800);};
+</script>
+</body>
+</html>

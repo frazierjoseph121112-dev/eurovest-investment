@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reset Password — EuroVest</title>
+<link rel="stylesheet" href="assets/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div class="auth-side-content">
+      <div style="display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:800;color:#fff;margin-bottom:40px;">
+        <span style="width:38px;height:38px;border-radius:10px;background:var(--grad-brand);display:flex;align-items:center;justify-content:center;">€</span> EuroVest
+      </div>
+      <h2>Reset Your Password</h2>
+      <p>You can reset your login details anytime. Enter your email and create a new password.</p>
+    </div>
+  </div>
+  <div class="auth-main">
+    <div class="auth-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+        <div class="lang-selector">
+          <button class="lang-btn"><span class="lang-current-flag">🇬🇧</span> <span class="lang-current-name">English</span> ▾</button>
+          <div class="lang-dropdown"></div>
+        </div>
+        <a href="login.html" class="btn btn-ghost btn-sm">← Sign In</a>
+      </div>
+      <h2>Reset Password</h2>
+      <p class="subtitle">Enter your email and new password below</p>
+      <form onsubmit="return doReset(event)">
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_email">Email Address</label>
+          <input type="email" class="form-input" id="email" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_password">New Password</label>
+          <input type="password" class="form-input" id="newPass" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="lbl_confirm_password">Confirm New Password</label>
+          <input type="password" class="form-input" id="confirmPass" required>
+        </div>
+        <div id="resetMsg" class="form-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg">Reset Password</button>
+      </form>
+      <div class="divider"></div>
+      <p class="text-center text-muted text-sm"><a href="login.html">Back to Sign In</a></p>
+    </div>
+  </div>
+</div>
+<script src="assets/js/translations.js?v=3"></script>
+<script src="assets/js/app.js?v=3"></script>
+<script>
+function doReset(e) {
+  e.preventDefault();
+  var email = document.getElementById('email').value;
+  var p1 = document.getElementById('newPass').value;
+  var p2 = document.getElementById('confirmPass').value;
+  var msg = document.getElementById('resetMsg');
+  if (p1 !== p2) { msg.textContent='Passwords do not match'; msg.classList.remove('hidden'); return false; }
+  // Try user reset
+  var result = EV.auth.resetPassword(email, p1);
+  if (!result.ok) { msg.textContent='Email not found. Please check and try again.'; msg.classList.remove('hidden'); return false; }
+  msg.classList.add('hidden');
+  EV.notify.toast('Password Reset!','Your password has been updated. You can now sign in.','success');
+  setTimeout(function(){ window.location.href='login.html'; }, 1500);
+  return false;
+}
+</script>
+</body>
+</html>
