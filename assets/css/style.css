@@ -634,3 +634,76 @@ select.form-input option:first-child { font-weight: 600; }
   .dash-header { padding: 0 16px; }
   .section { padding: 48px 0; }
 }
+
+/* ===================== COUNTRY DEPOSIT METHODS ===================== */
+.ev-deposit-method-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.ev-deposit-method-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: var(--transition);
+}
+.ev-deposit-method-card:hover {
+  border-color: var(--brand-blue);
+  box-shadow: var(--shadow);
+}
+
+/* ===================== INVESTMENT PLAN CARDS ===================== */
+.ev-plan-card {
+  position: relative;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.ev-plan-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--brand-green);
+}
+.ev-plan-roi {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--brand-green);
+  text-align: center;
+  padding: 12px;
+  background: var(--success-light);
+  border-radius: 10px;
+  margin: 12px 0;
+}
+
+/* ===================== RULES & REGULATIONS PRINT ===================== */
+.ev-printable { position: relative; }
+.ev-print-head { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--brand-navy); }
+.ev-rules-section { margin-bottom: 20px; page-break-inside: avoid; }
+.ev-rules-section h3 { color: var(--brand-navy); margin-bottom: 8px; font-size: 1.15rem; }
+.ev-rules-section p { font-size: 0.92rem; line-height: 1.7; margin-bottom: 8px; color: var(--text); }
+.ev-print-foot { margin-top: 24px; }
+
+/* Print styles for Rules & Regulations */
+@media print {
+  body * { visibility: hidden; }
+  .ev-printable, .ev-printable * { visibility: visible; }
+  .ev-printable {
+    position: absolute;
+    left: 0; top: 0; width: 100%;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 24px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print { display: none !important; }
+  .dash-sidebar, .dash-header, .cookie-consent { display: none !important; }
+  .ev-rules-section { page-break-inside: avoid; }
+  .ev-print-head { border-bottom: 2px solid #000; }
+  .ev-rules-section h3 { color: #000; }
+  @page { margin: 1.5cm; size: A4; }
+}

@@ -70,6 +70,7 @@
       <div class="dash-nav-section">Operations</div>
       <div class="dash-nav-item" onclick="showAdminPage('compliance')"><span class="icon">🛡️</span> <span data-i18n="admin_compliance">Compliance</span></div>
       <div class="dash-nav-item" onclick="showAdminPage('products')"><span class="icon">📈</span> <span data-i18n="admin_products">Investments</span></div>
+      <div class="dash-nav-item" onclick="showAdminPage('investplans')"><span class="icon">🚀</span> Investment Plans</div>
       <div class="dash-nav-item" onclick="showAdminPage('loans')"><span class="icon">💰</span> Loan Management</div>
       <div class="dash-nav-item" onclick="showAdminPage('emaillog')"><span class="icon">📬</span> Email & SMS Log</div>
       <div class="dash-nav-item" onclick="showAdminPage('reports')"><span class="icon">📋</span> <span data-i18n="admin_reports">Reports</span></div>
@@ -313,6 +314,49 @@
               Select a template from the left to see a preview here.
             </div>
 
+            <!-- Template Editor (edit subject/body, persists via EV.templates.edit) -->
+            <div class="card mt-6" id="tplEditorCard" style="display:none;border:2px solid var(--brand-blue);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h4 style="margin:0;">✏️ Edit Template</h4>
+                <div>
+                  <button class="btn btn-ghost btn-sm" onclick="resetTemplate()">↺ Reset to Default</button>
+                  <button class="btn btn-ghost btn-sm" onclick="closeTplEditor()">✕ Close Editor</button>
+                </div>
+              </div>
+              <p class="text-muted text-sm" style="margin:0 0 16px;">Edit the subject and message body below. Changes are saved permanently and used in all future sends. Use <code>{name}</code> as a placeholder for the recipient's name. Click <strong>Save Changes</strong> to persist.</p>
+              <div class="form-group">
+                <label class="form-label">Template Name</label>
+                <input type="text" class="form-input" id="tplEditName" readonly style="background:var(--bg-alt);">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Subject Line</label>
+                <input type="text" class="form-input" id="tplEditSubject">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Message Body (use {name} for personalization)</label>
+                <textarea class="form-textarea" id="tplEditBody" rows="10"></textarea>
+              </div>
+              <div class="flex gap-2" style="flex-wrap:wrap;">
+                <button class="btn btn-green" onclick="saveTemplateEdit()">✅ Save Changes</button>
+                <button class="btn btn-ghost" onclick="resetTemplate()">↺ Reset to Default</button>
+                <button class="btn btn-ghost" onclick="closeTplEditor()">Cancel</button>
+              </div>
+            </div>
+
+            <!-- SMS Broadcast section -->
+            <div class="card mt-6" style="border-left:4px solid var(--brand-green);">
+              <h4 style="margin-bottom:4px;">📱 Motivational SMS Broadcast</h4>
+              <p class="text-muted text-sm" style="margin-bottom:16px;">Send a short motivational SMS to all users who opted in to SMS notifications. SMS is delivered to their registered phone number. Use <code>{name}</code> for personalization (keep under 160 characters).</p>
+              <div class="form-group">
+                <label class="form-label">SMS Message <span class="text-muted text-sm" id="smsCharCount">(0 / 160)</span></label>
+                <textarea class="form-textarea" id="smsBroadcastText" rows="3" maxlength="320" placeholder="e.g. Hi {name}, your EuroVest portfolio is growing! Start your 24-hour fast plan today and earn +15% ROI by tomorrow. The gas fee is on us! — EuroVest" oninput="updateSMSCharCount()"></textarea>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <button class="btn btn-green btn-lg" onclick="broadcastSMS()">📲 Send SMS to All Opted-In Users</button>
+                <span class="text-muted text-sm" id="smsOptInCount"></span>
+              </div>
+            </div>
+
             <div class="card mt-6">
               <h4 style="margin-bottom:16px;">3. Select Recipients</h4>
               <div class="form-group">
@@ -517,6 +561,18 @@
       </div>
 
       <!-- ===== SETTINGS ===== -->
+      <!-- ===== INVESTMENT PLANS MANAGEMENT ===== -->
+      <div id="apage-investplans" class="dash-page hidden">
+        <div class="card mb-6">
+          <h3>🚀 Investment Plans Management</h3>
+          <p class="text-muted text-sm mt-2">Edit the ROI percentage, minimum amount, and description for each term-based investment plan. Changes are saved permanently and reflected on the user dashboard immediately. Click <strong>Reset All</strong> to restore default values.</p>
+        </div>
+        <div id="adminPlansGrid"></div>
+        <div class="card mt-6" style="text-align:center;">
+          <button class="btn btn-ghost" onclick="resetAllInvestPlans()">↺ Reset All Plans to Defaults</button>
+        </div>
+      </div>
+
       <div id="apage-settings" class="dash-page hidden">
         <div class="card" style="max-width:600px;">
           <h3>Admin Settings</h3>
@@ -548,6 +604,10 @@
             <input type="text" class="form-input" id="newWNote" placeholder="Note for users (optional)" style="margin-top:10px;">
             <button class="btn btn-green" onclick="adminAddWallet()" style="margin-top:12px;">+ Add Wallet</button>
           </div>
+          <div class="divider"></div>
+          <h4 style="margin-bottom:4px;">🏫 Deposit Bank Details (SEPA / Wire)</h4>
+          <p class="text-muted text-sm" style="margin-bottom:16px;">These bank beneficiary details are shown to users on the deposit page for SEPA transfers, local bank rails, and country-specific methods. Edit the fields below and click <strong>Save Bank Details</strong> to persist changes across all devices.</p>
+          <div id="depositBankEditor"></div>
           <div class="divider"></div>
           <h4 style="margin-bottom:16px;">Email Notifications</h4>
           <div style="display:flex;flex-direction:column;gap:12px;">
@@ -606,7 +666,7 @@ if (!EV.auth.isAdmin()) { window.location.href = 'login.html'; }
 var adminTitles = {
   overview:'Dashboard Overview',pending:'Pending Account Verification',users:'User Management',generate:'Generate Transactions',
   transactions:'All Transactions',templates:'Motivational Email Templates',messages:'Messaging Center',support:'Support Inbox',
-  compliance:'Compliance Center',products:'Investment Products',loans:'Loan Management',emaillog:'Email & SMS Log',
+  compliance:'Compliance Center',products:'Investment Products',investplans:'Investment Plans Management',loans:'Loan Management',emaillog:'Email & SMS Log',
   reports:'Reports',settings:'Admin Settings'
 };
 var selectedTemplate = null;
@@ -614,6 +674,7 @@ var selectedTemplate = null;
 function showAdminPage(page) {
   if (page === 'settings' && typeof loadAdminCryptoWallets === 'function') loadAdminCryptoWallets();
   if (page === 'settings' && typeof loadAdminBackendURL === 'function') loadAdminBackendURL();
+  if (page === 'settings' && typeof loadDepositBankEditor === 'function') loadDepositBankEditor();
   document.querySelectorAll('.dash-page').forEach(function(p){p.classList.add('hidden');});
   document.getElementById('apage-'+page).classList.remove('hidden');
   document.querySelectorAll('.dash-nav-item').forEach(function(n){n.classList.remove('active');});
@@ -626,6 +687,8 @@ function showAdminPage(page) {
   if(page==='transactions')loadAllTx();
   if(page==='templates')loadTemplates();
   if(page==='messages')loadMessaging();
+  if(page==='investplans')loadAdminInvestPlans();
+  if(page==='settings')loadDepositBankEditor();
   if(page==='support')loadSupportAdmin();
   if(page==='compliance')loadCompliance();
   if(page==='products')loadProducts();
@@ -933,6 +996,7 @@ function loadAllTx() {
 
 // ===== MOTIVATIONAL EMAIL TEMPLATES =====
 function loadTemplates() {
+  updateSMSCharCount();
   // Populate multi-select
   var users = EV.store.get('users', []);
   var msHtml = users.length ? users.map(function(u){
@@ -941,8 +1005,9 @@ function loadTemplates() {
   document.getElementById('tplMultiSelect').innerHTML = msHtml;
   // Render template list
   var html = EV.emailTemplates.map(function(tpl){
+    var editedBadge = EV.templates.getOne(tpl.id) && EV.store.get('edited_email_templates',{})[tpl.id] ? ' <span class="badge badge-success" style="font-size:0.6rem;">Edited</span>' : '';
     return '<div class="template-card" id="tplCard_'+tpl.id+'" onclick="selectTemplate(\''+tpl.id+'\')">'+
-      '<div class="flex justify-between items-center"><div><span class="tpl-icon">'+tpl.icon+'</span> <strong>'+tpl.name+'</strong></div></div>'+
+      '<div class="flex justify-between items-center"><div><span class="tpl-icon">'+tpl.icon+'</span> <strong>'+tpl.name+'</strong>'+editedBadge+'</div><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openTplEditor(\''+tpl.id+'\')">✏️</button></div>'+
       '<p class="text-muted text-sm mt-2" style="margin:8px 0 0;">'+tpl.subject+'</p>'+
     '</div>';
   }).join('');
@@ -988,6 +1053,180 @@ function sendTemplate() {
   EV.notify.toast('Motivational Email Sent! 🎉',
     'Sent "'+selectedTemplate.name+'" to '+result.count+' user(s) via email + dashboard'+(sendSMS?' + SMS':''),
     'success');
+}
+
+// ===== TEMPLATE EDITOR =====
+function openTplEditor(tplId) {
+  var tpl = EV.templates.getOne(tplId);
+  if (!tpl) return;
+  selectTemplate(tplId);
+  document.getElementById('tplEditName').value = tpl.name;
+  document.getElementById('tplEditSubject').value = tpl.subject;
+  document.getElementById('tplEditBody').value = tpl.body;
+  document.getElementById('tplEditorCard').style.display = 'block';
+  document.getElementById('tplEditorCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function closeTplEditor() {
+  document.getElementById('tplEditorCard').style.display = 'none';
+}
+function saveTemplateEdit() {
+  if (!selectedTemplate) { EV.notify.toast('Error','Select a template first','danger'); return; }
+  var name = document.getElementById('tplEditName').value;
+  var subject = document.getElementById('tplEditSubject').value.trim();
+  var body = document.getElementById('tplEditBody').value.trim();
+  if (!subject || !body) { EV.notify.toast('Error','Subject and body cannot be empty','danger'); return; }
+  EV.templates.edit(selectedTemplate.id, {subject: subject, body: body});
+  EV.notify.toast('Template Saved! \u2705', 'Changes to "' + selectedTemplate.name + '" have been saved permanently.', 'success');
+  selectedTemplate = EV.templates.getOne(selectedTemplate.id);
+  selectTemplate(selectedTemplate.id);
+  loadTemplates();
+  closeTplEditor();
+}
+function resetTemplate() {
+  if (!selectedTemplate) { EV.notify.toast('Error','Select a template first','danger'); return; }
+  EV.templates.reset(selectedTemplate.id);
+  EV.notify.toast('Template Reset \u21ba', '"' + selectedTemplate.name + '" has been restored to its default content.', 'info');
+  selectedTemplate = EV.templates.getOne(selectedTemplate.id);
+  selectTemplate(selectedTemplate.id);
+  loadTemplates();
+  closeTplEditor();
+}
+
+// ===== SMS BROADCAST =====
+function updateSMSCharCount() {
+  var text = document.getElementById('smsBroadcastText').value || '';
+  var el = document.getElementById('smsCharCount');
+  if (el) el.textContent = '(' + text.length + ' / 160)';
+  // Update opted-in count
+  var users = EV.store.get('users', []);
+  var optedIn = users.filter(function(u){ return u.smsOptIn && u.phone; }).length;
+  var countEl = document.getElementById('smsOptInCount');
+  if (countEl) countEl.textContent = optedIn + ' user(s) opted in to SMS';
+}
+function broadcastSMS() {
+  var text = document.getElementById('smsBroadcastText').value.trim();
+  if (!text) { EV.notify.toast('Error','Please enter an SMS message','danger'); return; }
+  if (text.length > 320) { EV.notify.toast('Message Too Long','SMS should be under 160 characters (max 320 allowed).','warning'); return; }
+  var users = EV.store.get('users', []);
+  var optedIn = users.filter(function(u){ return u.smsOptIn && u.phone; });
+  if (optedIn.length === 0) { EV.notify.toast('No Recipients','No users have opted in to SMS notifications yet.','warning'); return; }
+  var sent = 0;
+  optedIn.forEach(function(u){
+    var msg = text.replace(/{name}/g, u.firstName);
+    EV.mail.sendSMS(u.phone, msg, {type:'motivational_sms', userId:u.id, isMotivational:true});
+    sent++;
+  });
+  // Log as admin message
+  var adminMsgs = EV.store.get('admin_messages', []);
+  adminMsgs.push({
+    id: 'AM'+Date.now(),
+    subject: '[SMS Broadcast] Motivational SMS',
+    body: text,
+    target: 'sms_optin',
+    count: sent,
+    time: new Date().toISOString(),
+    isMotivational: true,
+    channel: 'sms'
+  });
+  EV.store.set('admin_messages', adminMsgs);
+  EV.notify.toast('SMS Broadcast Sent! \U0001f4f2', 'Motivational SMS delivered to ' + sent + ' opted-in user(s).', 'success');
+  document.getElementById('smsBroadcastText').value = '';
+  updateSMSCharCount();
+}
+
+// ===== INVESTMENT PLANS MANAGEMENT =====
+function loadAdminInvestPlans() {
+  var plans = EV.investPlans.getAll();
+  var html = '<div class="cat-grid">';
+  plans.forEach(function(p){
+    var termLabel = p.termHours < 24 ? p.termHours + 'h' : p.termHours < 720 ? Math.round(p.termHours/24)+' days' : p.termHours < 8760 ? Math.round(p.termHours/720)+' months' : '1 year';
+    var editedBadge = EV.store.get('edited_invest_plans',{})[p.id] ? ' <span class="badge badge-success" style="font-size:0.6rem;">Edited</span>' : '';
+    html += '<div class="cat-card" style="position:relative;">'+
+      '<div style="position:absolute;top:12px;right:12px;"><span class="badge badge-info" style="font-size:0.7rem;">'+p.badge+'</span>'+editedBadge+'</div>'+
+      '<div class="cat-icon">'+p.icon+'</div>'+
+      '<h3>'+p.name+'</h3>'+
+      '<p class="text-muted text-sm">Term: <strong>'+termLabel+'</strong></p>'+
+      '<div class="form-group" style="margin-top:12px;">'+
+        '<label class="form-label">ROI % (profit)</label>'+
+        '<input type="number" class="form-input" id="planRoi_'+p.id+'" value="'+p.roiPct+'" step="0.1" min="0">'+
+      '</div>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Min. Amount ($)</label>'+
+        '<input type="number" class="form-input" id="planMin_'+p.id+'" value="'+p.minAmount+'" step="1" min="1">'+
+      '</div>'+
+      '<div class="form-group">'+
+        '<label class="form-label">Description</label>'+
+        '<textarea class="form-textarea" id="planDesc_'+p.id+'" rows="3" style="font-size:0.85rem;">'+p.desc+'</textarea>'+
+      '</div>'+
+      '<div class="flex gap-2" style="flex-wrap:wrap;">'+
+        '<button class="btn btn-green btn-sm btn-block" onclick="saveAdminPlan(\''+p.id+'\')">\u2705 Save</button>'+
+        '<button class="btn btn-ghost btn-sm btn-block" onclick="resetAdminPlan(\''+p.id+'\')">\u21ba Reset</button>'+
+      '</div>'+
+    '</div>';
+  });
+  html += '</div>';
+  document.getElementById('adminPlansGrid').innerHTML = html;
+}
+function saveAdminPlan(planId) {
+  var roi = parseFloat(document.getElementById('planRoi_'+planId).value);
+  var minAmt = parseFloat(document.getElementById('planMin_'+planId).value);
+  var desc = document.getElementById('planDesc_'+planId).value.trim();
+  if (isNaN(roi) || roi < 0) { EV.notify.toast('Error','ROI must be a positive number','danger'); return; }
+  if (isNaN(minAmt) || minAmt < 1) { EV.notify.toast('Error','Minimum amount must be at least $1','danger'); return; }
+  var changes = {roiPct: roi, minAmount: minAmt};
+  if (desc) changes.desc = desc;
+  EV.investPlans.edit(planId, changes);
+  var plan = EV.investPlans.getOne(planId);
+  EV.notify.toast('Plan Saved! \u2705', '"' + plan.name + '" updated \u2014 ROI: +' + roi + '%, Min: $' + minAmt, 'success');
+  loadAdminInvestPlans();
+}
+function resetAdminPlan(planId) {
+  EV.investPlans.reset(planId);
+  var plan = EV.investPlans.getOne(planId);
+  EV.notify.toast('Plan Reset \u21ba', '"' + plan.name + '" restored to default values.', 'info');
+  loadAdminInvestPlans();
+}
+function resetAllInvestPlans() {
+  if (!confirm('Reset ALL investment plans to their default values? This cannot be undone.')) return;
+  EV.investPlans.resetAll();
+  EV.notify.toast('All Plans Reset \u21ba', 'All investment plans have been restored to defaults.', 'info');
+  loadAdminInvestPlans();
+}
+
+// ===== DEPOSIT BANK DETAILS EDITOR =====
+function loadDepositBankEditor() {
+  var bank = EV.depositMethods.getBank();
+  var el = document.getElementById('depositBankEditor');
+  if (!el) return;
+  el.innerHTML = ''+
+    '<div class="grid-2" style="gap:12px;">'+
+      '<div class="form-group"><label class="form-label">Beneficiary Name</label><input type="text" class="form-input" id="bankBeneficiary" value="'+(bank.beneficiary||'')+'"></div>'+
+      '<div class="form-group"><label class="form-label">Bank Name</label><input type="text" class="form-input" id="bankName" value="'+(bank.bankName||'')+'"></div>'+
+      '<div class="form-group"><label class="form-label">IBAN</label><input type="text" class="form-input" id="bankIban" value="'+(bank.iban||'')+'" style="font-family:monospace;"></div>'+
+      '<div class="form-group"><label class="form-label">BIC / SWIFT</label><input type="text" class="form-input" id="bankBic" value="'+(bank.bic||'')+'" style="font-family:monospace;"></div>'+
+      '<div class="form-group"><label class="form-label">Reference Prefix</label><input type="text" class="form-input" id="bankRefPrefix" value="'+(bank.referencePrefix||'')+'" style="font-family:monospace;"><p class="text-sm text-muted" style="margin:6px 0 0;">Used to generate unique deposit references (prefix + account number).</p></div>'+
+    '</div>'+
+    '<div class="flex gap-2" style="flex-wrap:wrap;margin-top:12px;">'+
+      '<button class="btn btn-green" onclick="saveDepositBank()">\u2705 Save Bank Details</button>'+
+      '<button class="btn btn-ghost" onclick="resetDepositBank()">\u21ba Reset to Default</button>'+
+    '</div>';
+}
+function saveDepositBank() {
+  var bank = {
+    beneficiary: document.getElementById('bankBeneficiary').value.trim(),
+    bankName: document.getElementById('bankName').value.trim(),
+    iban: document.getElementById('bankIban').value.trim(),
+    bic: document.getElementById('bankBic').value.trim(),
+    referencePrefix: document.getElementById('bankRefPrefix').value.trim() || 'EV-DEP'
+  };
+  if (!bank.beneficiary || !bank.iban) { EV.notify.toast('Error','Beneficiary name and IBAN are required','danger'); return; }
+  EV.depositMethods.saveBank(bank);
+  EV.notify.toast('Bank Details Saved! \u2705', 'Deposit bank details have been updated and will appear on all users\' deposit pages.', 'success');
+}
+function resetDepositBank() {
+  EV.depositMethods.resetBank();
+  EV.notify.toast('Bank Details Reset \u21ba', 'Deposit bank details restored to defaults.', 'info');
+  loadDepositBankEditor();
 }
 
 // ===== MESSAGING =====
