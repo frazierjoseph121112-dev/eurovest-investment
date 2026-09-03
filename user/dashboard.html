@@ -545,6 +545,54 @@ var lang = getCurrentLang();
   }
 })();
 
+// === Cross-device status polling ===
+// When the admin approves this user's account on a different device/browser,
+// the status changes on the server but this browser's localStorage still has
+// "pending". This poller checks the server every 10 seconds and auto-updates.
+if (window.EV && EV.sync && EV.sync.startStatusPolling && currentUser) {
+  EV.sync.startStatusPolling(currentUser.id, 10000);
+}
+
+// Callback fired by EV.sync.pollUserStatus when the account status changes
+window.onUserStatusChange = function(oldStatus, newStatus, updatedUser) {
+  // Update the global currentUser reference
+  currentUser = updatedUser || EV.auth.currentUser();
+  var banner = document.getElementById('pendingBanner');
+
+  if (newStatus === 'active' && oldStatus !== 'active') {
+    // Account just approved!
+    if (banner) banner.style.display = 'none';
+    EV.notify.toast(
+      'Account Approved! 🎉',
+      'Your account is now active. You can deposit, invest, and withdraw.',
+      'success'
+    );
+    // Reload the overview to reflect any new account numbers
+    try { loadOverview(); } catch(e) {}
+    // Also reload the page after a short delay so all UI elements refresh
+    setTimeout(function() {
+      // Only reload if user is still on overview page
+      var overviewVisible = document.getElementById('page-overview');
+      if (overviewVisible && !overviewVisible.classList.contains('hidden')) {
+        window.location.reload();
+      }
+    }, 3000);
+  } else if (newStatus === 'rejected' && oldStatus !== 'rejected') {
+    // Account rejected
+    if (banner) {
+      banner.style.background = 'linear-gradient(135deg,#E53935 0%,#C62828 100%)';
+      banner.querySelector('h4').textContent = 'Account Application Rejected';
+      banner.querySelector('p').textContent = 'Unfortunately, your account application could not be approved at this time. Please contact support for more information.';
+      banner.style.display = 'flex';
+    }
+    EV.notify.toast(
+      'Account Rejected',
+      'Your account application was not approved. Please contact support.',
+      'danger'
+    );
+  }
+};
+
 function showPage(page) {
   document.querySelectorAll('.dash-page').forEach(function(p){p.classList.add('hidden');});
   document.getElementById('page-'+page).classList.remove('hidden');

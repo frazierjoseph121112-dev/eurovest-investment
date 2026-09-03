@@ -17,6 +17,8 @@
  *   PUT  /api/key/:key         -> body { value }   -> saves value for key
  *   POST /api/sync             -> body { dump: {key:value,...} } -> merges all keys
  *   GET  /api/pull             -> returns entire db (for client to hydrate localStorage)
+ *   POST /api/email            -> body { to, subject, body, opts } -> sends real email via Resend
+ *   POST /api/sms              -> body { to, message, opts } -> stores SMS (real sending needs provider config)
  *
  * The frontend sync.js calls these. localStorage stays as a fast offline cache;
  * the server db.json is the durable, cross-device source of truth.
@@ -36,10 +38,77 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const https = require('https'); // for Resend API (zero new dependencies)
 
 const PORT = process.env.PORT || 3000;
 const DB_FILE = path.join(__dirname, 'db.json');
 const FRONTEND_DIR = path.resolve(__dirname, '..'); // eurovest/ root holds the static site
+
+// ---------- Email configuration (Resend API) ----------
+// Set these as Railway environment variables to enable REAL email sending.
+// Without them, emails are simulated (stored in db.json only).
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'EuroVest <noreply@eurovest.eu>';
+const RESEND_API_HOST = 'api.resend.com';
+
+/**
+ * Send a real email via the Resend API.
+ * Uses only Node's built-in https module — zero new dependencies.
+ * Returns a Promise that resolves to { ok, simulated, detail }.
+ */
+function sendRealEmail(to, subject, body, opts) {
+  opts = opts || {};
+  if (!RESEND_API_KEY) {
+    console.warn('[email] No RESEND_API_KEY set — email simulated only (not actually sent).');
+    return Promise.resolve({ ok: true, simulated: true, detail: 'No RESEND_API_KEY configured' });
+  }
+
+  return new Promise(function (resolve) {
+    var emailPayload = {
+      from: EMAIL_FROM,
+      to: to,
+      subject: subject,
+      text: body
+    };
+    // If body looks like HTML, also send as html
+    if (/<[a-z][\s\S]*>/i.test(body)) {
+      emailPayload.html = body;
+    }
+    var payloadStr = JSON.stringify(emailPayload);
+
+    var req = https.request({
+      hostname: RESEND_API_HOST,
+      port: 443,
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + RESEND_API_KEY,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payloadStr)
+      }
+    }, function (res) {
+      var data = '';
+      res.on('data', function (c) { data += c; });
+      res.on('end', function () {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log('[email] Sent to ' + to + ' subject="' + subject + '" status=' + res.statusCode);
+          resolve({ ok: true, simulated: false, detail: 'Sent via Resend', httpStatus: res.statusCode });
+        } else {
+          console.error('[email] Resend error ' + res.statusCode + ': ' + data);
+          resolve({ ok: false, simulated: true, detail: 'Resend API error: ' + res.statusCode + ' ' + data });
+        }
+      });
+    });
+
+    req.on('error', function (e) {
+      console.error('[email] Request error:', e.message);
+      resolve({ ok: false, simulated: true, detail: 'Network error: ' + e.message });
+    });
+
+    req.write(payloadStr);
+    req.end();
+  });
+}
 
 // ---------- JSON DB helpers ----------
 function loadDB() {
@@ -205,6 +274,85 @@ const server = http.createServer(async function (req, res) {
     }
     saveDB(db);
     sendJSON(res, 200, { ok: true, merged: count });
+    return;
+  }
+
+  if (p === '/api/email' && req.method === 'POST') {
+    const body = await readBody(req);
+    if (body.__parseError) { sendJSON(res, 400, { error: 'invalid JSON' }); return; }
+    var emailTo = body.to || '';
+    var emailSubject = body.subject || '(no subject)';
+    var emailBody = body.body || '';
+    var emailOpts = body.opts || {};
+    if (!emailTo) { sendJSON(res, 400, { error: 'missing "to" field' }); return; }
+
+    // Store the email record in db.json (so it shows up in user inbox regardless)
+    var emailRecord = {
+      id: 'E' + Date.now() + Math.random().toString(36).slice(2, 5),
+      to: emailTo, subject: emailSubject, body: emailBody,
+      time: new Date().toISOString(),
+      type: emailOpts.type || 'notification',
+      template: emailOpts.template || null,
+      read: false
+    };
+    var dbForEmail = loadDB();
+    if (!dbForEmail['email_log']) dbForEmail['email_log'] = [];
+    dbForEmail['email_log'].push(emailRecord);
+    if (emailOpts.userId) {
+      var userKey = 'user_emails_' + emailOpts.userId;
+      if (!dbForEmail[userKey]) dbForEmail[userKey] = [];
+      dbForEmail[userKey].push(emailRecord);
+    }
+    saveDB(dbForEmail);
+
+    // Attempt to send the REAL email via Resend
+    var emailResult = await sendRealEmail(emailTo, emailSubject, emailBody, emailOpts);
+
+    sendJSON(res, 200, {
+      ok: true,
+      id: emailRecord.id,
+      simulated: emailResult.simulated,
+      delivered: emailResult.ok && !emailResult.simulated,
+      detail: emailResult.detail
+    });
+    return;
+  }
+
+  if (p === '/api/sms' && req.method === 'POST') {
+    const body = await readBody(req);
+    if (body.__parseError) { sendJSON(res, 400, { error: 'invalid JSON' }); return; }
+    var smsTo = body.to || '';
+    var smsMsg = body.message || '';
+    var smsOpts = body.opts || {};
+    if (!smsTo) { sendJSON(res, 400, { error: 'missing "to" field' }); return; }
+
+    // Store SMS record in db.json
+    var smsRecord = {
+      id: 'S' + Date.now() + Math.random().toString(36).slice(2, 5),
+      to: smsTo, message: smsMsg,
+      time: new Date().toISOString(),
+      type: smsOpts.type || 'sms_notification',
+      read: false
+    };
+    var dbForSms = loadDB();
+    if (!dbForSms['sms_log']) dbForSms['sms_log'] = [];
+    dbForSms['sms_log'].push(smsRecord);
+    if (smsOpts.userId) {
+      var smsUserKey = 'user_sms_' + smsOpts.userId;
+      if (!dbForSms[smsUserKey]) dbForSms[smsUserKey] = [];
+      dbForSms[smsUserKey].push(smsRecord);
+    }
+    saveDB(dbForSms);
+
+    // SMS via real provider would go here (Twilio etc.) — not configured by default
+    console.log('[sms] Simulated SMS to ' + smsTo + ': ' + smsMsg.substring(0, 50) + '...');
+
+    sendJSON(res, 200, {
+      ok: true,
+      id: smsRecord.id,
+      simulated: true,
+      detail: 'SMS provider not configured (Twilio/API key needed for real SMS)'
+    });
     return;
   }
 

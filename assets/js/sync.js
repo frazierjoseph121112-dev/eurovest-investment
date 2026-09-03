@@ -139,6 +139,130 @@
     // Mark that local data changed and a flush is needed
     markDirty: function () { this._dirty = true; },
 
+    /**
+     * Re-pull a SINGLE key from the server, bypassing the _hydrated guard.
+     * This is used for polling (e.g. checking if the user's account status
+     * changed after admin approval). Merges array data by id.
+     * Returns a Promise that resolves to the server value (or null).
+     */
+    pullKey: function (key) {
+      if (!this.serverURL) return Promise.resolve(null);
+      return this._api('/api/key/' + encodeURIComponent(key)).then(function (resp) {
+        if (!resp || resp.__error || resp.__skipped) return null;
+        var serverVal = resp.value;
+        if (serverVal === null || serverVal === undefined) return null;
+        // Merge into localStorage (same logic as hydrate, but for one key)
+        var localRaw = null;
+        try { localRaw = localStorage.getItem('ev_' + key); } catch (e) {}
+        if (localRaw === null) {
+          try { localStorage.setItem('ev_' + key, JSON.stringify(serverVal)); } catch (e) {}
+        } else if (Array.isArray(serverVal)) {
+          try {
+            var localArr = JSON.parse(localRaw);
+            if (Array.isArray(localArr)) {
+              var seen = {};
+              localArr.forEach(function (x) { if (x && x.id) seen[String(x.id)] = x; });
+              serverVal.forEach(function (x) {
+                if (x && x.id) {
+                  if (seen[String(x.id)]) Object.assign(seen[String(x.id)], x);
+                  else { localArr.push(x); seen[String(x.id)] = x; }
+                }
+              });
+              try { localStorage.setItem('ev_' + key, JSON.stringify(localArr)); } catch (e) {}
+            }
+          } catch (e) {}
+        } else {
+          try {
+            var localVal = JSON.parse(localRaw);
+            if (localVal === null || localVal === '' || (typeof localVal === 'object' && Object.keys(localVal).length === 0)) {
+              localStorage.setItem('ev_' + key, JSON.stringify(serverVal));
+            } else {
+              // For non-array non-empty values, prefer the SERVER value if it's newer/different
+              // This ensures status updates (like accountStatus: 'active') propagate
+              localStorage.setItem('ev_' + key, JSON.stringify(serverVal));
+            }
+          } catch (e) {
+            try { localStorage.setItem('ev_' + key, JSON.stringify(serverVal)); } catch (e2) {}
+          }
+        }
+        return serverVal;
+      });
+    },
+
+    /**
+     * Poll the server for the current user's account status.
+     * If the status changed (e.g. pending → active), update localStorage
+     * and call the onUserStatusChange callback (if defined).
+     * Returns a Promise.
+     */
+    pollUserStatus: function (userId, knownStatus) {
+      var self = this;
+      if (!this.serverURL || !userId) return Promise.resolve(null);
+      return this.pullKey('users').then(function (users) {
+        if (!users || !Array.isArray(users)) return null;
+        var user = null;
+        for (var i = 0; i < users.length; i++) {
+          if (users[i] && users[i].id === userId) { user = users[i]; break; }
+        }
+        if (!user) return null;
+        var newStatus = user.accountStatus || 'pending';
+        if (newStatus !== knownStatus) {
+          // Status changed! Update localStorage users array
+          try {
+            var localUsers = JSON.parse(localStorage.getItem('ev_users') || '[]');
+            var found = false;
+            for (var j = 0; j < localUsers.length; j++) {
+              if (localUsers[j] && localUsers[j].id === userId) {
+                // Merge server fields into local user (server wins for status fields)
+                Object.assign(localUsers[j], user);
+                found = true;
+                break;
+              }
+            }
+            if (!found) { localUsers.push(user); }
+            localStorage.setItem('ev_users', JSON.stringify(localUsers));
+          } catch (e) {}
+          // Fire callback
+          if (typeof window.onUserStatusChange === 'function') {
+            try { window.onUserStatusChange(knownStatus, newStatus, user); } catch (e) {}
+          }
+        }
+        return { status: newStatus, user: user, changed: newStatus !== knownStatus };
+      });
+    },
+
+    /**
+     * Start polling the server for the current user's status every N seconds.
+     * Used by the user dashboard so that when an admin approves the account
+     * (on a different device), the user's dashboard auto-updates.
+     */
+    startStatusPolling: function (userId, intervalMs) {
+      var self = this;
+      if (this._statusPollTimer) clearInterval(this._statusPollTimer);
+      if (!this.serverURL || !userId) return;
+      intervalMs = intervalMs || 10000; // default 10 seconds
+      this._statusPollTimer = setInterval(function () {
+        var sess = null;
+        try { sess = JSON.parse(localStorage.getItem('ev_session') || 'null'); } catch (e) {}
+        if (!sess || sess.userId !== userId) {
+          clearInterval(self._statusPollTimer);
+          return;
+        }
+        // Get current known status from localStorage
+        var knownStatus = 'pending';
+        try {
+          var localUsers = JSON.parse(localStorage.getItem('ev_users') || '[]');
+          for (var i = 0; i < localUsers.length; i++) {
+            if (localUsers[i] && localUsers[i].id === userId) {
+              knownStatus = localUsers[i].accountStatus || 'pending';
+              break;
+            }
+          }
+        } catch (e) {}
+        self.pollUserStatus(userId, knownStatus);
+      }, intervalMs);
+    },
+
     // Convenience: configure + bootstrap in one call
     init: function (serverURL) {
       if (serverURL) this.serverURL = serverURL;

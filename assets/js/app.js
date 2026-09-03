@@ -308,9 +308,10 @@ EV.store = {
   }
 };
 
-// ===================== EMAIL & SMS SIMULATION =====================
+// ===================== EMAIL & SMS =====================
 EV.mail = {
-  // Simulate sending an email — stores a record the user can see
+  // Send an email — stores a local record AND fires a request to the server
+  // which attempts to deliver a REAL email via the Resend API (if configured).
   send: function(to, subject, body, opts) {
     opts = opts || {};
     var record = {
@@ -326,9 +327,25 @@ EV.mail = {
     if (opts.userId) {
       EV.store.push('user_emails_'+opts.userId, record);
     }
+    // Fire-and-forget: tell the server to send the REAL email
+    if (typeof fetch === 'function' && EV.sync && EV.sync.serverURL) {
+      try {
+        fetch(EV.sync.serverURL + '/api/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: to, subject: subject, body: body, opts: opts })
+        }).then(function(r){ return r.json(); }).then(function(result){
+          if (result && result.delivered) {
+            console.log('[mail] Real email delivered to', to);
+          } else if (result && result.simulated) {
+            console.log('[mail] Email simulated (server has no email API key configured)');
+          }
+        }).catch(function(e){ /* silent — local record already stored */ });
+      } catch (e) {}
+    }
     return record;
   },
-  // Simulate sending an SMS
+  // Send an SMS — stores a local record AND fires a request to the server
   sendSMS: function(phone, message, opts) {
     opts = opts || {};
     var record = {
@@ -341,6 +358,16 @@ EV.mail = {
     EV.store.push('sms_log', record);
     if (opts.userId) {
       EV.store.push('user_sms_'+opts.userId, record);
+    }
+    // Fire-and-forget: tell the server to attempt real SMS delivery
+    if (typeof fetch === 'function' && EV.sync && EV.sync.serverURL) {
+      try {
+        fetch(EV.sync.serverURL + '/api/sms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: phone, message: message, opts: opts })
+        }).catch(function(){});
+      } catch (e) {}
     }
     return record;
   }
