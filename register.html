@@ -104,6 +104,11 @@
             <option value="other">Other</option>
           </select>
         </div>
+        <div class="form-group">
+          <label class="form-label">Referral Code <span style="font-size:.8rem;color:#64748b">(optional — earn $50 for your referrer)</span></label>
+          <input type="text" class="form-input" id="referralCode" placeholder="EV-XXXXXX" style="text-transform:uppercase;font-family:monospace;letter-spacing:1px;">
+          <p style="font-size:.8rem;color:#64748b;margin-top:6px;">🎁 New to EuroVest? You'll receive a <strong>$200 sign-up bonus</strong> after account approval — even without a referral code!</p>
+        </div>
         <div id="step1err" class="form-error hidden"></div>
         <button class="btn btn-primary btn-block btn-lg" onclick="goStep2()">Continue</button>
       </div>
@@ -421,7 +426,9 @@ function completeRegistration() {
     // Compliance
     aml: true, sanctions: true, pep: false,
     smsOptIn: document.getElementById('chkSMS').checked,
-    investorType: 'retail'
+    investorType: 'retail',
+    // Referral
+    referredBy: (document.getElementById('referralCode') || {}).value ? document.getElementById('referralCode').value.trim().toUpperCase() : ''
   };
   var result = EV.auth.register(data);
   if (!result.ok) { showErr('step5err', result.msg); return; }
@@ -430,6 +437,17 @@ function completeRegistration() {
   EV.notify.toast('Application Submitted!','Your account is pending verification. Check your email for confirmation.','success');
   setTimeout(function(){ window.location.href = 'user/dashboard.html'; }, 2000);
 }
+</script>
+<script>
+// Auto-fill referral code from URL parameter (?ref=EV-XXXXXX)
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var ref = params.get('ref');
+  if (ref) {
+    var el = document.getElementById('referralCode');
+    if (el) { el.value = ref.toUpperCase(); }
+  }
+})();
 </script>
 <div class="cookie-consent" id="cookieConsent">
   <div class="cookie-text">We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. By clicking "Accept", you consent to our use of cookies. See our <a href="legal/cookies.html">Cookie Policy</a>.</div>

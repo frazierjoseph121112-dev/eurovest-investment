@@ -405,7 +405,10 @@ EV.auth = {
       createdAt: new Date().toISOString(),
       balance: 0, invested: 0, pl: 0,
       portfolio: [], transactions: [], messages: [],
-      verified: false
+      verified: false,
+      // Referral system
+      referralCode: EV.util.genReferralCode(),
+      referredBy: data.referredBy || ''
     };
     users.push(user);
     EV.store.set('users', users);
@@ -478,12 +481,56 @@ EV.auth = {
       accountNumber: acctNo, memberId: memberId, approvedAt: new Date().toISOString()
     });
     if (user) {
+      // === $200 SIGN-UP BONUS ===
+      // Credit $200 sign-up bonus to the newly approved user
+      EV.tx.generate(userId, {
+        type: 'deposit',
+        amount: 200,
+        method: 'Sign-up Bonus',
+        description: '$200 Sign-up Bonus — Welcome to EuroVest!',
+        status: 'completed'
+      });
+      // Record bonus flag on user so it's only given once
+      EV.auth.updateUser(userId, { signupBonusCredited: true });
+
+      // === $50 REFERRAL BONUS ===
+      // If this user was referred by someone, credit $50 to the referrer
+      if (user.referredBy) {
+        var allUsers = EV.store.get('users', []);
+        var referrer = allUsers.find(function(u){ return u.referralCode === user.referredBy; });
+        if (referrer) {
+          EV.tx.generate(referrer.id, {
+            type: 'deposit',
+            amount: 50,
+            method: 'Referral Bonus',
+            description: '$50 Referral Bonus — ' + user.firstName + ' ' + user.lastName + ' joined EuroVest',
+            status: 'completed'
+          });
+          // Track referral count on referrer
+          EV.auth.updateUser(referrer.id, {
+            referralCount: (referrer.referralCount || 0) + 1,
+            referralEarnings: (referrer.referralEarnings || 0) + 50
+          });
+          // Notify referrer
+          EV.mail.send(referrer.email,
+            'Referral Bonus Earned — $50 Credited!',
+            'Dear ' + referrer.firstName + ',\n\nCongratulations! You earned a $50 referral bonus.\n\n' +
+            user.firstName + ' ' + user.lastName + ' has successfully opened and verified their EuroVest account using your referral code (' + user.referredBy + ').\n\n' +
+            '$50.00 has been credited to your EuroVest account balance.\n\n' +
+            'Keep sharing your referral code to earn more!\n\nBest regards,\nThe EuroVest Team',
+            {type:'referral_bonus', userId:referrer.id});
+          if (referrer.smsOptIn && referrer.phone) {
+            EV.mail.sendSMS(referrer.phone, 'EuroVest: You earned a $50 referral bonus! ' + user.firstName + ' ' + user.lastName + ' joined using your code. $50 credited to your balance.', {type:'referral_bonus', userId:referrer.id});
+          }
+        }
+      }
+
       EV.mail.send(user.email,
         'Account Approved — Welcome to EuroVest!',
-        'Dear '+user.firstName+' '+user.lastName+',\n\nGreat news! Your EuroVest account has been approved and is now fully active.\n\n'+'========================================\n'+'  YOUR OFFICIAL EUROVEST ACCOUNT DETAILS\n'+'========================================\n'+'  Account Number      : '+user.accountNumber+'\n'+'  Client / Member ID  : '+user.memberId+'\n'+'========================================\n\n'+'Please keep these identifiers safe. They appear on your dashboard, transaction receipts, and all official correspondence. Quote your Account Number when contacting support.\n\n'+'You can now:\n• Make deposits via SEPA, card, open banking, or cryptocurrency\n• Invest in any of our portfolios and products\n• Request withdrawals to your verified bank account\n• Access all platform features\n\nLog in to your dashboard to get started →\n\nWelcome aboard!\nThe EuroVest Team',
+        'Dear '+user.firstName+' '+user.lastName+',\n\nGreat news! Your EuroVest account has been approved and is now fully active.\n\n'+'========================================\n'+'  YOUR OFFICIAL EUROVEST ACCOUNT DETAILS\n'+'========================================\n'+'  Account Number      : '+user.accountNumber+'\n'+'  Client / Member ID  : '+user.memberId+'\n'+'========================================\n\n'+'Please keep these identifiers safe. They appear on your dashboard, transaction receipts, and all official correspondence. Quote your Account Number when contacting support.\n\n'+'========================================\n'+'  $200 SIGN-UP BONUS — CREDITED TO YOUR ACCOUNT\n'+'========================================\n'+'  A $200.00 welcome bonus has been credited to your account balance! Use it toward your first investment.\n'+'========================================\n\n'+'You can now:\n• Make deposits via SEPA, card, open banking, or cryptocurrency\n• Invest in any of our portfolios and products\n• Request withdrawals to your verified bank account\n• Access all platform features\n• Refer friends and earn $50 per referral — find your referral code on your dashboard\n\nLog in to your dashboard to get started →\n\nWelcome aboard!\nThe EuroVest Team',
         {type:'account_approved', userId:user.id});
       if (user.smsOptIn && user.phone) {
-        EV.mail.sendSMS(user.phone, 'EuroVest: Account approved! Acct No: '+user.accountNumber+' | Member ID: '+user.memberId+'. You can now deposit and invest.', {type:'account_approved', userId:user.id});
+        EV.mail.sendSMS(user.phone, 'EuroVest: Account approved! Acct No: '+user.accountNumber+' | Member ID: '+user.memberId+'. $200 sign-up bonus credited! You can now deposit, invest & refer friends for $50 each.', {type:'account_approved', userId:user.id});
       }
       EV.store.push('admin_notifications', {
         id: Date.now(), type:'account_approved', time: new Date().toISOString(),
@@ -1426,6 +1473,13 @@ EV.util = {
   genMemberId: function() {
     var num = Math.floor(Math.random()*90000+10000);
     return 'EV-CL-'+num;
+  },
+  // Generate a unique referral code: EV-REF-XXXXXX (6 alphanumeric)
+  genReferralCode: function() {
+    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    var code = '';
+    for (var i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+    return 'EV-'+code;
   }
 };
 

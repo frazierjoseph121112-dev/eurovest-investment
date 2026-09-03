@@ -155,6 +155,38 @@
             <div class="cat-card" onclick="location.href='../portfolios.html'"><div class="cat-icon">🏛️</div><h3>Portfolios</h3><p class="text-muted text-sm">FR, IT, Euro & Global Growth</p></div>
           </div>
         </div>
+
+        <!-- Referral Program Card -->
+        <div class="card mt-6" style="background:linear-gradient(135deg,rgba(92,200,143,0.08),rgba(0,140,200,0.08));border:1px solid rgba(92,200,143,0.2);">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#5CC88F,#4FB8E8);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🎁</div>
+            <div>
+              <h3 style="margin:0;color:var(--brand-navy);">Refer & Earn — $50 Per Friend</h3>
+              <p style="margin:4px 0 0;font-size:.85rem;color:#64748b;">Share your code and earn $50 for every friend who joins EuroVest</p>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px;">
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,0.6);border-radius:10px;">
+              <div style="font-size:.8rem;color:#64748b;margin-bottom:4px;">Your Referral Code</div>
+              <div id="referralCodeDisplay" style="font-size:1.4rem;font-weight:800;color:var(--brand-navy);font-family:monospace;letter-spacing:2px;">—</div>
+              <button class="btn btn-ghost btn-sm mt-2" onclick="copyReferralCode()">Copy Code</button>
+            </div>
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,0.6);border-radius:10px;">
+              <div style="font-size:.8rem;color:#64748b;margin-bottom:4px;">Total Referrals</div>
+              <div id="referralCount" style="font-size:1.4rem;font-weight:800;color:var(--brand-navy);">0</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,0.6);border-radius:10px;">
+              <div style="font-size:.8rem;color:#64748b;margin-bottom:4px;">Referral Earnings</div>
+              <div id="referralEarnings" style="font-size:1.4rem;font-weight:800;color:var(--success);">$0.00</div>
+            </div>
+          </div>
+          <div id="referralLinkBox" style="background:rgba(255,255,255,0.6);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span style="font-size:.85rem;color:#64748b;white-space:nowrap;">Your referral link:</span>
+            <input type="text" id="referralLinkInput" readonly style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:.85rem;background:#fff;color:var(--text);">
+            <button class="btn btn-ghost btn-sm" onclick="copyReferralLink()">Copy Link</button>
+          </div>
+          <p style="margin:16px 0 0;font-size:.8rem;color:#64748b;">💰 Earned your $200 sign-up bonus upon approval. Each approved referral adds $50 to your balance!</p>
+        </div>
       </div>
 
       <!-- ===== PORTFOLIO ===== -->
@@ -648,6 +680,50 @@ function loadOverview() {
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);"><div><div style="font-weight:600;font-size:0.9rem;">'+tx.description+'</div><div class="text-muted text-sm">'+EV.util.formatDate(tx.date)+'</div></div><div style="font-weight:700;color:'+(tx.amount>0?'var(--success)':'var(--text)')+';">'+EV.util.formatMoney(tx.amount)+'</div></div>';
   }).join('') : '<p class="text-muted text-sm">No transactions yet. Make a deposit to get started.</p>';
   document.getElementById('ovRecentTx').innerHTML = html;
+
+  // Load referral info
+  loadReferralInfo();
+}
+
+function loadReferralInfo() {
+  var user = EV.auth.currentUser();
+  if (!user) return;
+  var codeEl = document.getElementById('referralCodeDisplay');
+  var countEl = document.getElementById('referralCount');
+  var earnEl = document.getElementById('referralEarnings');
+  var linkEl = document.getElementById('referralLinkInput');
+  if (codeEl) codeEl.textContent = user.referralCode || '—';
+  if (countEl) countEl.textContent = user.referralCount || 0;
+  if (earnEl) earnEl.textContent = EV.util.formatMoney(user.referralEarnings || 0);
+  if (linkEl) {
+    var origin = window.location.origin;
+    var base = origin + window.location.pathname.replace('user/dashboard.html', '');
+    linkEl.value = base + 'register.html?ref=' + (user.referralCode || '');
+  }
+}
+
+function copyReferralCode() {
+  var user = EV.auth.currentUser();
+  var code = user.referralCode || '';
+  if (!code) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(code).then(function(){ EV.notify.toast('Copied!','Referral code copied to clipboard','success'); });
+  } else {
+    var ta = document.createElement('textarea'); ta.value = code; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    EV.notify.toast('Copied!','Referral code copied to clipboard','success');
+  }
+}
+
+function copyReferralLink() {
+  var inp = document.getElementById('referralLinkInput');
+  if (!inp) return;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(inp.value).then(function(){ EV.notify.toast('Copied!','Referral link copied to clipboard','success'); });
+  } else {
+    inp.select(); document.execCommand('copy');
+    EV.notify.toast('Copied!','Referral link copied to clipboard','success');
+  }
 }
 
 function loadPortfolio() {
