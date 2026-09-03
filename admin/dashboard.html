@@ -840,7 +840,7 @@ function viewUserDetail(userId) {
   var u = users.find(function(x){return x.id===userId;});
   if(!u) return;
   document.getElementById('udName').textContent = u.firstName+' '+u.lastName;
-  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹'};
+  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹',BE:'🇧🇪',NL:'🇳🇱'};
   var html = '<div class="bank-detail-grid">'+
     bankDetail('Email', u.email)+
     bankDetail('Phone', u.phone||'N/A')+
@@ -891,7 +891,7 @@ function closeUserDetail() {
 // ===== USERS =====
 function loadUsers() {
   var users = EV.store.get('users', []);
-  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹'};
+  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹',BE:'🇧🇪',NL:'🇳🇱'};
   var html = users.length ? users.map(function(u){
     var txs = EV.store.get('user_tx_'+u.id, []);
     var balance = 0;
@@ -1129,7 +1129,7 @@ function broadcastSMS() {
     channel: 'sms'
   });
   EV.store.set('admin_messages', adminMsgs);
-  EV.notify.toast('SMS Broadcast Sent! \U0001f4f2', 'Motivational SMS delivered to ' + sent + ' opted-in user(s).', 'success');
+  EV.notify.toast('SMS Broadcast Sent! 📲', 'Motivational SMS delivered to ' + sent + ' opted-in user(s).', 'success');
   document.getElementById('smsBroadcastText').value = '';
   updateSMSCharCount();
 }

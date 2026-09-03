@@ -17696,7 +17696,7 @@ function renderCryptoWallets() {
     box.innerHTML = '<div class="card" style="background:var(--warning-light,#fff8e1);padding:14px;border-radius:8px;">No crypto wallets configured yet. Please contact support or try another payment method.</div>';
     return;
   }
-  var html = '<div class="crypto-wallet-head"><span class="crypto-wallet-coin">\U0001f4b0 Cryptocurrency Deposit</span><span class="text-sm text-muted">Send the matching coin to the address below</span></div>';
+  var html = '<div class="crypto-wallet-head"><span class="crypto-wallet-coin">💰 Cryptocurrency Deposit</span><span class="text-sm text-muted">Send the matching coin to the address below</span></div>';
   html += '<div class="crypto-wallet-list">';
   wallets.forEach(function(w, idx){
     var safeAddr = w.address.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -17704,7 +17704,7 @@ function renderCryptoWallets() {
       '<div class="crypto-wallet-top"><span class="crypto-coin-badge">'+w.symbol+'</span><span class="crypto-coin-name">'+w.coin+'</span><span class="crypto-network-badge">'+w.network+'</span></div>'+
       '<div class="crypto-wallet-addr-row">'+
         '<code class="crypto-wallet-addr">'+w.address+'</code>'+
-        '<button type="button" class="crypto-copy-btn" data-addr="'+safeAddr+'" onclick="copyWalletAddrBtn(this)">\U0001f4cb Copy</button>'+
+        '<button type="button" class="crypto-copy-btn" data-addr="'+safeAddr+'" onclick="copyWalletAddrBtn(this)">📋 Copy</button>'+
       '</div>'+
       (w.note ? '<div class="crypto-wallet-note text-sm text-muted">'+w.note+'</div>' : '')+
     '</div>';
@@ -17715,7 +17715,7 @@ function renderCryptoWallets() {
 }
 function copyWalletAddrBtn(btn) {
   var addr = btn.getAttribute('data-addr') || '';
-  var done = function() { btn.textContent = '\u2705 Copied!'; setTimeout(function(){ btn.textContent = '\U0001f4cb Copy'; }, 1500); };
+  var done = function() { btn.textContent = '\u2705 Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy'; }, 1500); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(addr).then(done).catch(function(){ fallbackCopy(addr); done(); });
   } else { fallbackCopy(addr); done(); }

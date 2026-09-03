@@ -535,7 +535,7 @@ var lang = getCurrentLang();
   if (!currentUser) { window.location.href = '../login.html'; return; }
   document.getElementById('userName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
   document.getElementById('userAvatar').textContent = currentUser.firstName.charAt(0).toUpperCase();
-  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹'};
+  var flags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹',BE:'🇧🇪',NL:'🇳🇱'};
   document.getElementById('userCountry').textContent = flags[currentUser.country] || '🌍';
   setCurrentLang(currentUser.lang);
   applyTranslations(currentUser.lang);
@@ -703,7 +703,7 @@ function updatePlanPreview() {
   var total = amount + roi;
   var maturity = new Date(Date.now() + plan.termHours * 3600 * 1000);
   var termLabel = plan.termHours < 24 ? plan.termHours + ' hours' : Math.round(plan.termHours/24) + ' days';
-  preview.innerHTML = '<h5 style="margin:0 0 10px;color:var(--brand-blue);">\U0001f4ca Investment Summary</h5>' +
+  preview.innerHTML = '<h5 style="margin:0 0 10px;color:var(--brand-blue);">📊 Investment Summary</h5>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:0.9rem;">' +
     '<div><span class="text-muted">Principal:</span> <strong>$' + amount.toFixed(2) + '</strong></div>' +
     '<div><span class="text-muted">Plan:</span> <strong>' + plan.name + '</strong></div>' +
@@ -728,7 +728,7 @@ function doPlanInvest(e) {
     EV.notify.toast('Investment Error', result.error, 'warning');
     return false;
   }
-  EV.notify.toast('Investment Confirmed! \U0001f389', 'You invested $' + result.principal.toFixed(2) + ' in ' + result.planName + '. Projected return: $' + result.totalReturn.toFixed(2) + ' at maturity.', 'success');
+  EV.notify.toast('Investment Confirmed! 🎉', 'You invested $' + result.principal.toFixed(2) + ' in ' + result.planName + '. Projected return: $' + result.totalReturn.toFixed(2) + ' at maturity.', 'success');
   // Send confirmation email
   var termLabel = result.planName.indexOf('24')>=0 ? '24 hours' : result.planName.indexOf('48')>=0 ? '48 hours' : Math.round((new Date(result.maturityDate)-new Date(result.startDate))/86400000)+' days';
   EV.mail.send(user.email, 'Investment Confirmed \u2014 ' + result.planName,
@@ -814,8 +814,10 @@ function loadDeposit() {
 function renderCountryDepositMethods(country) {
   var methods = EV.depositMethods.forCountry(country);
   var countryNames = {FR:'France',IT:'Italy',DE:'Germany',ES:'Spain',PT:'Portugal',BE:'Belgium',NL:'Netherlands',other:'Your Region'};
+  var countryFlags = {FR:'🇫🇷',IT:'🇮🇹',DE:'🇩🇪',ES:'🇪🇸',PT:'🇵🇹',BE:'🇧🇪',NL:'🇳🇱',other:'🌐'};
   var countryName = countryNames[country] || countryNames.other;
-  var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span class="badge badge-info" style="font-size:0.85rem;">\U0001f310 ' + countryName + '</span><span class="text-muted text-sm">' + methods.length + ' payment methods available</span></div>';
+  var countryFlag = countryFlags[country] || countryFlags.other;
+  var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;"><span class="badge badge-info" style="font-size:0.85rem;">' + countryFlag + ' ' + countryName + '</span><span class="text-muted text-sm">' + methods.length + ' payment methods available</span></div>';
   html += '<div class="ev-deposit-method-grid">';
   methods.forEach(function(m){
     var isCrypto = m.kind === 'crypto';
@@ -924,7 +926,7 @@ function renderCryptoWallets() {
     box.innerHTML = '<div class="card" style="background:var(--warning-light,#fff8e1);padding:14px;border-radius:8px;">No crypto wallets configured yet. Please contact support or try another payment method.</div>';
     return;
   }
-  var html = '<div class="crypto-wallet-head"><span class="crypto-wallet-coin">\U0001f4b0 Cryptocurrency Deposit</span><span class="text-sm text-muted">Send the matching coin to the address below</span></div>';
+  var html = '<div class="crypto-wallet-head"><span class="crypto-wallet-coin">💰 Cryptocurrency Deposit</span><span class="text-sm text-muted">Send the matching coin to the address below</span></div>';
   html += '<div class="crypto-wallet-list">';
   wallets.forEach(function(w, idx){
     var safeAddr = w.address.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -932,7 +934,7 @@ function renderCryptoWallets() {
       '<div class="crypto-wallet-top"><span class="crypto-coin-badge">'+w.symbol+'</span><span class="crypto-coin-name">'+w.coin+'</span><span class="crypto-network-badge">'+w.network+'</span></div>'+
       '<div class="crypto-wallet-addr-row">'+
         '<code class="crypto-wallet-addr">'+w.address+'</code>'+
-        '<button type="button" class="crypto-copy-btn" data-addr="'+safeAddr+'" onclick="copyWalletAddrBtn(this)">\U0001f4cb Copy</button>'+
+        '<button type="button" class="crypto-copy-btn" data-addr="'+safeAddr+'" onclick="copyWalletAddrBtn(this)">📋 Copy</button>'+
       '</div>'+
       (w.note ? '<div class="crypto-wallet-note text-sm text-muted">'+w.note+'</div>' : '')+
     '</div>';
@@ -943,7 +945,7 @@ function renderCryptoWallets() {
 }
 function copyWalletAddrBtn(btn) {
   var addr = btn.getAttribute('data-addr') || '';
-  var done = function() { btn.textContent = '\u2705 Copied!'; setTimeout(function(){ btn.textContent = '\U0001f4cb Copy'; }, 1500); };
+  var done = function() { btn.textContent = '\u2705 Copied!'; setTimeout(function(){ btn.textContent = '📋 Copy'; }, 1500); };
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(addr).then(done).catch(function(){ fallbackCopy(addr); done(); });
   } else { fallbackCopy(addr); done(); }
